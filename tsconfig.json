@@ -1,0 +1,15 @@
+{
+  // Visit https://aka.ms/tsconfig to read more about this file
+  "compilerOptions": {
+    "disableSourceOfProjectReferenceRedirect": true,
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "./src/generated"
+    },
+    {
+      "path": "./src/interpreter"
+    }
+  ]
+}

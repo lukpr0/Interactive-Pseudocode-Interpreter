@@ -1,0 +1,12 @@
+
+SelectionSort(A)
+    for i in 0..A.length do
+        max := i
+        for j in i..A.length do
+            if A[j] > A[max] then
+                max := j
+            end
+        end
+        A[i], A[max] := A[max], A[i]
+    end
+end
