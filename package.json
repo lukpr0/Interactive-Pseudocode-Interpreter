@@ -1,0 +1,22 @@
+{
+  "name": "interpreter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/interpreter/dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "app": "node dist/interpreter/index.js",
+    "generate": "java -jar antlr-4.13.2-complete.jar -Dlanguage=JavaScript -visitor -no-listener -o ./src/generated PseudoLexer.g4 PseudoParser.g4"
+  },
+  "author": "Lukas Huber",
+  "license": "MIT",
+  "dependencies": {
+    "antlr4": "^4.13.2"
+  },
+  "type": "module",
+  "devDependencies": {
+    "@types/antlr4": "^4.11.6",
+    "@types/node": "^24.8.1",
+    "typescript": "^5.9.3"
+  }
+}

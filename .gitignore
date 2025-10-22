@@ -1,0 +1,9 @@
+node_modules
+**/.antlr
+src/generated/*
+!src/generated/tsconfig.json
+!src/generated/index.ts
+dist/**/*
+antlr-*.jar
+**/*.tsbuildinfo
+.vscode

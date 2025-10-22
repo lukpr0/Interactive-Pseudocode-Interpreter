@@ -1,0 +1,56 @@
+{
+  // Visit https://aka.ms/tsconfig to read more about this file
+  //"extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // File Layout
+    "rootDir": ".",
+    "outDir": "../../dist/generated",
+    "composite": true,
+    // Environment Settings
+    // See also https://aka.ms/tsconfig/module
+    "module": "es2022",
+    "target": "esnext",
+    //"types": [],
+    // For nodejs:
+    "lib": ["esnext"],
+    //"types": ["node"],
+    // and npm install -D @types/node
+
+    // Other Outputs
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+
+    // Stricter Typechecking Options
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": false,
+
+    // Style Options
+    // "noImplicitReturns": true,
+    // "noImplicitOverride": true,
+    // "noUnusedLocals": true,
+    // "noUnusedParameters": true,
+    // "noFallthroughCasesInSwitch": true,
+    // "noPropertyAccessFromIndexSignature": true,
+
+    "noImplicitAny": false,
+    "noImplicitReturns": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "suppressImplicitAnyIndexErrors": false,
+    "noEmitOnError": false,
+
+    // Recommended Options
+    "strict": true,
+    "jsx": "react-jsx",
+    
+    //some generated files import types that don't get translated, but typescript translates their imports anyways, better solution normaly would be type imports but not viable for generated files
+    "verbatimModuleSyntax": false, 
+    "isolatedModules": true,
+    "noUncheckedSideEffectImports": true,
+    "moduleDetection": "force",
+    "moduleResolution": "node",
+    "skipLibCheck": true,
+  },
+  "include": ["src", "PseudoParser.ts", "PseudoParserVisitor.ts", "PseudoLexer.ts", "index.ts"]
+}
