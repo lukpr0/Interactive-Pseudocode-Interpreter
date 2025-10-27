@@ -22,3 +22,23 @@ x := x - (t - x * x) / (-2 * x)
 x := x - (t - x * x) / (-2 * x)
 x := x - (t - x * x) / (-2 * x)
 x := x - (t - x * x) / (-2 * x)
+
+a := true 
+b := true 
+
+d := false
+e := a and b
+f := a and not b
+g := a
+h := not a and b
+i := b
+j := not a and b or a and not b
+k := a or b
+l := not (a or b)
+m := not a and not b or a and b
+n := not b
+o := a or not b
+p := not a
+q := not a or b
+r := not (a and b)
+s := true 

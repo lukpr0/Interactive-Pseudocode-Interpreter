@@ -28,6 +28,7 @@ expr
     | '-' expr                          # UnaryMinus
     | expr op=('*' | '/' | 'div' | 'mod') expr  # Multiplicative
     | expr op=('+' | '-') expr          # Additive
+    | expr op=('>' | '<' | '<=' | '>=' | '=' | '!=') expr # Comparison
     | expr op='and' expr                # LogicalAnd
     | expr op='or' expr                 # LogicalOr
     | '(' expr ')'                      # Parentheses

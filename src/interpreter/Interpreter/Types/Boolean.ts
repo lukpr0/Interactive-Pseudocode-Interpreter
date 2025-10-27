@@ -15,4 +15,12 @@ export default class Boolean {
         return new Boolean(this.value || right.value)
     }
 
+    equals(right: Boolean): Boolean {
+        return new Boolean(this.value == right.value)
+    }
+    
+    notEqual(right: Boolean): Boolean {
+        return new Boolean(this.value == right.value)
+    }
+
 }
