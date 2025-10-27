@@ -9,31 +9,19 @@ export default class Float {
     }
     
     add(right: Integer | Float): Integer | Float {
-        if (right instanceof Integer) {
-            return new Integer(this.value + right.value);
-        } else {
-            return new Float(this.value + right.value)
-        }
+        return new Float(this.value + Number(right.value));
     }
     
     sub(right: Integer | Float): Integer | Float {
-        if (right instanceof Integer) {
-            return new Integer(this.value - right.value);
-        } else {
-            return new Float(this.value - right.value)
-        }
+        return new Float(this.value - Number(right.value))
     }
 
     mult(right: Integer | Float): Integer | Float {
-        if (right instanceof Integer) {
-            return new Integer(this.value * right.value);
-        } else {
-            return new Float(this.value * right.value)
-        }
+        return new Float(this.value * Number(right.value))
     }
     
     div(right: Integer | Float): Float {
-        return new Float(this.value / right.value);
+        return new Float(this.value / Number(right.value));
     }
 
 }

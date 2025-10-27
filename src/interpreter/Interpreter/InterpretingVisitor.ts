@@ -87,7 +87,7 @@ export default class InterpretingVisitor implements Visitor<void> {
             const value = this.symbolTable.getVariable(expr.operand.text);
             this.stack.push(value);
         } else if (expr.operand.type == PseudoParser.INT) {
-            const value = new Integer(Number.parseInt(expr.operand.text));
+            const value = new Integer(BigInt(expr.operand.text));
             this.stack.push(value);
         } else if (expr.operand.type == PseudoParser.FLOAT) {
             const value = new Float(Number.parseFloat(expr.operand.text));
@@ -106,7 +106,7 @@ export default class InterpretingVisitor implements Visitor<void> {
             }
             if (expr.operator && expr.operator.type == PseudoParser.MINUS) {
                 if (fromStack.type == Type.Integer || fromStack.type == Type.Float) {
-                    this.stack.push(fromStack.mult(new Integer(-1)));
+                    this.stack.push(fromStack.mult(new Integer(-1n)));
                 } else {
                     throw new Error(`operator - incompatible with type ${fromStack.type}`)
                 }
