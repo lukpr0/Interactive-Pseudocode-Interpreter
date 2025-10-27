@@ -1,12 +1,13 @@
 {
   "name": "interpreter",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "",
   "main": "src/interpreter/dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "app": "node dist/interpreter/index.js",
-    "generate": "java -jar antlr-4.13.2-complete.jar -Dlanguage=JavaScript -visitor -no-listener -o ./src/generated PseudoLexer.g4 PseudoParser.g4"
+    "antlr": "java -jar antlr-4.13.2-complete.jar -Dlanguage=TypeScript -visitor -no-listener -o ./src/generated PseudoLexer.g4 PseudoParser.g4",
+    "build": "npm run antlr && npx tsc -b"
   },
   "author": "Lukas Huber",
   "license": "MIT",

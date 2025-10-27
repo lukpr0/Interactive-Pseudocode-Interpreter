@@ -1,0 +1,48 @@
+import { Token } from "antlr4";
+import type { AssignTree } from "./AssignTree.js";
+import { type ExprTree, BinaryOperationTree, UnaryOperationTree } from "./ExprTree.js";
+import type { ProgramTree } from "./ProgramTree.js";
+import type Visitor from "./Visitor.js";
+
+export default class ASTPrinter implements Visitor<string> {
+
+    private list: string[];
+
+    constructor() {
+        this.list = []
+    }
+
+    visitProgram(program: ProgramTree): string {
+        return `(program ${program.children.map(child => child.accept(this)).join(" ")})`;
+    }
+    visitAssign(assign: AssignTree): string {
+        return `(:= ${assign.id.text} ${assign.expr.accept(this)})`
+    }
+    visitExpr(expr: ExprTree): string {
+        if (expr instanceof BinaryOperationTree) {
+            return this.visitBinary(expr)
+        } else if (expr instanceof UnaryOperationTree) {
+            return this.visitUnary(expr)
+        } else return "ERROR"
+    }
+    visitBinary(expr: BinaryOperationTree): string {
+        const left = expr.left.accept(this);
+        const right = expr.right.accept(this);
+        const op = expr.operator.text;
+        return `(${op} ${left} ${right})`;
+    }
+    visitUnary(expr: UnaryOperationTree): string {
+        let operand;
+        if (expr.operand instanceof Token) {
+            operand = expr.operand.text;
+        } else {
+            operand = expr.operand.accept(this)
+        }
+        if (expr.operator) {
+            return `(${expr.operator.text} ${operand})`
+        } else  {
+            return operand
+        }
+    }
+    
+}

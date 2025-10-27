@@ -10,3 +10,15 @@ SelectionSort(A)
         A[i], A[max] := A[max], A[i]
     end
 end
+
+abc := 1 + 2 * 3
+d := abc * 5
+x := d div 2
+t := 22 / 7
+
+t := 2
+x := t
+x := x - (t - x * x) / (-2 * x)
+x := x - (t - x * x) / (-2 * x)
+x := x - (t - x * x) / (-2 * x)
+x := x - (t - x * x) / (-2 * x)
