@@ -1,5 +1,6 @@
 import Type from "../Type.js";
 import Float from "./Float.js";
+import Boolean from "./Boolean.js";
 
 export default class Integer {
     type: Type.Integer = Type.Integer;
@@ -42,6 +43,30 @@ export default class Integer {
 
     mod(right: Integer): Integer {
         return new Integer(this.value % right.value);
+    }
+
+    less(right: Integer | Float) {
+        return new Boolean(this.value < right.value);
+    }
+
+    lessEqual(right: Integer | Float) {
+        return new Boolean(this.value <= right.value);
+    }
+    
+    greater(right: Integer | Float) {
+        return new Boolean(this.value > right.value);
+    }
+
+    greaterEqual(right: Integer | Float) {
+        return new Boolean(this.value >= right.value);
+    }
+
+    equals(right: Integer | Float) {
+        return new Boolean(this.value == right.value);
+    }
+
+    notEqual(right: Integer | Float) {
+        return new Boolean(this.value != right.value);
     }
 
 }

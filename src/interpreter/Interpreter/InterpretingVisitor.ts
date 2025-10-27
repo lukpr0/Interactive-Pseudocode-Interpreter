@@ -74,6 +74,24 @@ export default class InterpretingVisitor implements Visitor<void> {
             case PseudoParser.OR:
                 result = this.handleOr(left, right);
                 break;
+            case PseudoParser.LESSTHAN:
+                result = this.handleLess(left, right)
+                break;
+            case PseudoParser.GREATERTHAN:
+                result = this.handleGreater(left, right)
+                break;
+            case PseudoParser.LESSEQUAL:
+                result = this.handleLessEqual(left, right)
+                break;
+            case PseudoParser.GREATEREQUAL:
+                result = this.handleGreaterEqual(left, right)
+                break;
+            case PseudoParser.EQUALS:
+                result = this.handleEquals(left, right)
+                break;
+            case PseudoParser.NOTEQUAL:
+                result = this.handleNotEqual(left, right)
+                break;
             default:
                 throw new Error("no valid operator found")
         }
@@ -97,7 +115,6 @@ export default class InterpretingVisitor implements Visitor<void> {
             const value = new Boolean(isTrue);
             this.stack.push(value);
         }
-
 
         if (expr.operator) {
             const fromStack = this.stack.pop();
@@ -127,6 +144,7 @@ export default class InterpretingVisitor implements Visitor<void> {
             throw new Error(errorMessage);
         }
     }
+
     private handleMinus(left: Value, right: Value): Value {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.sub(right);
@@ -191,5 +209,62 @@ export default class InterpretingVisitor implements Visitor<void> {
         }
     }
 
+    private handleLess(left: Value, right: Value): Value {
+        if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
+            return left.less(right);
+        } else {
+            const errorMessage = `incompatible types for operator < : ${left.type}, ${right.type}`;
+            throw new Error(errorMessage);
+        }
+    }
+
+    private handleGreater(left: Value, right: Value): Value {
+        if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
+            return left.greater(right);
+        } else {
+            const errorMessage = `incompatible types for operator > : ${left.type}, ${right.type}`;
+            throw new Error(errorMessage);
+        }
+    }
+
+    private handleLessEqual(left: Value, right: Value): Value {
+        if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
+            return left.lessEqual(right);
+        } else {
+            const errorMessage = `incompatible types for operator <= : ${left.type}, ${right.type}`;
+            throw new Error(errorMessage);
+        }
+    }
+
+    private handleGreaterEqual(left: Value, right: Value): Value {
+        if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
+            return left.greaterEqual(right);
+        } else {
+            const errorMessage = `incompatible types for operator >= : ${left.type}, ${right.type}`;
+            throw new Error(errorMessage);
+        }
+    }
+
+    private handleEquals(left: Value, right: Value): Value {
+        if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
+            return left.equals(right);
+        } else if (left.type == Type.Boolean && right.type == Type.Boolean) {
+            return left.equals(right)
+        } else {
+            const errorMessage = `incompatible types for operator = : ${left.type}, ${right.type}`;
+            throw new Error(errorMessage);
+        }
+    }
+
+    private handleNotEqual(left: Value, right: Value): Value {
+        if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
+            return left.notEqual(right);
+        } else if (left.type == Type.Boolean && right.type == Type.Boolean) {
+            return left.notEqual(right)
+        } else {
+            const errorMessage = `incompatible types for operator != : ${left.type}, ${right.type}`;
+            throw new Error(errorMessage);
+        }
+    }
 
 }

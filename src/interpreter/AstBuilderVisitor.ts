@@ -1,5 +1,5 @@
 import { Token } from 'antlr4';
-import { AdditiveContext, AssignstatContext, BoolLiteralContext, ExprContext, FloatLiteralContext, IdLiteralContext, IntLiteralContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, StatContext, UnaryMinusContext } from '../generated/index.js';
+import { AdditiveContext, AssignstatContext, BoolLiteralContext, ComparisonContext, ExprContext, FloatLiteralContext, IdLiteralContext, IntLiteralContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, StatContext, UnaryMinusContext } from '../generated/index.js';
 import AbstractSyntaxTree from './AST/AbstractTree.js';
 import SymbolTable from './Interpreter/SymbolTable.js';
 import type Tree from './AST/Tree.js';
@@ -136,9 +136,39 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             throw new Error("incompatible type detected")
         }
 
+        this.visitComparison = (ctx: ComparisonContext): Tree => {
+            if (!ctx.children) {
+                throw new Error();
+            }
+            let op;
+            switch (ctx._op.type) {
+                case PseudoParser.LESSTHAN:
+                    op = ctx.LESSTHAN();
+                    break;
+                case PseudoParser.GREATERTHAN:
+                    op = ctx.GREATERTHAN();
+                    break;
+                case PseudoParser.LESSEQUAL:
+                    op = ctx.LESSEQUAL();
+                    break;
+                case PseudoParser.GREATEREQUAL:
+                    op = ctx.GREATEREQUAL();
+                    break;
+                case PseudoParser.EQUALS:
+                    op = ctx.EQUALS();
+                    break;
+                case PseudoParser.NOTEQUAL:
+                    op = ctx.NOTEQUAL()
+                    break;
+                default:
+                    throw new Error();
+            }
+            return this.buildBinaryExpr(op.symbol, ctx);
+        }
+
     }
 
-    private buildBinaryExpr(op: Token, ctx: AdditiveContext | MultiplicativeContext | LogicalAndContext | LogicalOrContext): Tree {
+    private buildBinaryExpr(op: Token, ctx: AdditiveContext | MultiplicativeContext | LogicalAndContext | LogicalOrContext | ComparisonContext): Tree {
             const left = ctx.expr_list()[0]
             if (!left) {
                 throw new Error();
