@@ -33,6 +33,7 @@ STAR: '*';
 SLASH: '/';
 COLON: ':';
 DIV: 'div';
+MOD: 'mod';
 
 LESSTHAN: '<';
 GREATERTHAN: '>';
@@ -44,6 +45,10 @@ TRUE: 'true';
 FALSE: 'false';
 
 INT : [0-9]+ ;
+FLOAT
+    : [0-9]* '.' [0-9]+ 
+    | [0-9]+ '.' [0-9]*
+    ;
 
 NEWLINE: '\r'?'\n' ;
 
