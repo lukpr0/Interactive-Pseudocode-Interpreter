@@ -1,6 +1,8 @@
 import type { AssignTree } from "./AssignTree.js";
 import type { BinaryOperationTree, ExprTree, UnaryOperationTree } from "./ExprTree.js";
 import type { ProgramTree } from "./ProgramTree.js";
+import type StatListTree from "./StatListTree.js";
+import type WhileTree from "./WhileTree.js";
 
 export default interface Visitor<T> {
     visitProgram(program: ProgramTree): T;
@@ -8,4 +10,6 @@ export default interface Visitor<T> {
     visitExpr(expr: ExprTree): T;
     visitBinary(expr: BinaryOperationTree): T;
     visitUnary(expr: UnaryOperationTree): T;
+    visitStatlist(expr: StatListTree): T;
+    visitWhile(expr: WhileTree): T;
 }

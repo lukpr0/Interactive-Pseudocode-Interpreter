@@ -3,6 +3,8 @@ import type { AssignTree } from "./AssignTree.js";
 import { type ExprTree, BinaryOperationTree, UnaryOperationTree } from "./ExprTree.js";
 import type { ProgramTree } from "./ProgramTree.js";
 import type Visitor from "./Visitor.js";
+import type WhileTree from "./WhileTree.js";
+import type StatListTree from "./StatListTree.js";
 
 export default class ASTPrinter implements Visitor<string> {
 
@@ -43,6 +45,18 @@ export default class ASTPrinter implements Visitor<string> {
         } else  {
             return operand
         }
+    }
+    visitWhile(expr: WhileTree): string {
+        const cond = expr.cond.accept(this);
+        const list = expr.children.accept(this);
+        return `(while ${cond} (${list}))`
+    }
+    visitStatlist(expr: StatListTree): string {
+        const statlist = expr.stats
+            .map(stat => stat
+                .accept(this))
+            .join(" ");
+        return `(${statlist})`
     }
     
 }

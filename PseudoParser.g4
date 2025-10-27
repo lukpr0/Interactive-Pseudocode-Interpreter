@@ -11,8 +11,8 @@ programstat
     ;
 
 stat
-    : assignstat
-    | expr (NEWLINE | EOF)
+    : assignstat                        # AssignStat
+    | whilestat                         # WhileStat
     ;
 
 statlist
@@ -38,3 +38,6 @@ assignstat
     : IDENTIFIER ':=' expr NEWLINE
     ;
 
+whilestat
+    : 'while' expr 'do' NEWLINE? statlist 'end'
+    ;

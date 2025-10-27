@@ -9,6 +9,8 @@ import Type from "./Type.js";
 import Integer from "./Types/Integer.js";
 import Float from "./Types/Float.js";
 import Boolean from "./Types/Boolean.js";
+import type WhileTree from "../AST/WhileTree.js";
+import type StatListTree from "../AST/StatListTree.js";
 
 export default class InterpretingVisitor implements Visitor<void> {
     symbolTable: SymbolTable;
@@ -17,6 +19,12 @@ export default class InterpretingVisitor implements Visitor<void> {
     constructor(symbolTable: SymbolTable) {
         this.symbolTable = symbolTable;
         this.stack = []
+    }
+
+    visitStatlist(expr: StatListTree): void {
+        for (const stat of expr.stats) {
+            stat.accept(this)
+        }
     }
 
     visitProgram(program: ProgramTree): void {
@@ -134,6 +142,22 @@ export default class InterpretingVisitor implements Visitor<void> {
             }
         }
 
+    }
+    
+    visitWhile(expr: WhileTree): void {
+        loop: while(true) {
+            expr.cond.accept(this);
+            const fromStack = this.stack.pop();
+            if (fromStack instanceof Boolean) {
+                if (fromStack.value) {
+                    expr.children.accept(this)
+                } else {
+                    break loop;
+                }
+            } else {
+                throw new Error("While-loop needs boolean expression");
+            }
+        } 
     }
 
     private handlePlus(left: Value, right: Value): Value {

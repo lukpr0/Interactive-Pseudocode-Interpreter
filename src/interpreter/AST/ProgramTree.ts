@@ -1,4 +1,3 @@
-import type { AssignTree } from "./AssignTree.js";
 import type Tree from "./Tree.js";
 import type Visitor from "./Visitor.js";
 
