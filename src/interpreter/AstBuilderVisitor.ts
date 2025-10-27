@@ -1,11 +1,12 @@
 import { Token } from 'antlr4';
-import { AdditiveContext, AssignstatContext, BoolLiteralContext, ComparisonContext, ExprContext, FloatLiteralContext, IdLiteralContext, IntLiteralContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, StatContext, UnaryMinusContext } from '../generated/index.js';
-import AbstractSyntaxTree from './AST/AbstractTree.js';
+import { AdditiveContext, AssignStatContext, AssignstatContext, BoolLiteralContext, ComparisonContext, ExprContext, FloatLiteralContext, IdLiteralContext, IntLiteralContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, StatContext, StatlistContext, UnaryMinusContext, WhileStatContext, WhilestatContext } from '../generated/index.js';
 import SymbolTable from './Interpreter/SymbolTable.js';
 import type Tree from './AST/Tree.js';
 import { ProgramTree } from './AST/ProgramTree.js';
 import { AssignTree } from './AST/AssignTree.js';
 import { BinaryOperationTree, ExprTree, UnaryOperationTree } from './AST/ExprTree.js';
+import WhileTree from './AST/WhileTree.js';
+import StatListTree from './AST/StatListTree.js';
 
 export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
 
@@ -34,16 +35,9 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             throw new Error()
         }
 
-        this.visitStat = (ctx: StatContext): Tree => {
+        this.visitAssignStat = (ctx: AssignStatContext): Tree => {
             const assignstat = ctx.assignstat();
-            if (assignstat) {
-                return this.visit(assignstat)
-            }
-            const expr = ctx.expr();
-            if (expr) {
-                return this.visit(expr);
-            }
-            throw new Error()
+            return this.visit(assignstat)
         }
 
         this.visitAssignstat = (ctx: AssignstatContext): Tree => {
@@ -57,6 +51,11 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
                 return tree;
             }
             throw new Error("incompatible type detected")
+        }
+
+        this.visitWhileStat = (ctx: WhileStatContext): Tree => {
+            const whilestat = ctx.whilestat();
+            return this.visit(whilestat);
         }
 
         this.visitAdditive = (ctx: AdditiveContext): Tree => {
@@ -164,6 +163,30 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
                     throw new Error();
             }
             return this.buildBinaryExpr(op.symbol, ctx);
+        }
+
+        this.visitStatlist = (ctx: StatlistContext): StatListTree => {
+            const stats = []
+            for (const stat of ctx.stat_list()) {
+                if (stat instanceof AssignStatContext || stat instanceof WhileStatContext) {
+                    const t = stat.accept(this);
+                    stats.push(t);
+                } else {
+                    throw new Error();
+                }
+            }
+            return new StatListTree(stats)
+        }
+
+        this.visitWhilestat = (ctx: WhilestatContext): Tree => {
+            const cond = this.visit(ctx.expr());
+            const list = this.visit(ctx.statlist());
+            if (list instanceof StatListTree) {
+                const whileTree = new WhileTree(cond, list);
+                return whileTree;
+            } else {
+                throw new Error("Unexpected subtree")
+            }
         }
 
     }
