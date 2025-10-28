@@ -14,6 +14,7 @@ stat
     : assignstat                        # AssignStat
     | whilestat                         # WhileStat
     | repeatstat                        # RepeatStat
+    | ifstat                            # IfStat
     ;
 
 statlist
@@ -45,4 +46,12 @@ whilestat
 
 repeatstat
     : 'repeat' statlist 'until' expr NEWLINE?
+    ;
+
+ifstat
+    : ifhead statlist ('else' ifhead statlist)* ('else' NEWLINE? statlist)? 'end'
+    ;
+
+ifhead
+    : 'if' expr 'then' NEWLINE?
     ;

@@ -12,6 +12,7 @@ import Boolean from "./Types/Boolean.js";
 import type WhileTree from "../AST/WhileTree.js";
 import type StatListTree from "../AST/StatListTree.js";
 import type RepeatUntilTree from "../AST/RepeatUntil.js";
+import type IfTree from "../AST/IfTree.js";
 
 export default class InterpretingVisitor implements Visitor<void> {
     symbolTable: SymbolTable;
@@ -150,7 +151,7 @@ export default class InterpretingVisitor implements Visitor<void> {
             expr.cond.accept(this);
             const fromStack = this.stack.pop();
             if (!(fromStack instanceof Boolean)) {
-                throw new Error("While-loop needs boolean expression");
+                throw new Error("While-loop requires boolean expression");
             }
             if (fromStack.value) {
                 expr.list.accept(this);
@@ -166,11 +167,33 @@ export default class InterpretingVisitor implements Visitor<void> {
             expr.cond.accept(this);
             const fromStack = this.stack.pop();
             if (!(fromStack instanceof Boolean)) {
-                throw new Error("Repeat-Until need boolean expression")
+                throw new Error("Repeat-Until requires boolean expression")
             }
             if (fromStack.value) {
                 break;
             }
+        }
+    }
+
+    visitIf(expr: IfTree): void {
+        let branchExecuted = false;
+        for (let i = 0; i < expr.conditions.length; i++) {
+            const cond = expr.conditions[i];
+            const list = expr.lists[i];
+            cond?.accept(this)
+            const fromStack = this.stack.pop();
+
+            if (!(fromStack instanceof Boolean)) {
+                throw new Error("If-Statement requires boolean expression")
+            }
+            if (fromStack.value) {
+                branchExecuted = true;
+                list?.accept(this);
+            }
+        }
+
+        if (!branchExecuted && expr.lists.length > expr.conditions.length) {
+            expr.lists[expr.lists.length-1]?.accept(this);
         }
     }
 

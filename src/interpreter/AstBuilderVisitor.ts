@@ -1,5 +1,5 @@
 import { Token } from 'antlr4';
-import { AdditiveContext, AssignStatContext, AssignstatContext, BoolLiteralContext, ComparisonContext, ExprContext, FloatLiteralContext, IdLiteralContext, IntLiteralContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RepeatStatContext, RepeatstatContext, StatContext, StatlistContext, UnaryMinusContext, WhileStatContext, WhilestatContext } from '../generated/index.js';
+import { AdditiveContext, AssignStatContext, AssignstatContext, BoolLiteralContext, ComparisonContext, ExprContext, FloatLiteralContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IntLiteralContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RepeatStatContext, RepeatstatContext, StatContext, StatlistContext, UnaryMinusContext, WhileStatContext, WhilestatContext } from '../generated/index.js';
 import SymbolTable from './Interpreter/SymbolTable.js';
 import type Tree from './AST/Tree.js';
 import { ProgramTree } from './AST/ProgramTree.js';
@@ -8,6 +8,7 @@ import { BinaryOperationTree, ExprTree, UnaryOperationTree } from './AST/ExprTre
 import WhileTree from './AST/WhileTree.js';
 import StatListTree from './AST/StatListTree.js';
 import RepeatUntilTree from './AST/RepeatUntil.js';
+import IfTree from './AST/IfTree.js';
 
 export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
 
@@ -30,7 +31,7 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             if (stat) {
                 return this.visit(stat)
             }
-            throw new Error()
+            throw new Error("Expected statement, found nothing")
         }
 
         this.visitAssignStat = (ctx: AssignStatContext): Tree => {
@@ -40,7 +41,7 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
 
         this.visitAssignstat = (ctx: AssignstatContext): Tree => {
             if (!ctx.children) {
-                throw new Error();
+                throw new Error("Expected statements, found nothing");
             }
             const expr = ctx.expr()
             const child = this.visit(expr);
@@ -61,9 +62,14 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             return this.visit(repeatstat)
         }
 
+        this.visitIfStat = (ctx: IfStatContext): Tree => {
+            const ifstat = ctx.ifstat();
+            return this.visit(ifstat);
+        }
+
         this.visitAdditive = (ctx: AdditiveContext): Tree => {
             if (!ctx.children) {
-                throw new Error();
+                throw new Error("Expected operands, found nothing");
             }
             const op = ctx._op.type == PseudoParser.PLUS ? ctx.PLUS() : ctx.MINUS()
 
@@ -72,7 +78,7 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
 
         this.visitMultiplicative = (ctx: MultiplicativeContext): Tree => {
             if (!ctx.children) {
-                throw new Error();
+                throw new Error("Expected operands, found nothing");
             }
             let op;
             switch (ctx._op.type) {
@@ -85,8 +91,11 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
                 case PseudoParser.DIV:
                     op = ctx.DIV();
                     break;
+                case PseudoParser.MOD:
+                    op = ctx.MOD();
+                    break;
                 default:
-                    throw new Error();
+                    throw new Error("Unexpected operand found: " + ctx._op.text);
             }
             return this.buildBinaryExpr(op.symbol, ctx);
         }
@@ -140,7 +149,7 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
 
         this.visitComparison = (ctx: ComparisonContext): Tree => {
             if (!ctx.children) {
-                throw new Error();
+                throw new Error("Expected Operands, found nothing");
             }
             let op;
             switch (ctx._op.type) {
@@ -163,7 +172,7 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
                     op = ctx.NOTEQUAL()
                     break;
                 default:
-                    throw new Error();
+                    throw new Error("Unexpected operator found: " + ctx._op.text);
             }
             return this.buildBinaryExpr(op.symbol, ctx);
         }
@@ -171,11 +180,11 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
         this.visitStatlist = (ctx: StatlistContext): StatListTree => {
             const stats = []
             for (const stat of ctx.stat_list()) {
-                if (stat instanceof AssignStatContext || stat instanceof WhileStatContext || stat instanceof RepeatStatContext) {
+                if (stat instanceof AssignStatContext || stat instanceof WhileStatContext || stat instanceof RepeatStatContext || stat instanceof IfStatContext) {
                     const t = stat.accept(this);
                     stats.push(t);
                 } else {
-                    throw new Error();
+                    throw new Error("Unexpected statement found");
                 }
             }
             return new StatListTree(stats)
@@ -203,16 +212,43 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             }
         }
 
+        this.visitIfstat = (ctx: IfstatContext): Tree => {
+            const conditions = [];
+            const lists: StatListTree[] = [];
+
+            const condCount = ctx.ifhead_list().length;
+            const listCount = ctx.statlist_list().length;
+
+            for (let i = 0; i < ctx.ifhead_list().length; i++) {
+                const condition = this.visit(ctx.ifhead_list()[i]!.expr());
+                const list = this.visit(ctx.statlist_list()[i]!);
+                if (!(list instanceof StatListTree)) {
+                    throw new Error("Unexpected subtree");
+                }
+                conditions.push(condition);
+                lists.push(list);
+            }
+
+            if (condCount < listCount) {
+                const list = this.visit(ctx.statlist_list()[listCount-1]!);
+                if (!(list instanceof StatListTree)) {
+                    throw new Error("Unexpected subtree");
+                }
+                lists.push(list);
+            }
+
+            return new IfTree(conditions, lists)
+        }
     }
 
     private buildBinaryExpr(op: Token, ctx: AdditiveContext | MultiplicativeContext | LogicalAndContext | LogicalOrContext | ComparisonContext): Tree {
         const left = ctx.expr_list()[0]
         if (!left) {
-            throw new Error();
+            throw new Error("Expected operand, found nothing");
         }
         const right = ctx.expr_list()[1]
         if (!right) {
-            throw new Error();
+            throw new Error("Expected operand, found nothing");
         }
         const leftTree = this.visit(left)
         const rightTree = this.visit(right)
