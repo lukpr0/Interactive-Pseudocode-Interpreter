@@ -1,68 +1,8 @@
 
-SelectionSort(A)
-    for i in 0..A.length do
-        max := i
-        for j in i..A.length do
-            if A[j] > A[max] then
-                max := j
-            end
-        end
-        A[i], A[max] := A[max], A[i]
-    end
-end
+i := 1
+s := 0
 
-abc := 1 + 2 * 3
-d := abc * 5
-x := d div 2
-t := 22 / 7
-
-t := 2
-x := t
-x := x - (t - x * x) / (-2 * x)
-x := x - (t - x * x) / (-2 * x)
-x := x - (t - x * x) / (-2 * x)
-x := x - (t - x * x) / (-2 * x)
-
-a := true 
-b := true 
-
-d := false
-e := a and b
-f := a and not b
-g := a
-h := not a and b
-i := b
-j := not a and b or a and not b
-k := a or b
-l := not (a or b)
-m := not a and not b or a and b
-n := not b
-o := a or not b
-p := not a
-q := not a or b
-r := not (a and b)
-s := true 
-
-
-
-a := 1 < 2
-b := 2 < 1
-c := 1 > 2
-d := 2 > 1
-e := 1 <= 2
-f := 1 >= 2
-g := 1 <= 1
-h := 1 >= 1
-i := 1 = 2
-j := 1 = 1
-k := 1 != 1
-l := 1 != 2
-
-x := true
-y := false
-
-z := x != x
-w := x != y
-
-s := x = y
-t := x = y
+repeat
+    s := s + i
+    i := i + 1
+until s > 50
