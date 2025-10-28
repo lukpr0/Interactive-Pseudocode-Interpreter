@@ -145,17 +145,16 @@ export default class InterpretingVisitor implements Visitor<void> {
     }
     
     visitWhile(expr: WhileTree): void {
-        loop: while(true) {
+        while(true) {
             expr.cond.accept(this);
             const fromStack = this.stack.pop();
-            if (fromStack instanceof Boolean) {
-                if (fromStack.value) {
-                    expr.children.accept(this)
-                } else {
-                    break loop;
-                }
-            } else {
+            if (!(fromStack instanceof Boolean)) {
                 throw new Error("While-loop needs boolean expression");
+            }
+            if (fromStack.value) {
+                expr.list.accept(this);
+            } else {
+                break;
             }
         } 
     }
