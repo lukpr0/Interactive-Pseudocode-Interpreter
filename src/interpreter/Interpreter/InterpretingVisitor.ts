@@ -11,6 +11,7 @@ import Float from "./Types/Float.js";
 import Boolean from "./Types/Boolean.js";
 import type WhileTree from "../AST/WhileTree.js";
 import type StatListTree from "../AST/StatListTree.js";
+import type RepeatUntilTree from "../AST/RepeatUntil.js";
 
 export default class InterpretingVisitor implements Visitor<void> {
     symbolTable: SymbolTable;
@@ -157,6 +158,20 @@ export default class InterpretingVisitor implements Visitor<void> {
                 break;
             }
         } 
+    }
+
+    visitRepeat(expr: RepeatUntilTree): void {
+        while (true) {
+            expr.list.accept(this);
+            expr.cond.accept(this);
+            const fromStack = this.stack.pop();
+            if (!(fromStack instanceof Boolean)) {
+                throw new Error("Repeat-Until need boolean expression")
+            }
+            if (fromStack.value) {
+                break;
+            }
+        }
     }
 
     private handlePlus(left: Value, right: Value): Value {

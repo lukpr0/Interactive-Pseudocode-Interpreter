@@ -5,17 +5,16 @@ import type { ProgramTree } from "./ProgramTree.js";
 import type Visitor from "./Visitor.js";
 import type WhileTree from "./WhileTree.js";
 import type StatListTree from "./StatListTree.js";
+import type RepeatUntilTree from "./RepeatUntil.js";
 
 export default class ASTPrinter implements Visitor<string> {
 
-    private list: string[];
-
-    constructor() {
-        this.list = []
-    }
+    constructor() {}
 
     visitProgram(program: ProgramTree): string {
-        return `(program ${program.children.map(child => child.accept(this)).join(" ")})`;
+        return `(program ${program.children.map(child => {
+            return child.accept(this);
+        }).join(" ")})`;
     }
     visitAssign(assign: AssignTree): string {
         return `(:= ${assign.id.text} ${assign.expr.accept(this)})`
@@ -46,17 +45,24 @@ export default class ASTPrinter implements Visitor<string> {
             return operand
         }
     }
-    visitWhile(expr: WhileTree): string {
-        const cond = expr.cond.accept(this);
-        const list = expr.children.accept(this);
-        return `(while ${cond} (${list}))`
-    }
+
     visitStatlist(expr: StatListTree): string {
         const statlist = expr.stats
             .map(stat => stat
                 .accept(this))
             .join(" ");
-        return `(${statlist})`
+        return `(${statlist})`;
     }
-    
+
+    visitWhile(expr: WhileTree): string {
+        const cond = expr.cond.accept(this);
+        const list = expr.list.accept(this);
+        return `(while ${cond} (${list}))`;
+    }
+
+    visitRepeat(expr: RepeatUntilTree): string {
+        const cond = expr.cond.accept(this);
+        const list = expr.list.accept(this);
+        return `(repeat ${cond} (${list}))`;
+    }
 }

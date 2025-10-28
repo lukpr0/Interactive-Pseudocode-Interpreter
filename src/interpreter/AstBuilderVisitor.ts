@@ -1,5 +1,5 @@
 import { Token } from 'antlr4';
-import { AdditiveContext, AssignStatContext, AssignstatContext, BoolLiteralContext, ComparisonContext, ExprContext, FloatLiteralContext, IdLiteralContext, IntLiteralContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, StatContext, StatlistContext, UnaryMinusContext, WhileStatContext, WhilestatContext } from '../generated/index.js';
+import { AdditiveContext, AssignStatContext, AssignstatContext, BoolLiteralContext, ComparisonContext, ExprContext, FloatLiteralContext, IdLiteralContext, IntLiteralContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RepeatStatContext, RepeatstatContext, StatContext, StatlistContext, UnaryMinusContext, WhileStatContext, WhilestatContext } from '../generated/index.js';
 import SymbolTable from './Interpreter/SymbolTable.js';
 import type Tree from './AST/Tree.js';
 import { ProgramTree } from './AST/ProgramTree.js';
@@ -7,14 +7,12 @@ import { AssignTree } from './AST/AssignTree.js';
 import { BinaryOperationTree, ExprTree, UnaryOperationTree } from './AST/ExprTree.js';
 import WhileTree from './AST/WhileTree.js';
 import StatListTree from './AST/StatListTree.js';
+import RepeatUntilTree from './AST/RepeatUntil.js';
 
 export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
 
-    symbolTable: SymbolTable
-
-    constructor(symbolTable: SymbolTable) {
+    constructor() {
         super();
-        this.symbolTable = symbolTable;
 
         this.visitProgram = (ctx: ProgramContext): Tree => {
             const trees = [];
@@ -56,6 +54,11 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
         this.visitWhileStat = (ctx: WhileStatContext): Tree => {
             const whilestat = ctx.whilestat();
             return this.visit(whilestat);
+        }
+
+        this.visitRepeatStat = (ctx: RepeatStatContext): Tree => {
+            const repeatstat = ctx.repeatstat();
+            return this.visit(repeatstat)
         }
 
         this.visitAdditive = (ctx: AdditiveContext): Tree => {
@@ -168,7 +171,7 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
         this.visitStatlist = (ctx: StatlistContext): StatListTree => {
             const stats = []
             for (const stat of ctx.stat_list()) {
-                if (stat instanceof AssignStatContext || stat instanceof WhileStatContext) {
+                if (stat instanceof AssignStatContext || stat instanceof WhileStatContext || stat instanceof RepeatStatContext) {
                     const t = stat.accept(this);
                     stats.push(t);
                 } else {
@@ -185,28 +188,39 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
                 const whileTree = new WhileTree(cond, list);
                 return whileTree;
             } else {
-                throw new Error("Unexpected subtree")
+                throw new Error("Unexpected subtree");
+            }
+        }
+
+        this.visitRepeatstat = (ctx: RepeatstatContext): Tree => {
+            const cond = this.visit(ctx.expr());
+            const list = this.visit(ctx.statlist());
+            if (list instanceof StatListTree) {
+                const repeatTree = new RepeatUntilTree(cond, list);
+                return repeatTree;
+            } else {
+                throw new Error("Unexpected subtree");
             }
         }
 
     }
 
     private buildBinaryExpr(op: Token, ctx: AdditiveContext | MultiplicativeContext | LogicalAndContext | LogicalOrContext | ComparisonContext): Tree {
-            const left = ctx.expr_list()[0]
-            if (!left) {
-                throw new Error();
-            }
-            const right = ctx.expr_list()[1]
-            if (!right) {
-                throw new Error();
-            }
-            const leftTree = this.visit(left)
-            const rightTree = this.visit(right)
-            if (leftTree instanceof ExprTree && rightTree instanceof ExprTree) {
-                const tree = new BinaryOperationTree(op, leftTree, rightTree);
-                return tree;
-            }
-            throw new Error("incompatible type detected")
+        const left = ctx.expr_list()[0]
+        if (!left) {
+            throw new Error();
+        }
+        const right = ctx.expr_list()[1]
+        if (!right) {
+            throw new Error();
+        }
+        const leftTree = this.visit(left)
+        const rightTree = this.visit(right)
+        if (leftTree instanceof ExprTree && rightTree instanceof ExprTree) {
+            const tree = new BinaryOperationTree(op, leftTree, rightTree);
+            return tree;
+        }
+        throw new Error("incompatible type detected")
     }
 }
 

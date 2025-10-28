@@ -13,6 +13,7 @@ programstat
 stat
     : assignstat                        # AssignStat
     | whilestat                         # WhileStat
+    | repeatstat                        # RepeatStat
     ;
 
 statlist
@@ -40,4 +41,8 @@ assignstat
 
 whilestat
     : 'while' expr 'do' NEWLINE? statlist 'end'
+    ;
+
+repeatstat
+    : 'repeat' statlist 'until' expr NEWLINE?
     ;
