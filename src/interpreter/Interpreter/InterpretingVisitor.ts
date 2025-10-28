@@ -13,6 +13,10 @@ import type WhileTree from "../AST/WhileTree.js";
 import type StatListTree from "../AST/StatListTree.js";
 import type RepeatUntilTree from "../AST/RepeatUntil.js";
 import type IfTree from "../AST/IfTree.js";
+import type ForTree from "../AST/ForTree.js";
+import type IteratorTree from "../AST/IteratorTree.js";
+import type RangeTree from "../AST/RangeTree.js";
+import Range from "./Range.js";
 
 export default class InterpretingVisitor implements Visitor<void> {
     symbolTable: SymbolTable;
@@ -194,6 +198,43 @@ export default class InterpretingVisitor implements Visitor<void> {
 
         if (!branchExecuted && expr.lists.length > expr.conditions.length) {
             expr.lists[expr.lists.length-1]?.accept(this);
+        }
+    }
+
+    visitFor(expr: ForTree): void {
+        expr.cond.accept(this)
+        const iter = this.stack.pop()
+        if (iter === undefined) {
+            throw new Error("No value found");
+        }
+        if (iter.type != Type.Iterator) {
+            throw new Error("Unexpected value, expected iterator");
+        }
+        const variableName = expr.cond.id.text;
+        while (iter.hasNext()) {
+            const value = iter.next();
+            this.symbolTable.setVariable(variableName, value);
+            expr.list.accept(this);
+        }
+    }
+
+    visitIterator(expr: IteratorTree): void {
+        expr.iterator.accept(this);
+    }
+
+    visitRange(expr: RangeTree): void {
+        expr.from.accept(this);
+        expr.to.accept(this);
+        const to = this.stack.pop()
+        const from = this.stack.pop()
+        if (to === undefined || from === undefined) {
+            throw new Error("left or right operand missing")
+        }
+        if (from.type == Type.Integer && to.type == Type.Integer) {
+            const range = new Range(from.value, to.value, expr.inclusive)
+            this.stack.push(range)
+        } else {
+            throw new Error(`incompatible types for range ${from.type} ${to.type}`)
         }
     }
 

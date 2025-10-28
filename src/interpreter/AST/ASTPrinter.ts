@@ -7,6 +7,9 @@ import type WhileTree from "./WhileTree.js";
 import type StatListTree from "./StatListTree.js";
 import type RepeatUntilTree from "./RepeatUntil.js";
 import type IfTree from "./IfTree.js";
+import type ForTree from "./ForTree.js";
+import type RangeTree from "./RangeTree.js";
+import type IteratorTree from "./IteratorTree.js";
 
 export default class ASTPrinter implements Visitor<string> {
 
@@ -84,6 +87,22 @@ export default class ASTPrinter implements Visitor<string> {
         }
 
         return alts.join(" else ");
+    }
+
+    visitFor(expr: ForTree): string {
+        const iter = expr.cond.accept(this)
+        const list = expr.list.accept(this)
+        return `(for ${iter} ${list})`
+    }
+
+    visitIterator(expr: IteratorTree): string {
+        const id = expr.id;
+        const iterated = expr.iterator.accept(this)
+        return `(iter ${id.text} ${iterated})`
+    }
+
+    visitRange(expr: RangeTree): string {
+        return `(range ${expr.from.accept(this)} ${expr.to.accept(this)} ${expr.inclusive ? 'inclusive' : ''})`
     }
 
 }

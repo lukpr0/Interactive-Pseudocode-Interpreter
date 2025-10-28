@@ -15,6 +15,7 @@ stat
     | whilestat                         # WhileStat
     | repeatstat                        # RepeatStat
     | ifstat                            # IfStat
+    | forstat                           # ForStat
     ;
 
 statlist
@@ -24,7 +25,7 @@ statlist
 expr
     : INT                               # IntLiteral
     | FLOAT                             # FloatLiteral
-    | value=('true' | 'false')                # BoolLiteral
+    | value=('true' | 'false')          # BoolLiteral
     | IDENTIFIER                        # IdLiteral
     | 'not' expr                        # Negation
     | '-' expr                          # UnaryMinus
@@ -54,4 +55,16 @@ ifstat
 
 ifhead
     : 'if' expr 'then' NEWLINE?
+    ;
+
+forstat
+    : 'for' iterator 'do' NEWLINE? statlist 'end'
+    ;
+
+iterator
+    : IDENTIFIER 'in' range
+    ;
+
+range
+    : expr '..' '='? expr
     ;

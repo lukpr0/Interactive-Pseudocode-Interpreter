@@ -1,6 +1,5 @@
 import { Token } from 'antlr4';
-import { AdditiveContext, AssignStatContext, AssignstatContext, BoolLiteralContext, ComparisonContext, ExprContext, FloatLiteralContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IntLiteralContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RepeatStatContext, RepeatstatContext, StatContext, StatlistContext, UnaryMinusContext, WhileStatContext, WhilestatContext } from '../generated/index.js';
-import SymbolTable from './Interpreter/SymbolTable.js';
+import { AdditiveContext, AssignStatContext, AssignstatContext, BoolLiteralContext, ComparisonContext, ExprContext, FloatLiteralContext, ForstatContext, ForStatContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IntLiteralContext, IteratorContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RepeatStatContext, RepeatstatContext, StatContext, StatlistContext, UnaryMinusContext, WhileStatContext, WhilestatContext } from '../generated/index.js';
 import type Tree from './AST/Tree.js';
 import { ProgramTree } from './AST/ProgramTree.js';
 import { AssignTree } from './AST/AssignTree.js';
@@ -9,6 +8,10 @@ import WhileTree from './AST/WhileTree.js';
 import StatListTree from './AST/StatListTree.js';
 import RepeatUntilTree from './AST/RepeatUntil.js';
 import IfTree from './AST/IfTree.js';
+import ForTree from './AST/ForTree.js';
+import RangeTree from './AST/RangeTree.js';
+import IteratorTree from './AST/IteratorTree.js';
+import Range from './Interpreter/Range.js';
 
 export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
 
@@ -65,6 +68,11 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
         this.visitIfStat = (ctx: IfStatContext): Tree => {
             const ifstat = ctx.ifstat();
             return this.visit(ifstat);
+        }
+
+        this.visitForStat = (ctx: ForStatContext): Tree => {
+            const forstat = ctx.forstat();
+            return this.visit(forstat);
         }
 
         this.visitAdditive = (ctx: AdditiveContext): Tree => {
@@ -180,7 +188,7 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
         this.visitStatlist = (ctx: StatlistContext): StatListTree => {
             const stats = []
             for (const stat of ctx.stat_list()) {
-                if (stat instanceof AssignStatContext || stat instanceof WhileStatContext || stat instanceof RepeatStatContext || stat instanceof IfStatContext) {
+                if (stat instanceof AssignStatContext || stat instanceof WhileStatContext || stat instanceof RepeatStatContext || stat instanceof IfStatContext || stat instanceof ForStatContext) {
                     const t = stat.accept(this);
                     stats.push(t);
                 } else {
@@ -239,6 +247,30 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
 
             return new IfTree(conditions, lists)
         }
+
+        this.visitForstat = (ctx: ForstatContext): Tree => {
+            const iterator = this.visit(ctx.iterator());
+            const list = this.visit(ctx.statlist());
+            if (!(iterator instanceof IteratorTree)) {
+                throw new Error("Received no valid Iterator");
+            }
+            if (!(list instanceof StatListTree)) {
+                throw new Error("Unexpected subtree");
+            }
+            const forTree = new ForTree(iterator, list);
+            return forTree;
+        }
+
+        this.visitIterator = (ctx: IteratorContext): Tree => {
+            const id = ctx.IDENTIFIER().symbol;
+            const from = this.visit(ctx.range().expr(0))
+            const to = this.visit(ctx.range().expr(1))
+            const inclusive = ctx.range().EQUALS() != null;
+            const rangeTree = new RangeTree(from, to, inclusive)
+            const iterator = new IteratorTree(id, rangeTree);
+            return iterator;
+        }
+
     }
 
     private buildBinaryExpr(op: Token, ctx: AdditiveContext | MultiplicativeContext | LogicalAndContext | LogicalOrContext | ComparisonContext): Tree {
