@@ -6,6 +6,7 @@ import type Visitor from "./Visitor.js";
 import type WhileTree from "./WhileTree.js";
 import type StatListTree from "./StatListTree.js";
 import type RepeatUntilTree from "./RepeatUntil.js";
+import type IfTree from "./IfTree.js";
 
 export default class ASTPrinter implements Visitor<string> {
 
@@ -65,4 +66,24 @@ export default class ASTPrinter implements Visitor<string> {
         const list = expr.list.accept(this);
         return `(repeat ${cond} (${list}))`;
     }
+
+    visitIf(expr: IfTree): string {
+        const alts = []
+        for (let i = 0; i < expr.conditions.length; i++) {
+            const cond = expr.conditions[i];
+            const list = expr.lists[i];
+            const condString = cond?.accept(this);
+            const listString = list?.accept(this);
+            const string = `if ${condString} ${listString}`;
+            alts.push(string);
+        }
+
+        if (expr.lists.length > expr.conditions.length) {
+            const list = expr.lists[expr.lists.length-1]?.accept(this);
+            alts.push(list);
+        }
+
+        return alts.join(" else ");
+    }
+
 }
