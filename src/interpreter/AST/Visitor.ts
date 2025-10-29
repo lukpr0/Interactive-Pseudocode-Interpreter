@@ -8,6 +8,8 @@ import type RepeatUntilTree from "./RepeatUntil.js";
 import type StatListTree from "./StatListTree.js";
 import type WhileTree from "./WhileTree.js";
 import type IteratorTree from "./IteratorTree.js";
+import type FunctionTree from "./FunctionTree.js";
+import type FunctionCallTree from "./FunctionCallTree.js";
 
 export default interface Visitor<T> {
     visitProgram(program: ProgramTree): T;
@@ -20,6 +22,8 @@ export default interface Visitor<T> {
     visitRepeat(expr: RepeatUntilTree): T;
     visitIf(expr: IfTree): T;
     visitFor(expr: ForTree): T;
-    visitIterator(expr: IteratorTree): T
-    visitRange(expr: RangeTree): T
+    visitIterator(expr: IteratorTree): T;
+    visitRange(expr: RangeTree): T;
+    visitFunction(expr: FunctionTree): T;
+    visitFunctionCall(expr: FunctionCallTree): T;
 }

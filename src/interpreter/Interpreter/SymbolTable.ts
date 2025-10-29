@@ -1,6 +1,8 @@
+import type FunctionTree from "../AST/FunctionTree";
+import type { Value } from "./Value";
 
 export default class SymbolTable {
-    table: Map<string, any>;
+    table: Map<string, Value | FunctionTree>;
     parent: SymbolTable | undefined;
     constructor(parent: SymbolTable | undefined) {
         this.table = new Map();

@@ -10,6 +10,8 @@ import type IfTree from "./IfTree.js";
 import type ForTree from "./ForTree.js";
 import type RangeTree from "./RangeTree.js";
 import type IteratorTree from "./IteratorTree.js";
+import type FunctionTree from "./FunctionTree.js";
+import type FunctionCallTree from "./FunctionCallTree.js";
 
 export default class ASTPrinter implements Visitor<string> {
 
@@ -17,6 +19,7 @@ export default class ASTPrinter implements Visitor<string> {
 
     visitProgram(program: ProgramTree): string {
         return `(program ${program.children.map(child => {
+            console.log(child)
             return child.accept(this);
         }).join(" ")})`;
     }
@@ -103,6 +106,19 @@ export default class ASTPrinter implements Visitor<string> {
 
     visitRange(expr: RangeTree): string {
         return `(range ${expr.from.accept(this)} ${expr.to.accept(this)} ${expr.inclusive ? 'inclusive' : ''})`
+    }
+
+    visitFunction(expr: FunctionTree): string {
+        const name = expr.name.text;
+        const args = expr.args.map(arg => arg.text).join(" ");
+        const stats = expr.stats.accept(this);
+        return `(function ${name} ${args} ${stats})`
+    }
+
+    visitFunctionCall(expr: FunctionCallTree): string {
+        const name = expr.name.text;
+        const args = expr.args.map(arg => arg.accept(this)).join(" ");
+        return `(function ${name} ${args})`
     }
 
 }
