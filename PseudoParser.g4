@@ -8,6 +8,7 @@ program
 
 programstat
     : stat
+    | algorithm
     ;
 
 stat
@@ -16,6 +17,7 @@ stat
     | repeatstat                        # RepeatStat
     | ifstat                            # IfStat
     | forstat                           # ForStat
+    | expr                              # ExprStat
     ;
 
 statlist
@@ -26,6 +28,7 @@ expr
     : INT                               # IntLiteral
     | FLOAT                             # FloatLiteral
     | value=('true' | 'false')          # BoolLiteral
+    | funccall                          # FuncCall
     | IDENTIFIER                        # IdLiteral
     | 'not' expr                        # Negation
     | '-' expr                          # UnaryMinus
@@ -67,4 +70,16 @@ iterator
 
 range
     : expr '..' '='? expr
+    ;
+
+algorithm
+    : 'function' IDENTIFIER arglist NEWLINE statlist 'end' 
+    ;
+
+arglist
+    : '(' IDENTIFIER (',' IDENTIFIER)* ')'
+    ;
+
+funccall
+    : IDENTIFIER '(' expr (',' expr)* ')'
     ;

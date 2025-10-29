@@ -1,5 +1,5 @@
 import { Token } from 'antlr4';
-import { AdditiveContext, AssignStatContext, AssignstatContext, BoolLiteralContext, ComparisonContext, ExprContext, FloatLiteralContext, ForstatContext, ForStatContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IntLiteralContext, IteratorContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RepeatStatContext, RepeatstatContext, StatContext, StatlistContext, UnaryMinusContext, WhileStatContext, WhilestatContext } from '../generated/index.js';
+import { AdditiveContext, AlgorithmContext, ArglistContext, AssignStatContext, AssignstatContext, BoolLiteralContext, ComparisonContext, ExprContext, ExprStatContext, FloatLiteralContext, ForstatContext, ForStatContext, FunccallContext, FuncCallContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IntLiteralContext, IteratorContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RepeatStatContext, RepeatstatContext, StatContext, StatlistContext, UnaryMinusContext, WhileStatContext, WhilestatContext } from '../generated/index.js';
 import type Tree from './AST/Tree.js';
 import { ProgramTree } from './AST/ProgramTree.js';
 import { AssignTree } from './AST/AssignTree.js';
@@ -11,7 +11,8 @@ import IfTree from './AST/IfTree.js';
 import ForTree from './AST/ForTree.js';
 import RangeTree from './AST/RangeTree.js';
 import IteratorTree from './AST/IteratorTree.js';
-import Range from './Interpreter/Range.js';
+import FunctionTree from './AST/FunctionTree.js';
+import FunctionCallTree from './AST/FunctionCallTree.js';
 
 export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
 
@@ -24,16 +25,21 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
                 const child = this.visit(programstat);
                 trees.push(child);
             }
-            const tree = new ProgramTree()
-            trees.forEach(child => tree.addChild(child));
+            const tree = new ProgramTree(trees)
             return tree;
         }
 
         this.visitProgramstat = (ctx: ProgramstatContext): Tree => {
             const stat = ctx.stat();
+            const algorithm = ctx.algorithm()
             if (stat) {
-                return this.visit(stat)
+                const statTree = this.visit(stat)
+                return statTree;
+            } else if (algorithm) {
+                const algoTree = algorithm.accept(this)
+                return algoTree
             }
+
             throw new Error("Expected statement, found nothing")
         }
 
@@ -248,6 +254,20 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             return new IfTree(conditions, lists)
         }
 
+        this.visitAlgorithm = (ctx: AlgorithmContext): Tree => {
+            const name = ctx.IDENTIFIER().symbol
+            const ids = [];
+            for (const id of ctx.arglist().IDENTIFIER_list()) {
+                ids.push(id.symbol);
+            }
+            const stats = ctx.statlist().accept(this)
+            if (!(stats instanceof StatListTree)) {
+                throw new Error("Unexpected subtree");
+            }
+            const functionTree = new FunctionTree(name, ids, stats);
+            return functionTree;
+        }
+
         this.visitForstat = (ctx: ForstatContext): Tree => {
             const iterator = this.visit(ctx.iterator());
             const list = this.visit(ctx.statlist());
@@ -271,6 +291,26 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             return iterator;
         }
 
+        this.visitExprStat = (ctx: ExprStatContext): Tree => {
+            return this.visit(ctx.expr())
+        }
+
+        this.visitFuncCall = (ctx: FuncCallContext): Tree => {
+
+            const x = ctx.funccall().accept(this);
+            return x;
+        }
+
+        this.visitFunccall = (ctx: FunccallContext): Tree => {
+            const name = ctx.IDENTIFIER().symbol;
+            const args = []
+            for (const arg of ctx.expr_list()) {
+                args.push(this.visit(arg));
+            }
+            const funccall = new FunctionCallTree(name, args);
+            return funccall;
+        }
+
     }
 
     private buildBinaryExpr(op: Token, ctx: AdditiveContext | MultiplicativeContext | LogicalAndContext | LogicalOrContext | ComparisonContext): Tree {
@@ -291,18 +331,3 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
         throw new Error("incompatible type detected")
     }
 }
-
-    /*visitChildren(ctx: ParserRuleContext): void {
-        if (!ctx) {
-            return;
-        }
-        if (ctx.children) {
-            return ctx.children.map(child => {
-                if (child.children && child.children.length != 0) {
-                    return child.accept(this);
-                } else {
-                    return child.getText();
-                }
-            });
-        }
-    }*/

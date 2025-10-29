@@ -15,6 +15,7 @@ END: 'end';
 IN: 'in';
 RETURN: 'return';
 ELSE: 'else';
+FUNCTION: 'function';
 EQUALS : '=' ;
 ASSIGN : ':=' ;
 COMMA : ',' ;

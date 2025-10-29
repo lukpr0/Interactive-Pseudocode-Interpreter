@@ -17,6 +17,8 @@ import type ForTree from "../AST/ForTree.js";
 import type IteratorTree from "../AST/IteratorTree.js";
 import type RangeTree from "../AST/RangeTree.js";
 import Range from "./Range.js";
+import FunctionTree from "../AST/FunctionTree.js";
+import type FunctionCallTree from "../AST/FunctionCallTree.js";
 
 export default class InterpretingVisitor implements Visitor<void> {
     symbolTable: SymbolTable;
@@ -35,7 +37,15 @@ export default class InterpretingVisitor implements Visitor<void> {
 
     visitProgram(program: ProgramTree): void {
         for (const tree of program.children) {
-            tree.accept(this)
+            if (tree instanceof FunctionTree) {
+                const name = tree.name.text;
+                this.symbolTable.setVariable(name, tree);
+            }
+        }
+        for (const tree of program.children) {
+            if (!(tree instanceof FunctionTree)) {
+                tree.accept(this);
+            }
         }
     }
 
@@ -236,6 +246,32 @@ export default class InterpretingVisitor implements Visitor<void> {
         } else {
             throw new Error(`incompatible types for range ${from.type} ${to.type}`)
         }
+    }
+
+    visitFunction(expr: FunctionTree): void {
+        expr.stats.accept(this)
+    }
+
+    visitFunctionCall(expr: FunctionCallTree): void {
+        const name = expr.name.text;
+        const func = this.symbolTable.getVariable(name);
+        if (!(func instanceof FunctionTree)) {
+            throw new Error(`${name} is not a function`);
+        }
+        const args = expr.args;
+        if (args.length != func.args.length) {
+            throw new Error(`wrong number of parameters, ${name} expects ${func.args.length} paramters, got ${args.length}`)
+        }
+        for (let i = 0; i<args.length; i++) {
+            args[i]!.accept(this);
+            const argName = func.args[i]!.text;
+            const value = this.stack.pop();
+            if (value === undefined) {
+                throw new Error("No value found");
+            }
+            this.symbolTable.setVariable(argName, value)
+        }
+        func.stats.accept(this)
     }
 
     private handlePlus(left: Value, right: Value): Value {
