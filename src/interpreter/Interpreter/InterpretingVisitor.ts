@@ -19,6 +19,8 @@ import type RangeTree from "../AST/RangeTree.js";
 import Range from "./Range.js";
 import FunctionTree from "../AST/FunctionTree.js";
 import type FunctionCallTree from "../AST/FunctionCallTree.js";
+import type ArrayTree from "../AST/ArrayTree.js";
+import Array from "./Types/Array.js";
 
 export default class InterpretingVisitor implements Visitor<void> {
     symbolTable: SymbolTable;
@@ -272,6 +274,19 @@ export default class InterpretingVisitor implements Visitor<void> {
             this.symbolTable.setVariable(argName, value)
         }
         func.stats.accept(this)
+    }
+
+    visitArray(expr: ArrayTree): void {
+        const array = new Array();
+        for (const element of expr.elements) {
+            element.accept(this);
+            const value = this.stack.pop()
+            if (value === undefined) {
+                throw new Error("Value expected, found nothing");
+            }
+            array.push(value)
+        }
+        this.stack.push(array);
     }
 
     private handlePlus(left: Value, right: Value): Value {

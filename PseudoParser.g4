@@ -30,6 +30,7 @@ expr
     | value=('true' | 'false')          # BoolLiteral
     | funccall                          # FuncCall
     | IDENTIFIER                        # IdLiteral
+    | arrayexpr                         # ArrayExpr
     | 'not' expr                        # Negation
     | '-' expr                          # UnaryMinus
     | expr op=('*' | '/' | 'div' | 'mod') expr  # Multiplicative
@@ -38,6 +39,10 @@ expr
     | expr op='and' expr                # LogicalAnd
     | expr op='or' expr                 # LogicalOr
     | '(' expr ')'                      # Parentheses
+    ;
+
+arrayexpr
+    : '[' (expr (',' expr)* ','?)? ']'
     ;
 
 assignstat
