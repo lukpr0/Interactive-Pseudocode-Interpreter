@@ -1,5 +1,5 @@
 import { Token } from 'antlr4';
-import { AdditiveContext, AlgorithmContext, ArglistContext, ArrayexprContext, ArrayExprContext, AssignStatContext, AssignstatContext, BoolLiteralContext, ComparisonContext, ExprContext, ExprStatContext, FloatLiteralContext, ForstatContext, ForStatContext, FunccallContext, FuncCallContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IntLiteralContext, IteratorContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RepeatStatContext, RepeatstatContext, StatContext, StatlistContext, UnaryMinusContext, WhileStatContext, WhilestatContext } from '../generated/index.js';
+import { AdditiveContext, AlgorithmContext, ArglistContext, ArrayexprContext, ArrayExprContext, AssignStatContext, AssignstatContext, BoolLiteralContext, ComparisonContext, ExprContext, ExprStatContext, FloatLiteralContext, ForstatContext, ForStatContext, FullidContext, FullIdContext, FunccallContext, FuncCallContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IndexAccessorContext, IntLiteralContext, IteratorContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RepeatStatContext, RepeatstatContext, StatContext, StatlistContext, UnaryMinusContext, WhileStatContext, WhilestatContext } from '../generated/index.js';
 import type Tree from './AST/Tree.js';
 import { ProgramTree } from './AST/ProgramTree.js';
 import { AssignTree } from './AST/AssignTree.js';
@@ -14,6 +14,9 @@ import IteratorTree from './AST/IteratorTree.js';
 import FunctionTree from './AST/FunctionTree.js';
 import FunctionCallTree from './AST/FunctionCallTree.js';
 import ArrayTree from './AST/ArrayTree.js';
+import FullIdTree from './AST/FullIdTree.js';
+import { IndexAccessorTree } from './AST/AccessorTree.js';
+import ASTPrinter from './AST/ASTPrinter.js';
 
 export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
 
@@ -59,7 +62,8 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
                 const tree = new AssignTree(ctx.IDENTIFIER().symbol, child);
                 return tree;
             }
-            throw new Error("incompatible type detected")
+            const printer = new ASTPrinter()
+            throw new Error("incompatible type detected: " + child.accept(printer))
         }
 
         this.visitWhileStat = (ctx: WhileStatContext): Tree => {
@@ -323,6 +327,24 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             }
             const arrayTree = new ArrayTree(elements);
             return arrayTree;
+        }
+
+        this.visitFullId = (ctx: FullIdContext): Tree => {
+            return ctx.fullid().accept(this);
+        }
+
+        this.visitFullid = (ctx: FullidContext): Tree => {
+            const id = ctx.IDENTIFIER().symbol;
+            const accessors = ctx.accessor_list()
+                .map(accessor => this.visit(accessor));
+            const tree = new FullIdTree(id, accessors);
+            return tree;
+        }
+
+        this.visitIndexAccessor = (ctx: IndexAccessorContext): Tree => {
+            const index = this.visit(ctx.expr());
+            const tree = new IndexAccessorTree(index)
+            return tree;
         }
 
     }

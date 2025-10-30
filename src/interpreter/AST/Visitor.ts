@@ -11,6 +11,8 @@ import type IteratorTree from "./IteratorTree.js";
 import type FunctionTree from "./FunctionTree.js";
 import type FunctionCallTree from "./FunctionCallTree.js";
 import type ArrayTree from "./ArrayTree.js";
+import type { IndexAccessorTree } from "./AccessorTree.js";
+import type FullIdTree from "./FullIdTree.js";
 
 export default interface Visitor<T> {
     visitProgram(program: ProgramTree): T;
@@ -28,4 +30,6 @@ export default interface Visitor<T> {
     visitFunction(expr: FunctionTree): T;
     visitFunctionCall(expr: FunctionCallTree): T;
     visitArray(expr: ArrayTree): T;
+    visitFullId(expr: FullIdTree): T;
+    visitIndex(expr: IndexAccessorTree): T;
 }

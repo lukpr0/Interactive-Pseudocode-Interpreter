@@ -13,6 +13,8 @@ import type IteratorTree from "./IteratorTree.js";
 import type FunctionTree from "./FunctionTree.js";
 import type FunctionCallTree from "./FunctionCallTree.js";
 import type ArrayTree from "./ArrayTree.js";
+import type FullIdTree from "./FullIdTree.js";
+import type { IndexAccessorTree } from "./AccessorTree.js";
 
 export default class ASTPrinter implements Visitor<string> {
 
@@ -20,7 +22,6 @@ export default class ASTPrinter implements Visitor<string> {
 
     visitProgram(program: ProgramTree): string {
         return `(program ${program.children.map(child => {
-            console.log(child)
             return child.accept(this);
         }).join(" ")})`;
     }
@@ -125,6 +126,15 @@ export default class ASTPrinter implements Visitor<string> {
     visitArray(expr: ArrayTree): string {
         const elements = expr.elements.map(element => element.accept(this)).join(" ");
         return `(array ${elements})`
+    }
+
+    visitFullId(expr: FullIdTree): string {
+        const accessors = expr.accessors.map(accessor => accessor.accept(this)).join(" ")
+        return `(${expr.name.text} ${accessors})`
+    }
+
+    visitIndex(expr: IndexAccessorTree): string {
+        return `[${expr.index.accept(this)}]`
     }
 
 }

@@ -30,6 +30,7 @@ expr
     | value=('true' | 'false')          # BoolLiteral
     | funccall                          # FuncCall
     | IDENTIFIER                        # IdLiteral
+    | fullid                            # FullId
     | arrayexpr                         # ArrayExpr
     | 'not' expr                        # Negation
     | '-' expr                          # UnaryMinus
@@ -43,6 +44,15 @@ expr
 
 arrayexpr
     : '[' (expr (',' expr)* ','?)? ']'
+    ;
+
+fullid
+    : IDENTIFIER accessor*
+    ;
+
+accessor
+    : '[' expr ']'                      # IndexAccessor
+//  | '.' IDENTIFIER                    # DotAccessor
     ;
 
 assignstat
