@@ -280,7 +280,7 @@ export default class InterpretingVisitor implements Visitor<void> {
 
     visitFunctionCall(expr: FunctionCallTree): void {
         const name = expr.name.text;
-        const func = this.symbolTable.getVariable(name);
+        const func = this.functionTable.getVariable(name);
         if (!(func instanceof FunctionTree)) {
             throw new Error(`${name} is not a function`);
         }
