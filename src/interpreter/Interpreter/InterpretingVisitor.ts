@@ -21,13 +21,17 @@ import FunctionTree from "../AST/FunctionTree.js";
 import type FunctionCallTree from "../AST/FunctionCallTree.js";
 import type ArrayTree from "../AST/ArrayTree.js";
 import Array from "./Types/Array.js";
+import type FullIdTree from "../AST/FullIdTree.js";
+import { IndexAccessorTree } from "../AST/AccessorTree.js";
 
 export default class InterpretingVisitor implements Visitor<void> {
-    symbolTable: SymbolTable;
+    symbolTable: SymbolTable<Value>;
+    functionTable: SymbolTable<FunctionTree>
     stack: Value[]
 
-    constructor(symbolTable: SymbolTable) {
+    constructor(symbolTable: SymbolTable<Value>, functionTable: SymbolTable<FunctionTree>) {
         this.symbolTable = symbolTable;
+        this.functionTable = functionTable;
         this.stack = []
     }
 
@@ -41,7 +45,7 @@ export default class InterpretingVisitor implements Visitor<void> {
         for (const tree of program.children) {
             if (tree instanceof FunctionTree) {
                 const name = tree.name.text;
-                this.symbolTable.setVariable(name, tree);
+                this.functionTable.setVariable(name, tree);
             }
         }
         for (const tree of program.children) {
@@ -55,6 +59,9 @@ export default class InterpretingVisitor implements Visitor<void> {
         assign.expr.accept(this)
         const id = assign.id.text;
         const value = this.stack.pop()
+        if (value === undefined) {
+            throw new Error("value is unexpectedly undefined");
+        }
         this.symbolTable.setVariable(id, value);
     }
 
@@ -287,6 +294,27 @@ export default class InterpretingVisitor implements Visitor<void> {
             array.push(value)
         }
         this.stack.push(array);
+    }
+
+    visitFullId(expr: FullIdTree): void {
+        const name = expr.name.text
+        let value = this.symbolTable.getVariable(name);
+        for (const accessor of expr.accessors) {
+            if (accessor instanceof IndexAccessorTree && value.type == Type.Array) {
+                accessor.index.accept(this);
+                const index = this.stack.pop()
+                if (index === undefined || index.type != Type.Integer && index.type != Type.Float) {
+                    throw new Error("Value expected, found nothing");
+                }
+                const indexAsNum = typeof index.value == "number" ? index.value : Number(index.value)
+                value = value.get(indexAsNum);
+            }
+        }
+        this.stack.push(value);
+    }
+
+    visitIndex(expr: IndexAccessorTree): void {
+        expr.index
     }
 
     private handlePlus(left: Value, right: Value): Value {

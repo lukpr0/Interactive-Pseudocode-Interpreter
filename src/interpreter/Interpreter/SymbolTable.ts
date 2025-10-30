@@ -1,24 +1,24 @@
 import type FunctionTree from "../AST/FunctionTree";
 import type { Value } from "./Value";
 
-export default class SymbolTable {
-    table: Map<string, Value | FunctionTree>;
-    parent: SymbolTable | undefined;
-    constructor(parent: SymbolTable | undefined) {
+export default class SymbolTable<T> {
+    table: Map<string, T>;
+    parent: SymbolTable<T> | undefined;
+    constructor(parent: SymbolTable<T> | undefined) {
         this.table = new Map();
         this.parent = parent;
     }
 
-    public getVariable(name: string): any {
+    public getVariable(name: string): T {
         if (this.table.has(name)) {
-            return this.table.get(name);
+            return this.table.get(name)!;
         } else {
             const value = this.parent!.getVariable(name);
             return value;
         }
     }
 
-    public setVariable(name: string, value: any) {
+    public setVariable(name: string, value: T) {
         if (this.table.has(name)) {
             this.table.set(name, value);
         } else if (!this.trySetVariableInParent(name, value)) {
@@ -26,11 +26,11 @@ export default class SymbolTable {
         }
     }
 
-    public getAllVariables(): Map<string, any> {
+    public getAllVariables(): Map<string, T> {
         return this.table;
     }
 
-    private trySetVariableInParent(name: string, value: any): boolean {
+    private trySetVariableInParent(name: string, value: T): boolean {
         if (this.table.has(name)) {
             this.table.set(name, value);
             return true;
