@@ -6,9 +6,9 @@ import SymbolTable from './Interpreter/SymbolTable.js'
 import AstBuilderVisitor from './AstBuilderVisitor.js'
 import InterpretingVisitor from './Interpreter/InterpretingVisitor.js';
 import ASTPrinter from './AST/ASTPrinter.js';
-import type { Value } from './Interpreter/Value.js';
 import type FunctionTree from './AST/FunctionTree.js';
 import type Slot from './Interpreter/Slot.js';
+import Type from './Interpreter/Type.js';
 
 
 //Read file
@@ -44,6 +44,12 @@ console.log(astString);
 ast.accept(interpreter)
 
 //Print all variables
-symbols.getAllVariables().forEach((v: any, k: string) => {
-    console.log(k, ": ", v)
+symbols.getAllVariables().forEach((v: Slot, k: string) => {
+    if (v.value.type == Type.Array) {
+        console.log(k, `: Array (${v.value.value.length}) [`);
+        v.value.value.forEach(s => console.log(s.value));
+        console.log("]");
+    } else {
+        console.log(k, ": ", v)
+    }
 })
