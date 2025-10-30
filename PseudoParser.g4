@@ -56,7 +56,7 @@ accessor
     ;
 
 assignstat
-    : IDENTIFIER ':=' expr NEWLINE
+    : fullid ':=' expr NEWLINE
     ;
 
 whilestat

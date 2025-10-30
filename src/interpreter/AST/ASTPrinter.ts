@@ -26,7 +26,7 @@ export default class ASTPrinter implements Visitor<string> {
         }).join(" ")})`;
     }
     visitAssign(assign: AssignTree): string {
-        return `(:= ${assign.id.text} ${assign.expr.accept(this)})`
+        return `(:= ${assign.id.accept(this)} ${assign.expr.accept(this)})`
     }
     visitExpr(expr: ExprTree): string {
         if (expr instanceof BinaryOperationTree) {
@@ -130,7 +130,7 @@ export default class ASTPrinter implements Visitor<string> {
 
     visitFullId(expr: FullIdTree): string {
         const accessors = expr.accessors.map(accessor => accessor.accept(this)).join(" ")
-        return `(${expr.name.text} ${accessors})`
+        return `(fullid ${expr.name.text} ${accessors})`
     }
 
     visitIndex(expr: IndexAccessorTree): string {

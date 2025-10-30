@@ -17,6 +17,7 @@ import ArrayTree from './AST/ArrayTree.js';
 import FullIdTree from './AST/FullIdTree.js';
 import { IndexAccessorTree } from './AST/AccessorTree.js';
 import ASTPrinter from './AST/ASTPrinter.js';
+import { assert } from 'console';
 
 export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
 
@@ -58,12 +59,12 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             }
             const expr = ctx.expr()
             const child = this.visit(expr);
-            if (child instanceof ExprTree) {
-                const tree = new AssignTree(ctx.IDENTIFIER().symbol, child);
+            const id = ctx.fullid().accept(this)
+            if (child instanceof ExprTree && id instanceof FullIdTree) {
+                const tree = new AssignTree(id, child);
                 return tree;
             }
-            const printer = new ASTPrinter()
-            throw new Error("incompatible type detected: " + child.accept(printer))
+            throw new Error("incompatible type detected: ")
         }
 
         this.visitWhileStat = (ctx: WhileStatContext): Tree => {

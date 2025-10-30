@@ -8,6 +8,7 @@ import InterpretingVisitor from './Interpreter/InterpretingVisitor.js';
 import ASTPrinter from './AST/ASTPrinter.js';
 import type { Value } from './Interpreter/Value.js';
 import type FunctionTree from './AST/FunctionTree.js';
+import type Slot from './Interpreter/Slot.js';
 
 
 //Read file
@@ -30,7 +31,7 @@ const visitor = new AstBuilderVisitor()
 const ast = tree.accept(visitor);
 
 //setup Interpreter
-const symbols = new SymbolTable<Value>(undefined)
+const symbols = new SymbolTable<Slot>(undefined)
 const functions = new SymbolTable<FunctionTree>(undefined)
 const interpreter = new InterpretingVisitor(symbols, functions);
 
