@@ -1,10 +1,18 @@
 
-arr := [1,2,3,4,5,6]
+a := [ 18, 47, 87, 16,  6, 82, 32, 35, 16,  1, 39, 32, 64, 28, 65, 45, 23, 88, 84, 94 ]
+len := 20
+function SelectionSort(arr, n)
+    for i in 0 .. n do
+        max := i
+        for j in i .. n do
+            if arr[j] > arr[max] then
+                max := j
+            end
+        end
+        tmp := arr[i]
+        arr[i] := arr[max]
+        arr[max] := tmp
+    end
+end
 
-arr2 := [[1,2], [3,4]]
-
-arr2[0][0] := 5
-
-y := arr[0]
-x := arr2[0][0]
-
+SelectionSort(a, len)
