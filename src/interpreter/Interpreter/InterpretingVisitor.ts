@@ -23,13 +23,14 @@ import type ArrayTree from "../AST/ArrayTree.js";
 import Array from "./Types/Array.js";
 import type FullIdTree from "../AST/FullIdTree.js";
 import { IndexAccessorTree } from "../AST/AccessorTree.js";
+import Slot from "./Slot.js";
 
 export default class InterpretingVisitor implements Visitor<void> {
-    symbolTable: SymbolTable<Value>;
+    symbolTable: SymbolTable<Slot>;
     functionTable: SymbolTable<FunctionTree>
     stack: Value[]
 
-    constructor(symbolTable: SymbolTable<Value>, functionTable: SymbolTable<FunctionTree>) {
+    constructor(symbolTable: SymbolTable<Slot>, functionTable: SymbolTable<FunctionTree>) {
         this.symbolTable = symbolTable;
         this.functionTable = functionTable;
         this.stack = []
@@ -57,12 +58,28 @@ export default class InterpretingVisitor implements Visitor<void> {
 
     visitAssign(assign: AssignTree): void {
         assign.expr.accept(this)
-        const id = assign.id.text;
+        //assign.id.accept(this);
         const value = this.stack.pop()
         if (value === undefined) {
             throw new Error("value is unexpectedly undefined");
         }
-        this.symbolTable.setVariable(id, value);
+        if (assign.id.accessors.length == 0) {
+            this.symbolTable.setVariable(assign.id.name.text, new Slot(value));
+        } else {
+            let slot = this.symbolTable.getVariable(assign.id.name.text);
+            for (const accessor of assign.id.accessors) {
+                if (accessor instanceof IndexAccessorTree && slot.value.type == Type.Array) {
+                    accessor.index.accept(this);
+                    const index = this.stack.pop()
+                    if (index === undefined || index.type != Type.Integer && index.type != Type.Float) {
+                        throw new Error("Value expected, found nothing");
+                    }
+                    const indexAsNum = typeof index.value == "number" ? index.value : Number(index.value)
+                    slot = slot.value.get(indexAsNum);
+                }
+            }
+            slot.value = value;
+        }
     }
 
     visitExpr(expr: ExprTree): void {
@@ -136,7 +153,7 @@ export default class InterpretingVisitor implements Visitor<void> {
             expr.operand.accept(this);
         } else if (expr.operand.type == PseudoParser.IDENTIFIER) {
             const value = this.symbolTable.getVariable(expr.operand.text);
-            this.stack.push(value);
+            this.stack.push(value.value);
         } else if (expr.operand.type == PseudoParser.INT) {
             const value = new Integer(BigInt(expr.operand.text));
             this.stack.push(value);
@@ -232,7 +249,7 @@ export default class InterpretingVisitor implements Visitor<void> {
         const variableName = expr.cond.id.text;
         while (iter.hasNext()) {
             const value = iter.next();
-            this.symbolTable.setVariable(variableName, value);
+            this.symbolTable.setVariable(variableName, new Slot(value));
             expr.list.accept(this);
         }
     }
@@ -278,7 +295,7 @@ export default class InterpretingVisitor implements Visitor<void> {
             if (value === undefined) {
                 throw new Error("No value found");
             }
-            this.symbolTable.setVariable(argName, value)
+            this.symbolTable.setVariable(argName, new Slot(value))
         }
         func.stats.accept(this)
     }
@@ -298,7 +315,7 @@ export default class InterpretingVisitor implements Visitor<void> {
 
     visitFullId(expr: FullIdTree): void {
         const name = expr.name.text
-        let value = this.symbolTable.getVariable(name);
+        let value = this.symbolTable.getVariable(name).value;
         for (const accessor of expr.accessors) {
             if (accessor instanceof IndexAccessorTree && value.type == Type.Array) {
                 accessor.index.accept(this);
@@ -307,7 +324,7 @@ export default class InterpretingVisitor implements Visitor<void> {
                     throw new Error("Value expected, found nothing");
                 }
                 const indexAsNum = typeof index.value == "number" ? index.value : Number(index.value)
-                value = value.get(indexAsNum);
+                value = value.get(indexAsNum).value;
             }
         }
         this.stack.push(value);

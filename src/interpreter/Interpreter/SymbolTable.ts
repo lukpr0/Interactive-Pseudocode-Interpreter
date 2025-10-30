@@ -12,9 +12,11 @@ export default class SymbolTable<T> {
     public getVariable(name: string): T {
         if (this.table.has(name)) {
             return this.table.get(name)!;
-        } else {
-            const value = this.parent!.getVariable(name);
+        } else if (this.parent) {
+            const value = this.parent.getVariable(name);
             return value;
+        } else {
+            throw new Error(`Variable ${name} does not exist`);
         }
     }
 
