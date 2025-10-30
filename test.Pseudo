@@ -1,11 +1,3 @@
 
-t := 0
-
-function pow(x, n, r)
-    r := 1
-    for _ in 0 .. n do
-        r := r*x
-    end
-end
-
-pow(5, 2, x)
+a := 0
+x := [1, 2., [3], a]

@@ -12,6 +12,7 @@ import type RangeTree from "./RangeTree.js";
 import type IteratorTree from "./IteratorTree.js";
 import type FunctionTree from "./FunctionTree.js";
 import type FunctionCallTree from "./FunctionCallTree.js";
+import type ArrayTree from "./ArrayTree.js";
 
 export default class ASTPrinter implements Visitor<string> {
 
@@ -119,6 +120,11 @@ export default class ASTPrinter implements Visitor<string> {
         const name = expr.name.text;
         const args = expr.args.map(arg => arg.accept(this)).join(" ");
         return `(function ${name} ${args})`
+    }
+
+    visitArray(expr: ArrayTree): string {
+        const elements = expr.elements.map(element => element.accept(this)).join(" ");
+        return `(array ${elements})`
     }
 
 }

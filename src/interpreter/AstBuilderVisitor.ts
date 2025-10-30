@@ -1,5 +1,5 @@
 import { Token } from 'antlr4';
-import { AdditiveContext, AlgorithmContext, ArglistContext, AssignStatContext, AssignstatContext, BoolLiteralContext, ComparisonContext, ExprContext, ExprStatContext, FloatLiteralContext, ForstatContext, ForStatContext, FunccallContext, FuncCallContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IntLiteralContext, IteratorContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RepeatStatContext, RepeatstatContext, StatContext, StatlistContext, UnaryMinusContext, WhileStatContext, WhilestatContext } from '../generated/index.js';
+import { AdditiveContext, AlgorithmContext, ArglistContext, ArrayexprContext, ArrayExprContext, AssignStatContext, AssignstatContext, BoolLiteralContext, ComparisonContext, ExprContext, ExprStatContext, FloatLiteralContext, ForstatContext, ForStatContext, FunccallContext, FuncCallContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IntLiteralContext, IteratorContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RepeatStatContext, RepeatstatContext, StatContext, StatlistContext, UnaryMinusContext, WhileStatContext, WhilestatContext } from '../generated/index.js';
 import type Tree from './AST/Tree.js';
 import { ProgramTree } from './AST/ProgramTree.js';
 import { AssignTree } from './AST/AssignTree.js';
@@ -13,6 +13,7 @@ import RangeTree from './AST/RangeTree.js';
 import IteratorTree from './AST/IteratorTree.js';
 import FunctionTree from './AST/FunctionTree.js';
 import FunctionCallTree from './AST/FunctionCallTree.js';
+import ArrayTree from './AST/ArrayTree.js';
 
 export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
 
@@ -296,7 +297,6 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
         }
 
         this.visitFuncCall = (ctx: FuncCallContext): Tree => {
-
             const x = ctx.funccall().accept(this);
             return x;
         }
@@ -309,6 +309,20 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             }
             const funccall = new FunctionCallTree(name, args);
             return funccall;
+        }
+
+        this.visitArrayExpr = (ctx: ArrayExprContext): Tree => {
+            return ctx.arrayexpr().accept(this);
+        }
+
+        this.visitArrayexpr = (ctx: ArrayexprContext): Tree => {
+            const elements = [] 
+            for (const element of ctx.expr_list()) {
+                const exprTree = this.visit(element);
+                elements.push(exprTree);
+            }
+            const arrayTree = new ArrayTree(elements);
+            return arrayTree;
         }
 
     }

@@ -10,6 +10,7 @@ import type WhileTree from "./WhileTree.js";
 import type IteratorTree from "./IteratorTree.js";
 import type FunctionTree from "./FunctionTree.js";
 import type FunctionCallTree from "./FunctionCallTree.js";
+import type ArrayTree from "./ArrayTree.js";
 
 export default interface Visitor<T> {
     visitProgram(program: ProgramTree): T;
@@ -26,4 +27,5 @@ export default interface Visitor<T> {
     visitRange(expr: RangeTree): T;
     visitFunction(expr: FunctionTree): T;
     visitFunctionCall(expr: FunctionCallTree): T;
+    visitArray(expr: ArrayTree): T;
 }
