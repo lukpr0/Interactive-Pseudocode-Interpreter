@@ -1,24 +1,13 @@
 
-i := 0
-while i < 5 do
-    s := i
-    i := i+1
+s := 0
+for i in 1 ..= 10 do 
+    s := s+i
 end
 
-repeat
-    t := i
-    i := i+1
-until i > 10
-
-for j in 0 .. 5 do
-    u := j
+t := 0
+function test(q)
+    q := 1
+    t := q
 end
 
-k := 0
-for j in 0 .. 5 do
-    if j = 0 then
-        b := j
-    end 
-    a := b
-    b := j
-end
+test(0)

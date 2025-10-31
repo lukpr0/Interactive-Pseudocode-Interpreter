@@ -307,6 +307,8 @@ export default class InterpretingVisitor implements Visitor<void> {
         if (args.length != func.args.length) {
             throw new Error(`wrong number of parameters, ${name} expects ${func.args.length} paramters, got ${args.length}`)
         }
+        const parent = this.symbolTable;
+        this.symbolTable = new SymbolTable(parent);
         for (let i = 0; i<args.length; i++) {
             args[i]!.accept(this);
             const argName = func.args[i]!.text;
@@ -317,6 +319,7 @@ export default class InterpretingVisitor implements Visitor<void> {
             this.symbolTable.setVariable(argName, new Slot(value))
         }
         func.stats.accept(this)
+        this.symbolTable = parent;
     }
 
     visitArray(expr: ArrayTree): void {
