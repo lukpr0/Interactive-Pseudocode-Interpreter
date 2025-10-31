@@ -23,6 +23,7 @@ const parser = new PseudoParser(tokens);
 const tree = parser.program();
 
 //Print parse tree
+tokens.tokens.forEach(token => console.log(token.toString()))
 const parseTree = tree.toStringTree(PseudoParser.ruleNames, parser)
 console.log(parseTree)
 
@@ -43,6 +44,8 @@ console.log(astString);
 //Run program
 ast.accept(interpreter)
 
+
+
 //Print all variables
 symbols.getAllVariables().forEach((v: Slot, k: string) => {
     if (v.value.type == Type.Array) {
@@ -54,6 +57,6 @@ symbols.getAllVariables().forEach((v: Slot, k: string) => {
         v.value.values.forEach((s, k) => console.log(`\t${k}: ${s.value.toString()}`));
         console.log("]");
     } else {
-        console.log(k, ": ", v)
+        console.log(k, ": ", v.value)
     }
 })
