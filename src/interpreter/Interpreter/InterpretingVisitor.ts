@@ -1,5 +1,5 @@
 import PseudoParser from "../../generated/PseudoParser.js";
-import type SymbolTable from "./SymbolTable.js";
+import SymbolTable from "./SymbolTable.js";
 import type { AssignTree } from "../AST/AssignTree.js";
 import { BinaryOperationTree, ExprTree, UnaryOperationTree } from "../AST/ExprTree.js";
 import type { ProgramTree } from "../AST/ProgramTree.js";
@@ -193,6 +193,8 @@ export default class InterpretingVisitor implements Visitor<void> {
     
     visitWhile(expr: WhileTree): void {
         while(true) {
+        const parent = this.symbolTable;
+        this.symbolTable = new SymbolTable(parent);
             expr.cond.accept(this);
             const fromStack = this.stack.pop();
             if (!(fromStack instanceof Boolean)) {
@@ -201,13 +203,17 @@ export default class InterpretingVisitor implements Visitor<void> {
             if (fromStack.value) {
                 expr.list.accept(this);
             } else {
+                this.symbolTable = parent;
                 break;
             }
+            this.symbolTable = parent;
         } 
     }
 
     visitRepeat(expr: RepeatUntilTree): void {
         while (true) {
+            const parent = this.symbolTable;
+            this.symbolTable = new SymbolTable(parent);
             expr.list.accept(this);
             expr.cond.accept(this);
             const fromStack = this.stack.pop();
@@ -215,8 +221,10 @@ export default class InterpretingVisitor implements Visitor<void> {
                 throw new Error("Repeat-Until requires boolean expression")
             }
             if (fromStack.value) {
+                this.symbolTable = parent;
                 break;
             }
+            this.symbolTable = parent;
         }
     }
 
@@ -232,8 +240,11 @@ export default class InterpretingVisitor implements Visitor<void> {
                 throw new Error("If-Statement requires boolean expression")
             }
             if (fromStack.value) {
+                const parent = this.symbolTable;
+                this.symbolTable = new SymbolTable(parent);
                 branchExecuted = true;
                 list?.accept(this);
+                this.symbolTable = parent;
             }
         }
 
@@ -253,9 +264,12 @@ export default class InterpretingVisitor implements Visitor<void> {
         }
         const variableName = expr.cond.id.text;
         while (iter.hasNext()) {
+            const parent = this.symbolTable;
+            this.symbolTable = new SymbolTable(parent);
             const value = iter.next();
             this.symbolTable.setVariable(variableName, new Slot(value));
             expr.list.accept(this);
+            this.symbolTable = parent;
         }
     }
 
