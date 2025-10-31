@@ -1,5 +1,5 @@
 import { Token } from 'antlr4';
-import { AdditiveContext, AlgorithmContext, ArglistContext, ArrayexprContext, ArrayExprContext, AssignStatContext, AssignstatContext, BoolLiteralContext, ComparisonContext, ExprContext, ExprStatContext, FloatLiteralContext, ForstatContext, ForStatContext, FullidContext, FullIdContext, FunccallContext, FuncCallContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IndexAccessorContext, IntLiteralContext, IteratorContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RepeatStatContext, RepeatstatContext, StatContext, StatlistContext, UnaryMinusContext, WhileStatContext, WhilestatContext } from '../generated/index.js';
+import { AdditiveContext, AlgorithmContext, ArglistContext, ArrayexprContext, ArrayExprContext, AssignStatContext, AssignstatContext, BoolLiteralContext, ComparisonContext, DotAccessorContext, ExprContext, ExprStatContext, FloatLiteralContext, ForstatContext, ForStatContext, FullidContext, FullIdContext, FunccallContext, FuncCallContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IndexAccessorContext, IntLiteralContext, IteratorContext, KeyvaluepairContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, ObjectexprContext, ObjectExprContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RepeatStatContext, RepeatstatContext, StatContext, StatlistContext, UnaryMinusContext, WhileStatContext, WhilestatContext } from '../generated/index.js';
 import type Tree from './AST/Tree.js';
 import { ProgramTree } from './AST/ProgramTree.js';
 import { AssignTree } from './AST/AssignTree.js';
@@ -15,9 +15,11 @@ import FunctionTree from './AST/FunctionTree.js';
 import FunctionCallTree from './AST/FunctionCallTree.js';
 import ArrayTree from './AST/ArrayTree.js';
 import FullIdTree from './AST/FullIdTree.js';
-import { IndexAccessorTree } from './AST/AccessorTree.js';
+import { DotAccessorTree, IndexAccessorTree } from './AST/AccessorTree.js';
 import ASTPrinter from './AST/ASTPrinter.js';
 import { assert } from 'console';
+import ObjectTree from './AST/ObjectTree.js';
+import KeyValueTree from './AST/KeyValueTree.js';
 
 export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
 
@@ -64,7 +66,7 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
                 const tree = new AssignTree(id, child);
                 return tree;
             }
-            throw new Error("incompatible type detected: ")
+            throw new Error("incompatible type detected")
         }
 
         this.visitWhileStat = (ctx: WhileStatContext): Tree => {
@@ -345,6 +347,35 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
         this.visitIndexAccessor = (ctx: IndexAccessorContext): Tree => {
             const index = this.visit(ctx.expr());
             const tree = new IndexAccessorTree(index)
+            return tree;
+        }
+
+        this.visitDotAccessor = (ctx: DotAccessorContext): Tree => {
+            const name = ctx.IDENTIFIER().symbol;
+            const tree = new DotAccessorTree(name);
+            return tree;
+        }
+
+        this.visitObjectExpr = (ctx: ObjectExprContext): Tree => {
+            return ctx.objectexpr().accept(this)
+        }
+
+        this.visitObjectexpr = (ctx: ObjectexprContext): Tree => {
+            const kvps = ctx.keyvaluepair_list().map(kvp => {
+                const kvpTree = kvp.accept(this);
+                if (!(kvpTree instanceof KeyValueTree)) {
+                    throw new Error("Expected key value pair");
+                }
+                return kvpTree
+            });
+            const tree = new ObjectTree(kvps);
+            return tree;
+        }
+
+        this.visitKeyvaluepair = (ctx: KeyvaluepairContext): Tree => {
+            const key = ctx.IDENTIFIER().symbol;
+            const value = this.visit(ctx.expr())
+            const tree = new KeyValueTree(key, value);
             return tree;
         }
 

@@ -66,3 +66,26 @@ w := x != y
 
 s := x = y
 t := x = y
+
+
+arr := [ 18, 47, 87, 16,  6, 82, 32, 35, 16,  1, 39, 32, 64, 28, 65, 45, 23, 88, 84, 94 ]
+
+
+
+a := [ 18, 47, 87, 16,  6, 82, 32, 35, 16,  1, 39, 32, 64, 28, 65, 45, 23, 88, 84, 94 ]
+len := 20
+function SelectionSort(arr, n)
+    for i in 0 .. n do
+        max := i
+        for j in i .. n do
+            if arr[j] > arr[max] then
+                max := j
+            end
+        end
+        tmp := arr[i]
+        arr[i] := arr[max]
+        arr[max] := tmp
+    end
+end
+
+SelectionSort(a, len)

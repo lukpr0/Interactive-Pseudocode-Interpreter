@@ -32,6 +32,7 @@ expr
     | IDENTIFIER                        # IdLiteral
     | fullid                            # FullId
     | arrayexpr                         # ArrayExpr
+    | objectexpr                        # ObjectExpr
     | 'not' expr                        # Negation
     | '-' expr                          # UnaryMinus
     | expr op=('*' | '/' | 'div' | 'mod') expr  # Multiplicative
@@ -46,13 +47,21 @@ arrayexpr
     : '[' (expr (',' expr)* ','?)? ']'
     ;
 
+objectexpr
+    : '{' (keyvaluepair (',' keyvaluepair)?)? '}'
+    ;
+
+keyvaluepair
+    : IDENTIFIER ':' expr
+    ;
+
 fullid
     : IDENTIFIER accessor*
     ;
 
 accessor
     : '[' expr ']'                      # IndexAccessor
-//  | '.' IDENTIFIER                    # DotAccessor
+    | '.' IDENTIFIER                    # DotAccessor
     ;
 
 assignstat

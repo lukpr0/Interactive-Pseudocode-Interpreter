@@ -22,8 +22,11 @@ import type FunctionCallTree from "../AST/FunctionCallTree.js";
 import type ArrayTree from "../AST/ArrayTree.js";
 import Array from "./Types/Array.js";
 import type FullIdTree from "../AST/FullIdTree.js";
-import { IndexAccessorTree } from "../AST/AccessorTree.js";
+import { DotAccessorTree, IndexAccessorTree } from "../AST/AccessorTree.js";
 import Slot from "./Slot.js";
+import type KeyValueTree from "../AST/KeyValueTree.js";
+import type ObjectTree from "../AST/ObjectTree.js";
+import Object from "./Types/Object.js";
 
 export default class InterpretingVisitor implements Visitor<void> {
     symbolTable: SymbolTable<Slot>;
@@ -76,6 +79,8 @@ export default class InterpretingVisitor implements Visitor<void> {
                     }
                     const indexAsNum = typeof index.value == "number" ? index.value : Number(index.value)
                     slot = slot.value.get(indexAsNum);
+                } else if (accessor instanceof DotAccessorTree && slot.value.type == Type.Object) {
+                    slot = slot.value.get(accessor.name.text);
                 }
             }
             slot.value = value;
@@ -325,13 +330,33 @@ export default class InterpretingVisitor implements Visitor<void> {
                 }
                 const indexAsNum = typeof index.value == "number" ? index.value : Number(index.value)
                 value = value.get(indexAsNum).value;
+            } else if (accessor instanceof DotAccessorTree && value.type == Type.Object) {
+                value = value.get(accessor.name.text).value
             }
         }
         this.stack.push(value);
     }
 
-    visitIndex(expr: IndexAccessorTree): void {
-        expr.index
+    visitIndex(expr: IndexAccessorTree): void {}
+
+    visitDotName(expr: DotAccessorTree): void {}
+
+    visitKeyValue(expr: KeyValueTree): void {
+        
+    }
+
+    visitObject(expr: ObjectTree): void {
+        const object = new Object();
+        for (const kvp of expr.elements) {
+            const key = kvp.key.text;
+            kvp.value.accept(this)
+            const value = this.stack.pop()
+            if (value === undefined) {
+                throw new Error("Value expected, found nothing");
+            }
+            object.set(key, value);
+        }
+        this.stack.push(object)
     }
 
     private handlePlus(left: Value, right: Value): Value {
