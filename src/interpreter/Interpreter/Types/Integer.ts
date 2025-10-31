@@ -9,6 +9,10 @@ export default class Integer {
         this.value = value;
     }
 
+    toString(): string {
+        return `Integer { value: ${this.value} }`
+    }
+
     add(right: Integer | Float): Integer | Float {
         if (right instanceof Integer) {
             return new Integer(this.value + right.value);

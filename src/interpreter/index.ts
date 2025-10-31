@@ -46,8 +46,12 @@ ast.accept(interpreter)
 //Print all variables
 symbols.getAllVariables().forEach((v: Slot, k: string) => {
     if (v.value.type == Type.Array) {
-        console.log(k, `: Array (${v.value.value.length}) [`);
+        console.log( k, `: Array (${v.value.value.length}) [`);
         v.value.value.forEach(s => console.log(s.value));
+        console.log("]");
+    } else if (v.value.type == Type.Object) {
+        console.log(k, `: Object (${v.value.values.size}) [`);
+        v.value.values.forEach((s, k) => console.log(`\t${k}: ${s.value.toString()}`));
         console.log("]");
     } else {
         console.log(k, ": ", v)

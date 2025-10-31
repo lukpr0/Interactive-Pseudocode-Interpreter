@@ -9,6 +9,10 @@ export default class Array {
         this.value = []
     }
 
+    toString(): string {
+        return `Array { value: ${this.value} }`
+    }
+
     get(index: number): Slot{
         const element = this.value[index];
         if (element) {

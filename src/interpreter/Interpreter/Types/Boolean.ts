@@ -6,6 +6,10 @@ export default class Boolean {
     constructor (value: boolean) {
         this.value = value;
     }
+
+    toString(): string {
+        return `Boolean { value: ${this.value} }`
+    }
     
     and(right: Boolean): Boolean {
         return new Boolean(this.value && right.value)

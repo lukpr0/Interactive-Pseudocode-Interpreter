@@ -14,7 +14,9 @@ import type FunctionTree from "./FunctionTree.js";
 import type FunctionCallTree from "./FunctionCallTree.js";
 import type ArrayTree from "./ArrayTree.js";
 import type FullIdTree from "./FullIdTree.js";
-import type { IndexAccessorTree } from "./AccessorTree.js";
+import type { DotAccessorTree, IndexAccessorTree } from "./AccessorTree.js";
+import type KeyValueTree from "./KeyValueTree.js";
+import type ObjectTree from "./ObjectTree.js";
 
 export default class ASTPrinter implements Visitor<string> {
 
@@ -135,6 +137,19 @@ export default class ASTPrinter implements Visitor<string> {
 
     visitIndex(expr: IndexAccessorTree): string {
         return `[${expr.index.accept(this)}]`
+    }
+
+    visitDotName(expr: DotAccessorTree): string {
+        return `.${expr.name.text}`;
+    }
+
+    visitKeyValue(expr: KeyValueTree): string {
+        return `(key ${expr.key.text} ${expr.value.accept(this)})`
+    }
+
+    visitObject(expr: ObjectTree): string {
+        const exprs = expr.elements.map(element => element.accept(this)).join(" ");
+        return `(object ${exprs})`;
     }
 
 }
