@@ -1,6 +1,7 @@
 // DELETE THIS CONTENT IF YOU PUT COMBINED GRAMMAR IN Parser TAB
 lexer grammar PseudoLexer;
 
+NEWLINE: ('//'.*?)? '\r'?'\n' ;
 AND : 'and' ;
 OR : 'or' ;
 NOT : 'not' ;
@@ -42,6 +43,7 @@ LESSEQUAL: '<=';
 GREATEREQUAL: '>=';
 NOTEQUAL: '!=';
 
+
 TRUE: 'true';
 FALSE: 'false';
 
@@ -51,9 +53,9 @@ FLOAT
     | [0-9]+ '.' [0-9]*
     ;
 
-NEWLINE: '\r'?'\n' ;
 
 IDENTIFIER: [a-zA-Z_][a-zA-Z_0-9]* ;
 STRING : '"'.*?'"' ;
 
+MULTILINECOMMENT: '/*' .*? '*/' -> skip;
 WHITESPACE: [ \t\f]+ -> skip ;

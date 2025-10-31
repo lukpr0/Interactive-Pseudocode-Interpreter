@@ -1,13 +1,9 @@
 
-s := 0
-for i in 1 ..= 10 do 
-    s := s+i
-end
-
-t := 0
 function test(q)
-    q := 1
-    t := q
 end
 
-test(0)
+x := 1 /* a
+multiline
+comment */
+
+v := 0 //a comment
