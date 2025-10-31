@@ -37,7 +37,7 @@ export default class SymbolTable<T> {
             this.table.set(name, value);
             return true;
         } else if (this.parent) {
-            return this.trySetVariableInParent(name, value);
+            return this.parent.trySetVariableInParent(name, value);
         } else {
             return false;
         }

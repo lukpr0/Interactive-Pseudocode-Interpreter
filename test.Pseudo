@@ -1,7 +1,24 @@
 
-o1 := { id: 3 }
+i := 0
+while i < 5 do
+    s := i
+    i := i+1
+end
 
-o2 := { id: 1 }
+repeat
+    t := i
+    i := i+1
+until i > 10
 
-o1.id := o2
-o2.id := o1
+for j in 0 .. 5 do
+    u := j
+end
+
+k := 0
+for j in 0 .. 5 do
+    if j = 0 then
+        b := j
+    end 
+    a := b
+    b := j
+end
