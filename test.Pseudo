@@ -1,12 +1,7 @@
 
-s := "abc"
-a := [1,2,3]
-print(len(a))
-print(len(s))
 
-b := Array(5, 0)
-push(b, 1)
-print(b)
+sq := sqrt(2)
 
-c := Array(5, nil)
-print(c)
+print(sq)
+print(ceil(sq))
+print(floor(sq))
