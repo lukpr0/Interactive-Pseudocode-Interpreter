@@ -10,6 +10,19 @@ export default class Array {
     }
 
     toString(): string {
+        return `[${this.value.map(slot => {
+            switch (slot.value.type) {
+                case Type.Array:
+                    return "Array"
+                case Type.Object:
+                    return "Object"
+                default:
+                    return slot.value.toString()
+            }
+        }).join(", ")}]`
+    }
+
+    toDebugString(): string {
         return `Array { value: ${this.value} }`
     }
 

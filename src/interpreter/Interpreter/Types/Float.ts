@@ -10,6 +10,9 @@ export default class Float {
     }
     
     toString(): string {
+        return this.value.toString()
+    }
+    toDebugString(): string {
         return `Float { value: ${this.value} }`
     }
     

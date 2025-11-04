@@ -16,6 +16,8 @@ import type FullIdTree from "./FullIdTree.js";
 import type { DotAccessorContext } from "../../generated/PseudoParser.js";
 import type ObjectTree from "./ObjectTree.js";
 import type KeyValueTree from "./KeyValueTree.js";
+import type ReturnTree from "./ReturnTree.js";
+import type BreakTree from "./BreakTree.js";
 
 export default interface Visitor<T> {
     visitProgram(program: ProgramTree): T;
@@ -38,4 +40,6 @@ export default interface Visitor<T> {
     visitDotName(expr: DotAccessorTree): T;
     visitObject(expr: ObjectTree): T;
     visitKeyValue(expr: KeyValueTree): T;
+    visitReturn(expr: ReturnTree): T;
+    visitBreak(expr: BreakTree): T;
 }

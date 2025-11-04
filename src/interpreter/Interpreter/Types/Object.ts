@@ -12,9 +12,12 @@ export default class Object {
     }
     
     toString(): string {
-        return `Object { value: ${this.values} }`
+        return this.values.toString()
     }
 
+    toDebugString(): string {
+        return `Object { value: ${this.values} }`
+    }
     
     get(index: string): Slot{
         const element = this.values.get(index);

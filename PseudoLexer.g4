@@ -15,6 +15,7 @@ UNTIL: 'until';
 END: 'end';
 IN: 'in';
 RETURN: 'return';
+BREAK: 'break';
 ELSE: 'else';
 FUNCTION: 'function';
 EQUALS : '=' ;

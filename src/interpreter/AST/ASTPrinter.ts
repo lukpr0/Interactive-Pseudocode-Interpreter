@@ -17,6 +17,8 @@ import type FullIdTree from "./FullIdTree.js";
 import type { DotAccessorTree, IndexAccessorTree } from "./AccessorTree.js";
 import type KeyValueTree from "./KeyValueTree.js";
 import type ObjectTree from "./ObjectTree.js";
+import type BreakTree from "./BreakTree.js";
+import type ReturnTree from "./ReturnTree.js";
 
 export default class ASTPrinter implements Visitor<string> {
 
@@ -150,6 +152,14 @@ export default class ASTPrinter implements Visitor<string> {
     visitObject(expr: ObjectTree): string {
         const exprs = expr.elements.map(element => element.accept(this)).join(" ");
         return `(object ${exprs})`;
+    }
+
+    visitBreak(expr: BreakTree): string {
+        return `break`;
+    }
+
+    visitReturn(expr: ReturnTree): string {
+        return `(return ${expr.value.accept(this)})`;
     }
 
 }

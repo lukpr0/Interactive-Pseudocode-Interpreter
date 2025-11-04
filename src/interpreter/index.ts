@@ -23,7 +23,7 @@ const parser = new PseudoParser(tokens);
 const tree = parser.program();
 
 //Print parse tree
-tokens.tokens.forEach(token => console.log(token.toString()))
+//tokens.tokens.forEach(token => console.log(token.toString()))
 const parseTree = tree.toStringTree(PseudoParser.ruleNames, parser)
 console.log(parseTree)
 
@@ -32,8 +32,8 @@ const visitor = new AstBuilderVisitor()
 const ast = tree.accept(visitor);
 
 //setup Interpreter
-const symbols = new SymbolTable<Slot>(undefined)
-const functions = new SymbolTable<FunctionTree>(undefined)
+const symbols = new SymbolTable<Slot>()
+const functions = new SymbolTable<FunctionTree>()
 const interpreter = new InterpretingVisitor(symbols, functions);
 
 //Print AST
@@ -43,8 +43,7 @@ console.log(astString);
 
 //Run program
 ast.accept(interpreter)
-
-
+console.log("stack: ", interpreter.stack)
 
 //Print all variables
 symbols.getAllVariables().forEach((v: Slot, k: string) => {
