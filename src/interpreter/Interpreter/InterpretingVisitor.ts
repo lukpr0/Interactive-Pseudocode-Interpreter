@@ -29,7 +29,7 @@ import type ObjectTree from "../AST/ObjectTree.js";
 import Object from "./Types/Object.js";
 import type BreakTree from "../AST/BreakTree.js";
 import type ReturnTree from "../AST/ReturnTree.js";
-import type { Token } from "antlr4";
+import { Token } from "antlr4";
 import type BuiltInFunction from "./BuiltInFunctions/BuiltInFunction.js";
 import PrintFunction from "./BuiltInFunctions/PrintFunction.js";
 
@@ -125,6 +125,20 @@ export default class InterpretingVisitor implements Visitor<void> {
     }
 
     visitBinary(expr: BinaryOperationTree): void {
+        if (expr.operator.type == PseudoParser.DOT) {
+            expr.left.accept(this)
+            if (expr.right instanceof UnaryOperationTree && expr.right.operand instanceof Token && expr.right.operand.type == PseudoParser.IDENTIFIER) {
+                const left = this.stack.pop()
+                if (left === undefined) {
+                    throw new Error("left or right operand missing")
+                }
+                if (left.type == Type.Object) {
+                    this.stack.push(left.get(expr.right.operand.text).value)
+                    return;
+                }
+                throw new Error(`can't use dot access on type ${left.type}`);
+            }
+        }
         expr.left.accept(this)
         expr.right.accept(this)
         const right = this.stack.pop()
@@ -175,6 +189,9 @@ export default class InterpretingVisitor implements Visitor<void> {
                 break;
             case PseudoParser.NOTEQUAL:
                 result = this.handleNotEqual(left, right)
+                break;
+            case PseudoParser.LBRACK:
+                result = this.handleIndexAccess(left, right)
                 break;
             default:
                 throw new Error("no valid operator found")
@@ -561,6 +578,14 @@ export default class InterpretingVisitor implements Visitor<void> {
             throw new Error(errorMessage);
         }
     }
+    
+    private handleIndexAccess(left: Value, right: Value): Value {
+        if (left.type == Type.Array && right.type == Type.Integer) {
+            return left.get(Number(right.value)).value
+        }
+        const errorMessage = `incompatible types for operator != : ${left.type}, ${right.type}`;
+        throw new Error(errorMessage);
+    }
 
     private handleUserFunction(func: FunctionTree, args: ExprTree[]) {
         if (args.length != func.args.length) {
@@ -606,5 +631,6 @@ export default class InterpretingVisitor implements Visitor<void> {
             this.symbolTable.setVariable(argName, new Slot(arg))
         }
     }
+
 
 }

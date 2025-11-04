@@ -32,11 +32,12 @@ expr
     | value=('true' | 'false')          # BoolLiteral
     | funccall                          # FuncCall
     | IDENTIFIER                        # IdLiteral
-    | fullid                            # FullId
     | arrayexpr                         # ArrayExpr
     | objectexpr                        # ObjectExpr
     | 'not' expr                        # Negation
     | '-' expr                          # UnaryMinus
+    | expr '[' expr ']'                 # IndexAccess
+    | expr '.' IDENTIFIER               # DotAccess
     | expr op=('*' | '/' | 'div' | 'mod') expr  # Multiplicative
     | expr op=('+' | '-') expr          # Additive
     | expr op=('>' | '<' | '<=' | '>=' | '=' | '!=') expr # Comparison

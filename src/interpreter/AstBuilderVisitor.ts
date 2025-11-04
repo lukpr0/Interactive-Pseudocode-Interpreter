@@ -1,5 +1,5 @@
 import { Token } from 'antlr4';
-import { AdditiveContext, AlgorithmContext, ArglistContext, ArrayexprContext, ArrayExprContext, AssignStatContext, AssignstatContext, BoolLiteralContext, BreakstatContext, BreakStatContext, ComparisonContext, DotAccessorContext, ExprContext, ExprStatContext, FloatLiteralContext, ForstatContext, ForStatContext, FullidContext, FullIdContext, FunccallContext, FuncCallContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IndexAccessorContext, IntLiteralContext, IteratorContext, KeyvaluepairContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, ObjectexprContext, ObjectExprContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RepeatStatContext, RepeatstatContext, ReturnStatContext, ReturnstatContext, StatContext, StatlistContext, UnaryMinusContext, WhileStatContext, WhilestatContext } from '../generated/index.js';
+import { AdditiveContext, AlgorithmContext, ArglistContext, ArrayexprContext, ArrayExprContext, AssignStatContext, AssignstatContext, BoolLiteralContext, BreakstatContext, BreakStatContext, ComparisonContext, DotAccessContext, DotAccessorContext, ExprContext, ExprStatContext, FloatLiteralContext, ForstatContext, ForStatContext, FullidContext, FunccallContext, FuncCallContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IndexAccessContext, IndexAccessorContext, IntLiteralContext, IteratorContext, KeyvaluepairContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, ObjectexprContext, ObjectExprContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RepeatStatContext, RepeatstatContext, ReturnStatContext, ReturnstatContext, StatContext, StatlistContext, UnaryMinusContext, WhileStatContext, WhilestatContext } from '../generated/index.js';
 import type Tree from './AST/Tree.js';
 import { ProgramTree } from './AST/ProgramTree.js';
 import { AssignTree } from './AST/AssignTree.js';
@@ -125,6 +125,27 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
                     throw new Error("Unexpected operand found: " + ctx._op.text);
             }
             return this.buildBinaryExpr(op.symbol, ctx);
+        }
+        
+        this.visitIndexAccess = (ctx: IndexAccessContext): Tree => {
+            return this.buildBinaryExpr(ctx.LBRACK().symbol, ctx)
+        }
+
+        this.visitDotAccess = (ctx: DotAccessContext): Tree => {
+            const left = ctx.expr()
+            if (!left) {
+                throw new Error("Expected operand, found nothing");
+            }
+            const right = ctx.IDENTIFIER()
+            if (!right) {
+                throw new Error("Expected operand, found nothing");
+            }
+            const leftTree = this.visit(left)
+            if (leftTree instanceof ExprTree) {
+                const tree = new BinaryOperationTree(ctx.DOT().symbol, leftTree, new UnaryOperationTree(null, right.symbol));
+                return tree;
+            }
+            throw new Error("incompatible type detected")
         }
 
         this.visitParentheses = (ctx: ParenthesesContext): Tree => {
@@ -348,10 +369,6 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             return arrayTree;
         }
 
-        this.visitFullId = (ctx: FullIdContext): Tree => {
-            return ctx.fullid().accept(this);
-        }
-
         this.visitFullid = (ctx: FullidContext): Tree => {
             const id = ctx.IDENTIFIER().symbol;
             const accessors = ctx.accessor_list()
@@ -416,9 +433,10 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             return tree;
             //console.log("expr=", expr)
         }
+
     }
 
-    private buildBinaryExpr(op: Token, ctx: AdditiveContext | MultiplicativeContext | LogicalAndContext | LogicalOrContext | ComparisonContext): Tree {
+    private buildBinaryExpr(op: Token, ctx: AdditiveContext | MultiplicativeContext | LogicalAndContext | LogicalOrContext | ComparisonContext | IndexAccessContext): Tree {
         const left = ctx.expr_list()[0]
         if (!left) {
             throw new Error("Expected operand, found nothing");
