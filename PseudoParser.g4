@@ -29,6 +29,7 @@ statlist
 expr
     : INT                               # IntLiteral
     | FLOAT                             # FloatLiteral
+    | STRING                            # StringLiteral
     | value=('true' | 'false')          # BoolLiteral
     | funccall                          # FuncCall
     | IDENTIFIER                        # IdLiteral

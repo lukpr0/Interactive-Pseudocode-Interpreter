@@ -9,6 +9,7 @@ enum Type {
     Function,
     Iterator,
     Object,
+    String,
 }
 
 export default Type;
@@ -33,6 +34,8 @@ export function typeToString(type: Type): string {
             return "Iterator"
         case Type.Object:
             return "Object"
+        case Type.String:
+            return "String"
     }
 }
 

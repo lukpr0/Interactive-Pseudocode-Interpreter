@@ -26,7 +26,16 @@ export default class Array {
         return `Array { value: ${this.value} }`
     }
 
-    get(index: number): Slot{
+    get(index: number): Value{
+        const element = this.value[index];
+        if (element) {
+            return element.value;
+        } else {
+            throw new Error(`No element with index ${index}`);
+        }
+    }
+
+    getSlot(index: number): Slot {
         const element = this.value[index];
         if (element) {
             return element;
