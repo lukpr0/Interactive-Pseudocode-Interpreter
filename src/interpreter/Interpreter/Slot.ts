@@ -6,4 +6,8 @@ export default class Slot {
     constructor(value: Value) {
         this.value = value;
     }
+
+    toString(): string {
+        return this.value.toString()
+    }
 }

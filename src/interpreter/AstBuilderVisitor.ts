@@ -1,5 +1,5 @@
 import { Token } from 'antlr4';
-import { AdditiveContext, AlgorithmContext, ArglistContext, ArrayexprContext, ArrayExprContext, AssignStatContext, AssignstatContext, BoolLiteralContext, ComparisonContext, DotAccessorContext, ExprContext, ExprStatContext, FloatLiteralContext, ForstatContext, ForStatContext, FullidContext, FullIdContext, FunccallContext, FuncCallContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IndexAccessorContext, IntLiteralContext, IteratorContext, KeyvaluepairContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, ObjectexprContext, ObjectExprContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RepeatStatContext, RepeatstatContext, StatContext, StatlistContext, UnaryMinusContext, WhileStatContext, WhilestatContext } from '../generated/index.js';
+import { AdditiveContext, AlgorithmContext, ArglistContext, ArrayexprContext, ArrayExprContext, AssignStatContext, AssignstatContext, BoolLiteralContext, BreakstatContext, BreakStatContext, ComparisonContext, DotAccessorContext, ExprContext, ExprStatContext, FloatLiteralContext, ForstatContext, ForStatContext, FullidContext, FullIdContext, FunccallContext, FuncCallContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IndexAccessorContext, IntLiteralContext, IteratorContext, KeyvaluepairContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, ObjectexprContext, ObjectExprContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RepeatStatContext, RepeatstatContext, ReturnStatContext, ReturnstatContext, StatContext, StatlistContext, UnaryMinusContext, WhileStatContext, WhilestatContext } from '../generated/index.js';
 import type Tree from './AST/Tree.js';
 import { ProgramTree } from './AST/ProgramTree.js';
 import { AssignTree } from './AST/AssignTree.js';
@@ -20,11 +20,16 @@ import ASTPrinter from './AST/ASTPrinter.js';
 import { assert } from 'console';
 import ObjectTree from './AST/ObjectTree.js';
 import KeyValueTree from './AST/KeyValueTree.js';
+import ReturnTree from './AST/ReturnTree.js';
+import BreakTree from './AST/BreakTree.js';
 
 export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
 
+    inFunction: boolean;
+
     constructor() {
         super();
+        this.inFunction = false;
 
         this.visitProgram = (ctx: ProgramContext): Tree => {
             const trees = [];
@@ -66,7 +71,7 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
                 const tree = new AssignTree(id, child);
                 return tree;
             }
-            throw new Error("incompatible type detected")
+            throw new Error("incompatible type detected: ")
         }
 
         this.visitWhileStat = (ctx: WhileStatContext): Tree => {
@@ -202,14 +207,21 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
         this.visitStatlist = (ctx: StatlistContext): StatListTree => {
             const stats = []
             for (const stat of ctx.stat_list()) {
-                if (stat instanceof AssignStatContext || stat instanceof WhileStatContext || stat instanceof RepeatStatContext || stat instanceof IfStatContext || stat instanceof ForStatContext) {
+                if (
+                    stat instanceof AssignStatContext || stat instanceof WhileStatContext 
+                    || stat instanceof RepeatStatContext || stat instanceof IfStatContext 
+                    || stat instanceof ForStatContext || stat instanceof BreakStatContext
+                    || stat instanceof ReturnStatContext || stat instanceof ExprStatContext
+                ) {
                     const t = stat.accept(this);
                     stats.push(t);
                 } else {
                     throw new Error("Unexpected statement found");
                 }
             }
-            return new StatListTree(stats)
+            const tree = new StatListTree(stats);
+            tree.returnable = true;
+            return tree;
         }
 
         this.visitWhilestat = (ctx: WhilestatContext): Tree => {
@@ -268,10 +280,14 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             for (const id of ctx.arglist().IDENTIFIER_list()) {
                 ids.push(id.symbol);
             }
+            this.inFunction = true;
             const stats = ctx.statlist().accept(this)
             if (!(stats instanceof StatListTree)) {
                 throw new Error("Unexpected subtree");
             }
+            this.inFunction = false;
+            stats.functionRoot = true;
+            stats.returnable = true;
             const functionTree = new FunctionTree(name, ids, stats);
             return functionTree;
         }
@@ -374,11 +390,32 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
 
         this.visitKeyvaluepair = (ctx: KeyvaluepairContext): Tree => {
             const key = ctx.IDENTIFIER().symbol;
-            const value = this.visit(ctx.expr())
+            const value = this.visit(ctx.expr());
             const tree = new KeyValueTree(key, value);
             return tree;
         }
 
+        this.visitBreakStat = (ctx: BreakStatContext): Tree => {
+            return ctx.breakstat().accept(this);
+        }
+
+        this.visitBreakstat = (ctx: BreakstatContext): Tree => {
+            return new BreakTree();
+        }
+        
+        this.visitReturnStat = (ctx: ReturnStatContext): Tree => {
+            return ctx.returnstat().accept(this);
+        }
+        
+        this.visitReturnstat = (ctx: ReturnstatContext): Tree => {
+            if (!ctx.expr()) {
+                return new ReturnTree(new UnaryOperationTree(null, new Token()))
+            }
+            const expr = this.visit(ctx.expr());
+            const tree = new ReturnTree(expr);
+            return tree;
+            //console.log("expr=", expr)
+        }
     }
 
     private buildBinaryExpr(op: Token, ctx: AdditiveContext | MultiplicativeContext | LogicalAndContext | LogicalOrContext | ComparisonContext): Tree {

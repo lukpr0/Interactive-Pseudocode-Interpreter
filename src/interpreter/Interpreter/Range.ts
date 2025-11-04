@@ -31,4 +31,12 @@ export default class Range implements Iterable<Integer> {
         return new Integer(this.current);
     }
 
+    toString(): string {
+        return `${this.from} .. ${this.to}`
+    }
+
+    toDebugString(): string {
+        return `Range { ${this.from} .. ${this.to} }`
+    }
+
 }

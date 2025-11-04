@@ -9,8 +9,12 @@ export default class Integer {
         this.value = value;
     }
 
-    toString(): string {
+    toDebugString(): string {
         return `Integer { value: ${this.value} }`
+    }
+    
+    toString(): string {
+        return this.value.toString()
     }
 
     add(right: Integer | Float): Integer | Float {

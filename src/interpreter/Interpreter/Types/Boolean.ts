@@ -6,8 +6,12 @@ export default class Boolean {
     constructor (value: boolean) {
         this.value = value;
     }
-
+    
     toString(): string {
+        return this.value.toString()
+    }
+
+    toDebugString(): string {
         return `Boolean { value: ${this.value} }`
     }
     

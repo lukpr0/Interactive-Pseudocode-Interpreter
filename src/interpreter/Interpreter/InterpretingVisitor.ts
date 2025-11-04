@@ -18,7 +18,7 @@ import type IteratorTree from "../AST/IteratorTree.js";
 import type RangeTree from "../AST/RangeTree.js";
 import Range from "./Range.js";
 import FunctionTree from "../AST/FunctionTree.js";
-import type FunctionCallTree from "../AST/FunctionCallTree.js";
+import FunctionCallTree from "../AST/FunctionCallTree.js";
 import type ArrayTree from "../AST/ArrayTree.js";
 import Array from "./Types/Array.js";
 import type FullIdTree from "../AST/FullIdTree.js";
@@ -27,21 +27,44 @@ import Slot from "./Slot.js";
 import type KeyValueTree from "../AST/KeyValueTree.js";
 import type ObjectTree from "../AST/ObjectTree.js";
 import Object from "./Types/Object.js";
+import type BreakTree from "../AST/BreakTree.js";
+import type ReturnTree from "../AST/ReturnTree.js";
+import type { Token } from "antlr4";
+import type BuiltInFunction from "./BuiltInFunctions/BuiltInFunction.js";
+import PrintFunction from "./BuiltInFunctions/PrintFunction.js";
 
 export default class InterpretingVisitor implements Visitor<void> {
     symbolTable: SymbolTable<Slot>;
     functionTable: SymbolTable<FunctionTree>
+    builtInFunctions: SymbolTable<BuiltInFunction>
     stack: Value[]
+
+    returning: boolean;
+    breaking: boolean;
 
     constructor(symbolTable: SymbolTable<Slot>, functionTable: SymbolTable<FunctionTree>) {
         this.symbolTable = symbolTable;
         this.functionTable = functionTable;
         this.stack = []
+        this.returning = false;
+        this.breaking = false;
+        this.builtInFunctions = new SymbolTable();
+
+        this.builtInFunctions.setVariable('print', new PrintFunction())
     }
 
     visitStatlist(expr: StatListTree): void {
         for (const stat of expr.stats) {
+            if (this.breaking) {
+                break;
+            }
+            if (this.returning) {
+                break;
+            }
             stat.accept(this)
+            if (stat instanceof FunctionCallTree) {
+                this.stack.pop()
+            }
         }
     }
 
@@ -55,6 +78,9 @@ export default class InterpretingVisitor implements Visitor<void> {
         for (const tree of program.children) {
             if (!(tree instanceof FunctionTree)) {
                 tree.accept(this);
+            }
+            if (tree instanceof FunctionCallTree) {
+                this.stack.pop()
             }
         }
     }
@@ -70,6 +96,9 @@ export default class InterpretingVisitor implements Visitor<void> {
             this.symbolTable.setVariable(assign.id.name.text, new Slot(value));
         } else {
             let slot = this.symbolTable.getVariable(assign.id.name.text);
+            if (slot === undefined) {
+                throw new Error(`Variable ${assign.id.name.text} does not exist`)
+            }
             for (const accessor of assign.id.accessors) {
                 if (accessor instanceof IndexAccessorTree && slot.value.type == Type.Array) {
                     accessor.index.accept(this);
@@ -157,8 +186,11 @@ export default class InterpretingVisitor implements Visitor<void> {
         if (expr.operand instanceof ExprTree) {
             expr.operand.accept(this);
         } else if (expr.operand.type == PseudoParser.IDENTIFIER) {
-            const value = this.symbolTable.getVariable(expr.operand.text);
-            this.stack.push(value.value);
+            const slot = this.symbolTable.getVariable(expr.operand.text);
+            if (slot === undefined) {
+                throw new Error(`Variable ${expr.operand.text} does not exist`)
+            }
+            this.stack.push(slot.value);
         } else if (expr.operand.type == PseudoParser.INT) {
             const value = new Integer(BigInt(expr.operand.text));
             this.stack.push(value);
@@ -194,7 +226,7 @@ export default class InterpretingVisitor implements Visitor<void> {
     visitWhile(expr: WhileTree): void {
         while(true) {
         const parent = this.symbolTable;
-        this.symbolTable = new SymbolTable(parent);
+        this.symbolTable.addChild(new SymbolTable());
             expr.cond.accept(this);
             const fromStack = this.stack.pop();
             if (!(fromStack instanceof Boolean)) {
@@ -202,19 +234,33 @@ export default class InterpretingVisitor implements Visitor<void> {
             }
             if (fromStack.value) {
                 expr.list.accept(this);
+                if (this.breaking) {
+                    this.breaking = false;
+                    break;
+                }
+                if (this.returning) {
+                    break;
+                }
             } else {
-                this.symbolTable = parent;
+                this.symbolTable.removeChild();
                 break;
             }
-            this.symbolTable = parent;
+            this.symbolTable.removeChild();
         } 
     }
 
     visitRepeat(expr: RepeatUntilTree): void {
         while (true) {
             const parent = this.symbolTable;
-            this.symbolTable = new SymbolTable(parent);
+            this.symbolTable.addChild(new SymbolTable());
             expr.list.accept(this);
+            if (this.breaking) {
+                this.breaking = false;
+                break;
+            }
+            if (this.returning) {
+                break;
+            }
             expr.cond.accept(this);
             const fromStack = this.stack.pop();
             if (!(fromStack instanceof Boolean)) {
@@ -224,7 +270,7 @@ export default class InterpretingVisitor implements Visitor<void> {
                 this.symbolTable = parent;
                 break;
             }
-            this.symbolTable = parent;
+            this.symbolTable.removeChild();
         }
     }
 
@@ -240,11 +286,10 @@ export default class InterpretingVisitor implements Visitor<void> {
                 throw new Error("If-Statement requires boolean expression")
             }
             if (fromStack.value) {
-                const parent = this.symbolTable;
-                this.symbolTable = new SymbolTable(parent);
+                this.symbolTable.addChild(new SymbolTable());
                 branchExecuted = true;
                 list?.accept(this);
-                this.symbolTable = parent;
+                this.symbolTable.removeChild()
             }
         }
 
@@ -264,12 +309,18 @@ export default class InterpretingVisitor implements Visitor<void> {
         }
         const variableName = expr.cond.id.text;
         while (iter.hasNext()) {
-            const parent = this.symbolTable;
-            this.symbolTable = new SymbolTable(parent);
+            this.symbolTable.addChild(new SymbolTable());
             const value = iter.next();
             this.symbolTable.setVariable(variableName, new Slot(value));
             expr.list.accept(this);
-            this.symbolTable = parent;
+            if (this.breaking) {
+                this.breaking = false;
+                break;
+            }
+            if (this.returning) {
+                break;
+            }
+            this.symbolTable.removeChild();
         }
     }
 
@@ -299,27 +350,18 @@ export default class InterpretingVisitor implements Visitor<void> {
 
     visitFunctionCall(expr: FunctionCallTree): void {
         const name = expr.name.text;
-        const func = this.functionTable.getVariable(name);
-        if (!(func instanceof FunctionTree)) {
-            throw new Error(`${name} is not a function`);
+        const builtin = this.builtInFunctions.getVariable(name);
+        if (builtin !== undefined) {
+            this.handleBuiltInFunction(builtin, expr.args)
+            return;
         }
-        const args = expr.args;
-        if (args.length != func.args.length) {
-            throw new Error(`wrong number of parameters, ${name} expects ${func.args.length} paramters, got ${args.length}`)
+        const user = this.functionTable.getVariable(name);
+        if (user !== undefined) {
+            this.handleUserFunction(user, expr.args);
+            this.returning = false;
+            return;
         }
-        const parent = this.symbolTable;
-        this.symbolTable = new SymbolTable(parent);
-        for (let i = 0; i<args.length; i++) {
-            args[i]!.accept(this);
-            const argName = func.args[i]!.text;
-            const value = this.stack.pop();
-            if (value === undefined) {
-                throw new Error("No value found");
-            }
-            this.symbolTable.setVariable(argName, new Slot(value))
-        }
-        func.stats.accept(this)
-        this.symbolTable = parent;
+        throw new Error(`line ${expr.name.line}:${expr.name.column} ${name} is not a function`);
     }
 
     visitArray(expr: ArrayTree): void {
@@ -337,7 +379,11 @@ export default class InterpretingVisitor implements Visitor<void> {
 
     visitFullId(expr: FullIdTree): void {
         const name = expr.name.text
-        let value = this.symbolTable.getVariable(name).value;
+        let slot = this.symbolTable.getVariable(name);
+        if (slot === undefined) {
+            throw new Error(`Variable ${name} does not exist`)
+        }
+        let value = slot.value;
         for (const accessor of expr.accessors) {
             if (accessor instanceof IndexAccessorTree && value.type == Type.Array) {
                 accessor.index.accept(this);
@@ -352,6 +398,15 @@ export default class InterpretingVisitor implements Visitor<void> {
             }
         }
         this.stack.push(value);
+    }
+
+    visitBreak(expr: BreakTree): void {
+        this.breaking = true;
+    }
+
+    visitReturn(expr: ReturnTree): void {
+        const returnValue = expr.value.accept(this)
+        this.returning = true;
     }
 
     visitIndex(expr: IndexAccessorTree): void {}
@@ -504,6 +559,51 @@ export default class InterpretingVisitor implements Visitor<void> {
         } else {
             const errorMessage = `incompatible types for operator != : ${left.type}, ${right.type}`;
             throw new Error(errorMessage);
+        }
+    }
+
+    private handleUserFunction(func: FunctionTree, args: ExprTree[]) {
+        if (args.length != func.args.length) {
+            throw new Error(`wrong number of parameters, ${func.name} expects ${func.args.length} paramters, got ${args.length}`)
+        }
+        const argValues = args.map(arg => {
+            arg.accept(this)
+            const value = this.stack.pop();
+            if (value === undefined) {
+                throw new Error("No value found");
+            }
+            return value;
+        })
+        const currentScope = this.symbolTable.child
+        const funcScope = new SymbolTable<Slot>();
+        this.symbolTable.child = funcScope;
+        this.setVariables(func.args, argValues)
+        func.stats.accept(this)
+
+        this.symbolTable.child = currentScope
+    }
+
+    private handleBuiltInFunction(func: BuiltInFunction, args: ExprTree[]) {
+        if (args.length != func.argsCount) {
+            throw new Error(`wrong number of parameters, ${func.name} expects ${func.argsCount} paramters, got ${args.length}`)
+        }
+        const argValues = [];
+        for (const arg of args) {
+            arg.accept(this);
+            const argValue = this.stack.pop();
+            if (argValue === undefined) {
+                throw new Error("No value found");
+            }
+            argValues.push(argValue);
+        }
+        const value = func.eval(argValues);
+        this.stack.push(value);
+    }
+
+    private setVariables(argNames: Token[], args: Value[]) {
+        for (const [i, arg] of args.entries()) {
+            const argName = argNames[i]!.text;
+            this.symbolTable.setVariable(argName, new Slot(arg))
         }
     }
 

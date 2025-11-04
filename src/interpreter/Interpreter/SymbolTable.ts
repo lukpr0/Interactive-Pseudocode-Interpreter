@@ -1,30 +1,42 @@
 import type FunctionTree from "../AST/FunctionTree";
+import type PrintFunction from "./BuiltInFunctions/PrintFunction";
 import type { Value } from "./Value";
 
 export default class SymbolTable<T> {
     table: Map<string, T>;
-    parent: SymbolTable<T> | undefined;
-    constructor(parent: SymbolTable<T> | undefined) {
+    child: SymbolTable<T> | undefined;
+    constructor() {
         this.table = new Map();
-        this.parent = parent;
+        this.child = undefined;
     }
 
-    public getVariable(name: string): T {
-        if (this.table.has(name)) {
-            return this.table.get(name)!;
-        } else if (this.parent) {
-            const value = this.parent.getVariable(name);
-            return value;
+    public getVariable(name: string): T | undefined {
+        if (this.child && this.child.has(name)) {
+            return this.child.getVariable(name)!;
+        } else if (this.table.has(name)) {
+            return this.table.get(name);
         } else {
-            throw new Error(`Variable ${name} does not exist`);
+            return undefined
+        }
+    }
+
+    private has(name: string): boolean {
+        if (this.child && this.child.has(name)) {
+            return true
+        } else {
+            return this.table.has(name)
         }
     }
 
     public setVariable(name: string, value: T) {
         if (this.table.has(name)) {
             this.table.set(name, value);
-        } else if (!this.trySetVariableInParent(name, value)) {
-            this.table.set(name, value);
+        } else {
+            if (this.child !== undefined) {
+                this.child.setVariable(name, value);
+            } else {
+                this.table.set(name, value);
+            }
         }
     }
 
@@ -32,15 +44,31 @@ export default class SymbolTable<T> {
         return this.table;
     }
 
-    private trySetVariableInParent(name: string, value: T): boolean {
-        if (this.table.has(name)) {
-            this.table.set(name, value);
-            return true;
-        } else if (this.parent) {
-            return this.parent.trySetVariableInParent(name, value);
+    public addChild(table: SymbolTable<T>) {
+        if (this.child !== undefined) {
+            this.child.addChild(table);
         } else {
-            return false;
+            this.child = table;
         }
+    }
+
+    public removeChild(): SymbolTable<T> | undefined {
+        if (this.child && this.child.child) {
+            return this.child.removeChild();
+        } else if (this.child && this.child.child === undefined) {
+            const removed = this.child;
+            this.child = undefined;
+            return removed;
+        }
+        return undefined
+    }
+
+    toString(): string {
+        const kvps = []
+        for (const [key, slot] of this.table.entries()) {
+            kvps.push(`${key}: ${slot!.toString()}`)
+        }
+        return `Table: ${kvps.join('\r\n')}, Child: (${this.child?.toString()})`
     }
 
 }

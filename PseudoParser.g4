@@ -18,6 +18,8 @@ stat
     | ifstat                            # IfStat
     | forstat                           # ForStat
     | expr                              # ExprStat
+    | breakstat                         # BreakStat
+    | returnstat                        # ReturnStat
     ;
 
 statlist
@@ -42,6 +44,13 @@ expr
     | expr op='or' expr                 # LogicalOr
     | '(' expr ')'                      # Parentheses
     ;
+
+breakstat
+    : 'break'
+    ;
+
+returnstat
+    : 'return' expr?;
 
 arrayexpr
     : '[' (expr (',' expr)* ','?)? ']'
