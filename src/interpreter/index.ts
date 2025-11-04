@@ -13,7 +13,10 @@ import Type from './Interpreter/Type.js';
 
 //Read file
 const file = await fs.readFile('test.pseudo', 'utf8');
-console.log(file)
+const quiet = process.argv.findIndex(pred => pred == '-q')
+
+if (!quiet) console.log(file)
+
 
 //Parse input
 const chars = new CharStream(file);
@@ -25,7 +28,7 @@ const tree = parser.program();
 //Print parse tree
 //tokens.tokens.forEach(token => console.log(token.toString()))
 const parseTree = tree.toStringTree(PseudoParser.ruleNames, parser)
-console.log(parseTree)
+if (!quiet) console.log(parseTree)
 
 //Build AST
 const visitor = new AstBuilderVisitor()
@@ -39,14 +42,14 @@ const interpreter = new InterpretingVisitor(symbols, functions);
 //Print AST
 const astPrinter = new ASTPrinter();
 const astString = ast.accept(astPrinter);
-console.log(astString);
+if (!quiet) console.log(astString);
 
 //Run program
 ast.accept(interpreter)
-console.log("stack: ", interpreter.stack)
+if (!quiet) console.log("stack: ", interpreter.stack)
 
 //Print all variables
-symbols.getAllVariables().forEach((v: Slot, k: string) => {
+if (!quiet) symbols.getAllVariables().forEach((v: Slot, k: string) => {
     if (v.value.type == Type.Array) {
         console.log( k, `: Array (${v.value.value.length}) [`);
         v.value.value.forEach(s => console.log(s.value));

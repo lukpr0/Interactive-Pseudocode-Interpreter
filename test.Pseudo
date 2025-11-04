@@ -1,7 +1,26 @@
 
+nums := Array(10000, true)
+primes := []
 
-sq := sqrt(2)
+nums[0] := false
+for i in 2 .. floor(sqrt(len(nums))) do
+    if nums[i] then
+        j := i
+        push(primes, i)
+        while j < len(nums) do 
+            nums[j] := false
+            j := j+i
+        end
+    end
+end
 
-print(sq)
-print(ceil(sq))
-print(floor(sq))
+for i in ceil(sqrt(len(nums))) .. len(nums) do
+    if nums[i] then
+        push(primes, i)
+    end
+end
+
+print(primes)
+numPrimes := len(primes)
+print(numPrimes)
+
