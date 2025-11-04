@@ -35,6 +35,7 @@ import PrintFunction from "./BuiltInFunctions/PrintFunction.js";
 import String from "./Types/String.js";
 import { ArrayConstructor, LengthFunction, PushFunction } from "./BuiltInFunctions/ArrayFunctions.js";
 import Nil from "./Types/Nil.js";
+import { CeilFunction, FloorFunction, SquarerootFunction } from "./BuiltInFunctions/MathFunctions.js";
 
 export default class InterpretingVisitor implements Visitor<void> {
     symbolTable: SymbolTable<Slot>;
@@ -57,6 +58,9 @@ export default class InterpretingVisitor implements Visitor<void> {
         this.builtInFunctions.setVariable('len', new LengthFunction());
         this.builtInFunctions.setVariable('Array', new ArrayConstructor());
         this.builtInFunctions.setVariable('push', new PushFunction());
+        this.builtInFunctions.setVariable('floor', new FloorFunction());
+        this.builtInFunctions.setVariable('ceil', new CeilFunction());
+        this.builtInFunctions.setVariable('sqrt', new SquarerootFunction());
     }
 
     visitStatlist(expr: StatListTree): void {

@@ -1,6 +1,7 @@
 import Type from "../Type.js";
 import Array from "../Types/Array.js";
 import Integer from "../Types/Integer.js";
+import Nil from "../Types/Nil.js";
 import type { Value } from "../Value.js";
 import BuiltInFunction from "./BuiltInFunction.js";
 
@@ -51,6 +52,6 @@ export class PushFunction extends BuiltInFunction {
             throw new Error(`No value to push found`)
         }
         args[0].push(args[1])
-        return new Integer(0xDEADBEEFn)
+        return new Nil()
     }
 }
