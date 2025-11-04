@@ -1,28 +1,8 @@
 
-function fib(t)
-    if t > 1 then
-        return fib(t-1)+fib(t-2)
-    else
-        return 1
-    end
-end
+A := [1,2,3]
 
+print(A[0])
 
-function factorial(n)
-    if n > 0 then
-        return n * factorial(n-1)
-    else
-        return 1
-    end
-end
+O := { left: 1, right: 2 }
 
-for i in 0 .. 10 do
-    print(i)
-    for j in 0 .. 10 do
-        fac := factorial(i)
-        print(fac)
-        if j = 5 then
-            break
-        end
-    end
-end
+print(O.left)
