@@ -31,6 +31,7 @@ expr
     | FLOAT                             # FloatLiteral
     | STRING                            # StringLiteral
     | value=('true' | 'false')          # BoolLiteral
+    | NIL                               # NilLiteral
     | funccall                          # FuncCall
     | IDENTIFIER                        # IdLiteral
     | arrayexpr                         # ArrayExpr

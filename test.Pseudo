@@ -1,7 +1,12 @@
 
 s := "abc"
 a := [1,2,3]
-num := 5
-print(s+a+num+" xy ")
+print(len(a))
+print(len(s))
 
-print(s[0])
+b := Array(5, 0)
+push(b, 1)
+print(b)
+
+c := Array(5, nil)
+print(c)
