@@ -32,6 +32,7 @@ import type ReturnTree from "../AST/ReturnTree.js";
 import { Token } from "antlr4";
 import type BuiltInFunction from "./BuiltInFunctions/BuiltInFunction.js";
 import PrintFunction from "./BuiltInFunctions/PrintFunction.js";
+import String from "./Types/String.js";
 
 export default class InterpretingVisitor implements Visitor<void> {
     symbolTable: SymbolTable<Slot>;
@@ -107,7 +108,7 @@ export default class InterpretingVisitor implements Visitor<void> {
                         throw new Error("Value expected, found nothing");
                     }
                     const indexAsNum = typeof index.value == "number" ? index.value : Number(index.value)
-                    slot = slot.value.get(indexAsNum);
+                    slot = slot.value.getSlot(indexAsNum);
                 } else if (accessor instanceof DotAccessorTree && slot.value.type == Type.Object) {
                     slot = slot.value.get(accessor.name.text);
                 }
@@ -217,6 +218,9 @@ export default class InterpretingVisitor implements Visitor<void> {
         } else if (expr.operand.type == PseudoParser.TRUE || expr.operand.type == PseudoParser.FALSE) {
             const isTrue = expr.operand.text == 'true';
             const value = new Boolean(isTrue);
+            this.stack.push(value);
+        } else if (expr.operand.type == PseudoParser.STRING) {
+            const value = new String(expr.operand.text.slice(1, -1));
             this.stack.push(value);
         }
 
@@ -409,7 +413,7 @@ export default class InterpretingVisitor implements Visitor<void> {
                     throw new Error("Value expected, found nothing");
                 }
                 const indexAsNum = typeof index.value == "number" ? index.value : Number(index.value)
-                value = value.get(indexAsNum).value;
+                value = value.getSlot(indexAsNum).value;
             } else if (accessor instanceof DotAccessorTree && value.type == Type.Object) {
                 value = value.get(accessor.name.text).value
             }
@@ -451,7 +455,11 @@ export default class InterpretingVisitor implements Visitor<void> {
     private handlePlus(left: Value, right: Value): Value {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.add(right);
-        } else {
+        } else if (left.type == Type.String && (right.type == Type.String || right.type == Type.Integer || right.type == Type.Float || right.type == Type.Boolean || right.type == Type.Array || right.type == Type.Object)) {
+            return left.add(right)
+        } else if (right.type == Type.String && (left.type == Type.String || left.type == Type.Integer || left.type == Type.Float || left.type == Type.Boolean || left.type == Type.Array || left.type == Type.Object)) {
+            return new String("").add(left).add(right)
+        } {
             const errorMessage = `incompatible types for operator +: ${left.type}, ${right.type}`;
             throw new Error(errorMessage);
         }
@@ -580,8 +588,8 @@ export default class InterpretingVisitor implements Visitor<void> {
     }
     
     private handleIndexAccess(left: Value, right: Value): Value {
-        if (left.type == Type.Array && right.type == Type.Integer) {
-            return left.get(Number(right.value)).value
+        if ((left.type == Type.Array || left.type == Type.String) && right.type == Type.Integer) {
+            return left.get(Number(right.value))
         }
         const errorMessage = `incompatible types for operator != : ${left.type}, ${right.type}`;
         throw new Error(errorMessage);

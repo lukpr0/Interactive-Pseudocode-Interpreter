@@ -1,8 +1,7 @@
 
-A := [1,2,3]
+s := "abc"
+a := [1,2,3]
+num := 5
+print(s+a+num+" xy ")
 
-print(A[0])
-
-O := { left: 1, right: 2 }
-
-print(O.left)
+print(s[0])
