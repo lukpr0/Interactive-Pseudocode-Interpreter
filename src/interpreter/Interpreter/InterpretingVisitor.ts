@@ -33,6 +33,8 @@ import { Token } from "antlr4";
 import type BuiltInFunction from "./BuiltInFunctions/BuiltInFunction.js";
 import PrintFunction from "./BuiltInFunctions/PrintFunction.js";
 import String from "./Types/String.js";
+import { ArrayConstructor, LengthFunction, PushFunction } from "./BuiltInFunctions/ArrayFunctions.js";
+import Nil from "./Types/Nil.js";
 
 export default class InterpretingVisitor implements Visitor<void> {
     symbolTable: SymbolTable<Slot>;
@@ -51,7 +53,10 @@ export default class InterpretingVisitor implements Visitor<void> {
         this.breaking = false;
         this.builtInFunctions = new SymbolTable();
 
-        this.builtInFunctions.setVariable('print', new PrintFunction())
+        this.builtInFunctions.setVariable('print', new PrintFunction());
+        this.builtInFunctions.setVariable('len', new LengthFunction());
+        this.builtInFunctions.setVariable('Array', new ArrayConstructor());
+        this.builtInFunctions.setVariable('push', new PushFunction());
     }
 
     visitStatlist(expr: StatListTree): void {
@@ -221,6 +226,9 @@ export default class InterpretingVisitor implements Visitor<void> {
             this.stack.push(value);
         } else if (expr.operand.type == PseudoParser.STRING) {
             const value = new String(expr.operand.text.slice(1, -1));
+            this.stack.push(value);
+        } else if (expr.operand.type == PseudoParser.NIL) {
+            const value = new Nil();
             this.stack.push(value);
         }
 

@@ -47,6 +47,7 @@ NOTEQUAL: '!=';
 
 TRUE: 'true';
 FALSE: 'false';
+NIL: 'nil';
 
 INT : [0-9]+ ;
 FLOAT
