@@ -1,22 +1,22 @@
 {
-  "name": "interpreter",
+  "name": "interactive-pseudo",
   "version": "0.1.0",
   "description": "",
-  "main": "src/interpreter/dist/index.js",
+  "main": "packages/interpreter/dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "app": "node dist/interpreter/index.js",
-    "antlr": "java -jar antlr-4.13.2-complete.jar -Dlanguage=TypeScript -visitor -no-listener -o ./src/generated PseudoLexer.g4 PseudoParser.g4",
-    "build": "npm run antlr && npx tsc -b"
+    "cli": "npm run app -w apps/cli"
   },
   "author": "Lukas Huber",
   "license": "MIT",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
   "dependencies": {
-    "antlr4": "^4.13.2"
   },
   "type": "module",
   "devDependencies": {
-    "@types/antlr4": "^4.11.6",
     "@types/node": "^24.8.1",
     "typescript": "^5.9.3"
   }
