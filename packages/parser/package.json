@@ -1,0 +1,20 @@
+{
+  "name": "@interactive-pseudo/parser",
+  "version": "0.1.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "antlr": "java -jar ../../antlr-4.13.2-complete.jar -Dlanguage=TypeScript -visitor -no-listener -o ./src/ PseudoLexer.g4 PseudoParser.g4",
+    "build": "npm run antlr && npx tsc -b"
+  },
+  "dependencies": {
+    "antlr4": "^4.13.2"
+  },
+  "devDependencies": {
+    "@types/antlr4": "^4.11.6"
+  }
+}

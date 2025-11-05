@@ -3,7 +3,7 @@ node_modules
 src/generated/*
 !src/generated/tsconfig.json
 !src/generated/index.ts
-dist/**/*
+**/dist/**/*
 antlr-*.jar
 **/*.tsbuildinfo
 .vscode
