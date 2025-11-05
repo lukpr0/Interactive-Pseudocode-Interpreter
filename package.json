@@ -2,12 +2,10 @@
   "name": "interactive-pseudo",
   "version": "0.1.0",
   "description": "",
-  "main": "src/interpreter/dist/index.js",
+  "main": "packages/interpreter/dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "app": "node dist/interpreter/index.js",
-    "antlr": "java -jar antlr-4.13.2-complete.jar -Dlanguage=TypeScript -visitor -no-listener -o ./src/generated PseudoLexer.g4 PseudoParser.g4",
-    "build": "npm run antlr && npx tsc -b"
+    "app": "node dist/interpreter/index.js"
   },
   "author": "Lukas Huber",
   "license": "MIT",
