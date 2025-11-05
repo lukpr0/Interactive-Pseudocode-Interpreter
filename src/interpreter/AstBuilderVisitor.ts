@@ -1,5 +1,5 @@
 import { Token } from 'antlr4';
-import { AdditiveContext, AlgorithmContext, ArglistContext, ArrayexprContext, ArrayExprContext, AssignStatContext, AssignstatContext, BoolLiteralContext, BreakstatContext, BreakStatContext, ComparisonContext, DotAccessContext, DotAccessorContext, ExprContext, ExprStatContext, FloatLiteralContext, ForstatContext, ForStatContext, FullidContext, FunccallContext, FuncCallContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IndexAccessContext, IndexAccessorContext, IntLiteralContext, IteratorContext, KeyvaluepairContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, NilLiteralContext, ObjectexprContext, ObjectExprContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RepeatStatContext, RepeatstatContext, ReturnStatContext, ReturnstatContext, StatContext, StatlistContext, StringLiteralContext, UnaryMinusContext, WhileStatContext, WhilestatContext } from '../generated/index.js';
+import { AdditiveContext, AlgorithmContext, ArglistContext, ArrayexprContext, ArrayExprContext, AssignStatContext, AssignstatContext, BoolLiteralContext, BreakstatContext, BreakStatContext, ComparisonContext, ContinuestatContext, ContinueStatContext, DotAccessContext, DotAccessorContext, ExprContext, ExprStatContext, FloatLiteralContext, ForstatContext, ForStatContext, FullidContext, FunccallContext, FuncCallContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IndexAccessContext, IndexAccessorContext, IntLiteralContext, IteratorContext, KeyvaluepairContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, NilLiteralContext, ObjectexprContext, ObjectExprContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RepeatStatContext, RepeatstatContext, ReturnStatContext, ReturnstatContext, StatContext, StatlistContext, StringLiteralContext, UnaryMinusContext, WhileStatContext, WhilestatContext } from '../generated/index.js';
 import type Tree from './AST/Tree.js';
 import { ProgramTree } from './AST/ProgramTree.js';
 import { AssignTree } from './AST/AssignTree.js';
@@ -22,6 +22,7 @@ import ObjectTree from './AST/ObjectTree.js';
 import KeyValueTree from './AST/KeyValueTree.js';
 import ReturnTree from './AST/ReturnTree.js';
 import BreakTree from './AST/BreakTree.js';
+import ContinueTree from './AST/ContinueTree.js';
 
 export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
 
@@ -242,6 +243,7 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
                     || stat instanceof RepeatStatContext || stat instanceof IfStatContext 
                     || stat instanceof ForStatContext || stat instanceof BreakStatContext
                     || stat instanceof ReturnStatContext || stat instanceof ExprStatContext
+                    || stat instanceof ContinueStatContext
                 ) {
                     const t = stat.accept(this);
                     stats.push(t);
@@ -441,6 +443,14 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             const tree = new ReturnTree(expr);
             return tree;
             //console.log("expr=", expr)
+        }
+
+        this.visitContinueStat = (ctx: ContinueStatContext): Tree => {
+            return ctx.continuestat().accept(this);
+        }
+
+        this.visitContinuestat = (ctx: ContinuestatContext): Tree => {
+            return new ContinueTree()
         }
 
     }

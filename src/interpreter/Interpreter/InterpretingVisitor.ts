@@ -36,6 +36,7 @@ import String from "./Types/String.js";
 import { ArrayConstructor, LengthFunction, PushFunction } from "./BuiltInFunctions/ArrayFunctions.js";
 import Nil from "./Types/Nil.js";
 import { CeilFunction, FloorFunction, SquarerootFunction } from "./BuiltInFunctions/MathFunctions.js";
+import type ContineTree from "../AST/ContinueTree.js";
 
 export default class InterpretingVisitor implements Visitor<void> {
     symbolTable: SymbolTable<Slot>;
@@ -45,6 +46,7 @@ export default class InterpretingVisitor implements Visitor<void> {
 
     returning: boolean;
     breaking: boolean;
+    continuing: boolean;
 
     constructor(symbolTable: SymbolTable<Slot>, functionTable: SymbolTable<FunctionTree>) {
         this.symbolTable = symbolTable;
@@ -52,6 +54,7 @@ export default class InterpretingVisitor implements Visitor<void> {
         this.stack = []
         this.returning = false;
         this.breaking = false;
+        this.continuing = false;
         this.builtInFunctions = new SymbolTable();
 
         this.builtInFunctions.setVariable('print', new PrintFunction());
@@ -70,6 +73,10 @@ export default class InterpretingVisitor implements Visitor<void> {
             }
             if (this.returning) {
                 break;
+            }
+            if (this.continuing) {
+                this.continuing = false;
+                break
             }
             stat.accept(this)
             if (stat instanceof FunctionCallTree) {
@@ -440,6 +447,10 @@ export default class InterpretingVisitor implements Visitor<void> {
     visitReturn(expr: ReturnTree): void {
         const returnValue = expr.value.accept(this)
         this.returning = true;
+    }
+
+    visitContinue(expr: ContineTree): void {
+        this.continuing = true;
     }
 
     visitIndex(expr: IndexAccessorTree): void {}
