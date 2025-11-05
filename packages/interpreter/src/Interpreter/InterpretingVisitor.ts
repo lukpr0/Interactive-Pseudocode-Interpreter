@@ -1,8 +1,8 @@
 import { PseudoParser } from "@interactive-pseudo/parser";
 import SymbolTable from "./SymbolTable.js";
-import type { AssignTree } from "../AST/AssignTree.js";
+import type AssignTree from "../AST/AssignTree.js";
 import { BinaryOperationTree, ExprTree, UnaryOperationTree } from "../AST/ExprTree.js";
-import type { ProgramTree } from "../AST/ProgramTree.js";
+import type ProgramTree from "../AST/ProgramTree.js";
 import type Visitor from "../AST/Visitor.js";
 import type { Value } from "./Value.js";
 import Type from "./Type.js";

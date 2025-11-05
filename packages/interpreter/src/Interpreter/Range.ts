@@ -1,5 +1,5 @@
 import Integer from "./Types/Integer.js";
-import type { Iterable } from "./Iterable.js";
+import type Iterable from "./Iterable.js";
 import Type from "./Type.js";
 
 export default class Range implements Iterable<Integer> {

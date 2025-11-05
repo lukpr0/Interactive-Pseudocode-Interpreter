@@ -5,12 +5,13 @@
   "main": "packages/interpreter/dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "app": "node dist/interpreter/index.js"
+    "cli": "npm run app -w apps/cli"
   },
   "author": "Lukas Huber",
   "license": "MIT",
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "apps/*"
   ],
   "dependencies": {
   },

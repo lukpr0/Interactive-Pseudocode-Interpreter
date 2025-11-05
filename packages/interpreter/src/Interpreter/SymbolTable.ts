@@ -1,6 +1,3 @@
-import type FunctionTree from "../AST/FunctionTree";
-import type PrintFunction from "./BuiltInFunctions/PrintFunction";
-import type { Value } from "./Value";
 
 export default class SymbolTable<T> {
     table: Map<string, T>;

@@ -1,4 +1,4 @@
-import type { Value } from "./Value";
+import type { Value } from './Value.js';
 
 export default class Slot {
     value: Value

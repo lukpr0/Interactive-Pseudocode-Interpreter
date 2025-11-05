@@ -1,7 +1,7 @@
 import { Token } from "antlr4";
-import type { AssignTree } from "./AssignTree.js";
+import type AssignTree from "./AssignTree.js";
 import { type ExprTree, BinaryOperationTree, UnaryOperationTree } from "./ExprTree.js";
-import type { ProgramTree } from "./ProgramTree.js";
+import type ProgramTree from "./ProgramTree.js";
 import type Visitor from "./Visitor.js";
 import type WhileTree from "./WhileTree.js";
 import type StatListTree from "./StatListTree.js";

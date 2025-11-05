@@ -1,6 +1,6 @@
-import type { ExprTree } from "./ExprTree";
-import type Tree from "./Tree";
-import type Visitor from "./Visitor";
+import type { ExprTree } from "./ExprTree.js";
+import type Tree from "./Tree.js";
+import type Visitor from "./Visitor.js";
 
 export default class ReturnTree implements Tree {
     value: ExprTree
