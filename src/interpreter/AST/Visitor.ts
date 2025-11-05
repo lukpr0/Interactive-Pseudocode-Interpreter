@@ -13,11 +13,11 @@ import type FunctionCallTree from "./FunctionCallTree.js";
 import type ArrayTree from "./ArrayTree.js";
 import type { DotAccessorTree, IndexAccessorTree } from "./AccessorTree.js";
 import type FullIdTree from "./FullIdTree.js";
-import type { DotAccessorContext } from "../../generated/PseudoParser.js";
 import type ObjectTree from "./ObjectTree.js";
 import type KeyValueTree from "./KeyValueTree.js";
 import type ReturnTree from "./ReturnTree.js";
 import type BreakTree from "./BreakTree.js";
+import type ContinueTree from "./ContinueTree.js";
 
 export default interface Visitor<T> {
     visitProgram(program: ProgramTree): T;
@@ -42,4 +42,5 @@ export default interface Visitor<T> {
     visitKeyValue(expr: KeyValueTree): T;
     visitReturn(expr: ReturnTree): T;
     visitBreak(expr: BreakTree): T;
+    visitContinue(expr: ContinueTree): T;
 }

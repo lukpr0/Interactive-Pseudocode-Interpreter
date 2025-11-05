@@ -16,6 +16,7 @@ END: 'end';
 IN: 'in';
 RETURN: 'return';
 BREAK: 'break';
+CONTINUE: 'continue';
 ELSE: 'else';
 FUNCTION: 'function';
 EQUALS : '=' ;

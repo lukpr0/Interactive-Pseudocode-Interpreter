@@ -20,6 +20,7 @@ stat
     | expr                              # ExprStat
     | breakstat                         # BreakStat
     | returnstat                        # ReturnStat
+    | continuestat                      # ContinueStat
     ;
 
 statlist
@@ -50,6 +51,10 @@ expr
 
 breakstat
     : 'break'
+    ;
+
+continuestat
+    : 'continue'
     ;
 
 returnstat
