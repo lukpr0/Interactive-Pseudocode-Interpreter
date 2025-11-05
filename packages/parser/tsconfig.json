@@ -3,8 +3,8 @@
   //"extends": "../../tsconfig.base.json",
   "compilerOptions": {
     // File Layout
-    "rootDir": ".",
-    "outDir": "../../dist/generated",
+    "rootDir": "./src",
+    "outDir": "./dist",
     "composite": true,
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
@@ -52,5 +52,5 @@
     "moduleResolution": "node",
     "skipLibCheck": true,
   },
-  "include": ["src", "PseudoParser.ts", "PseudoParserVisitor.ts", "PseudoLexer.ts", "index.ts"]
+  "include": ["src/**/*"]
 }

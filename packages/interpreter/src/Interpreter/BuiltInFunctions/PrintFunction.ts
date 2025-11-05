@@ -1,5 +1,5 @@
 import Nil from "../Types/Nil.js";
-import type { Value } from "../Value";
+import type { Value } from "../Value.js";
 import BuiltInFunction from "./BuiltInFunction.js";
 
 export default class PrintFunction extends BuiltInFunction {
