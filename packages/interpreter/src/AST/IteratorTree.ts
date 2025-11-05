@@ -1,10 +1,7 @@
 import type { Token } from "antlr4";
-import type Tree from "./Tree";
-import type Visitor from "./Visitor";
-import type RangeTree from "./RangeTree";
-import type { Iterable } from "../Interpreter/Iterable";
-import type Type from "../Interpreter/Type";
-import type { Value } from "../Interpreter/Value";
+import type Tree from "./Tree.js";
+import type Visitor from "./Visitor.js";
+import type RangeTree from "./RangeTree.js";
 
 export default class IteratorTree implements Tree {
 

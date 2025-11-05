@@ -1,6 +1,6 @@
 import type { Token } from "antlr4";
-import type Tree from "./Tree";
-import type Visitor from "./Visitor";
+import type Tree from "./Tree.js";
+import type Visitor from "./Visitor.js";
 
 export abstract class ExprTree implements Tree {
     public abstract accept<T>(visitor: Visitor<T>): T;

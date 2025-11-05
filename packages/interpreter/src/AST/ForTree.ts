@@ -1,7 +1,7 @@
-import type IteratorTree from "./IteratorTree";
-import type StatListTree from "./StatListTree";
-import type Tree from "./Tree";
-import type Visitor from "./Visitor";
+import type IteratorTree from "./IteratorTree.js";
+import type StatListTree from "./StatListTree.js";
+import type Tree from "./Tree.js";
+import type Visitor from "./Visitor.js";
 
 export default class ForTree implements Tree {
     cond: IteratorTree 

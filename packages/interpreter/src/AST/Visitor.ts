@@ -1,9 +1,9 @@
-import type { AssignTree } from "./AssignTree.js";
+import type AssignTree from "./AssignTree.js";
 import type { BinaryOperationTree, ExprTree, UnaryOperationTree } from "./ExprTree.js";
 import type ForTree from "./ForTree.js";
 import type IfTree from "./IfTree.js";
 import type RangeTree from "./RangeTree.js";
-import type { ProgramTree } from "./ProgramTree.js";
+import type ProgramTree from "./ProgramTree.js";
 import type RepeatUntilTree from "./RepeatUntil.js";
 import type StatListTree from "./StatListTree.js";
 import type WhileTree from "./WhileTree.js";

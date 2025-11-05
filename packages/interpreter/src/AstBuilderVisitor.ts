@@ -1,8 +1,8 @@
 import { Token } from 'antlr4';
 import { AdditiveContext, AlgorithmContext, ArglistContext, ArrayexprContext, ArrayExprContext, AssignStatContext, AssignstatContext, BoolLiteralContext, BreakstatContext, BreakStatContext, ComparisonContext, ContinuestatContext, ContinueStatContext, DotAccessContext, DotAccessorContext, ExprContext, ExprStatContext, FloatLiteralContext, ForstatContext, ForStatContext, FullidContext, FunccallContext, FuncCallContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IndexAccessContext, IndexAccessorContext, IntLiteralContext, IteratorContext, KeyvaluepairContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, NilLiteralContext, ObjectexprContext, ObjectExprContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RepeatStatContext, RepeatstatContext, ReturnStatContext, ReturnstatContext, StatContext, StatlistContext, StringLiteralContext, UnaryMinusContext, WhileStatContext, WhilestatContext } from '@interactive-pseudo/parser';
 import type Tree from './AST/Tree.js';
-import { ProgramTree } from './AST/ProgramTree.js';
-import { AssignTree } from './AST/AssignTree.js';
+import ProgramTree from './AST/ProgramTree.js';
+import AssignTree from './AST/AssignTree.js';
 import { BinaryOperationTree, ExprTree, UnaryOperationTree } from './AST/ExprTree.js';
 import WhileTree from './AST/WhileTree.js';
 import StatListTree from './AST/StatListTree.js';

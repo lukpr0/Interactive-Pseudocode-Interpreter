@@ -1,4 +1,3 @@
-import type { Token } from "antlr4";
 import type Tree from "./Tree.js";
 import type Visitor from "./Visitor.js";
 import type { ExprTree } from "./ExprTree.js";
@@ -6,7 +5,7 @@ import type FullIdTree from "./FullIdTree.js";
 
 
 
-export class AssignTree implements Tree {
+export default class AssignTree implements Tree {
     id: FullIdTree;
     expr: ExprTree;
     constructor(id: FullIdTree, expr: ExprTree) {
