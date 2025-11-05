@@ -1,7 +1,7 @@
 
 import { promises as fs } from 'fs'
 import { CharStream, CommonTokenStream } from 'antlr4'
-import { PseudoLexer, PseudoParser } from '../generated/index.js';
+import { PseudoLexer, PseudoParser } from '@interactive-pseudo/parser';
 import SymbolTable from './Interpreter/SymbolTable.js'
 import AstBuilderVisitor from './AstBuilderVisitor.js'
 import InterpretingVisitor from './Interpreter/InterpretingVisitor.js';

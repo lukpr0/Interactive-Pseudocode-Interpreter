@@ -3,8 +3,9 @@
   //"extends": "../../tsconfig.base.json",
   "compilerOptions": {
     // File Layout
-    "rootDir": ".",
-    "outDir": "../../dist/interpreter",
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "composite": true,
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
@@ -46,6 +47,7 @@
     "skipLibCheck": true,
   },
   "references": [
-    { "path": "../generated" }
-  ]
+    { "path": "../parser" }
+  ],
+  "include": ["src/**/*"]
 }

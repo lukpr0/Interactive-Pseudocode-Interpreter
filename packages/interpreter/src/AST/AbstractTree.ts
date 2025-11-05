@@ -1,5 +1,5 @@
 import { RuleNode, TerminalNode } from "antlr4";
-import { PseudoParser } from "../../generated/index.js";
+import { PseudoParser } from "@interactive-pseudo/parser";
 
 
 export default class AbstractSyntaxTree {

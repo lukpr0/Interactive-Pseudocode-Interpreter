@@ -1,4 +1,4 @@
-import PseudoParser from "../../generated/PseudoParser.js";
+import { PseudoParser } from "@interactive-pseudo/parser";
 import SymbolTable from "./SymbolTable.js";
 import type { AssignTree } from "../AST/AssignTree.js";
 import { BinaryOperationTree, ExprTree, UnaryOperationTree } from "../AST/ExprTree.js";
