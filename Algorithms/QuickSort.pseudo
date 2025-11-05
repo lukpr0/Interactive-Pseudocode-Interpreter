@@ -1,0 +1,31 @@
+
+a := [ 18, 47, 87, 16,  6, 82, 32, 35, 16,  1, 39, 32, 64, 28, 65, 45, 23, 88, 84, 94 ]
+len := 20
+
+function QuickSort(arr, l, r)
+    if l > r or l < 0 then
+        return
+    end
+    p := Partition(arr, l, r)
+    QuickSort(arr, l, p-1)
+    QuickSort(arr, p+1, r)
+end
+
+function Partition(arr, l, r)
+    pivot := arr[r]
+    i := l
+    for j in l .. r do
+        if arr[j] <= pivot then
+            tmp := arr[i]
+            arr[i] := arr[j]
+            arr[j] := tmp
+            i := i + 1
+        end
+    end
+    tmp := arr[i]
+    arr[i] := arr[r]
+    arr[r] := tmp
+    return i
+end
+
+QuickSort(a, 0, len-1)
