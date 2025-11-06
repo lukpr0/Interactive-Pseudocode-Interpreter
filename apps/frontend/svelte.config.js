@@ -16,6 +16,10 @@ const config = {
 		output: {
 			bundleStrategy: 'inline',
 		},
+
+		router: {
+			type: 'hash'
+		}
 	}
 };
 
