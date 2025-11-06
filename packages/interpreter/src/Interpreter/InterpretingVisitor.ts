@@ -37,6 +37,7 @@ import { ArrayConstructor, LengthFunction, PushFunction } from "./BuiltInFunctio
 import Nil from "./Types/Nil.js";
 import { CeilFunction, FloorFunction, SquarerootFunction } from "./BuiltInFunctions/MathFunctions.js";
 import type ContineTree from "../AST/ContinueTree.js";
+import type PrintObserver from "./PrintObserver.js";
 
 export default class InterpretingVisitor implements Visitor<void> {
     symbolTable: SymbolTable<Slot>;
@@ -661,6 +662,11 @@ export default class InterpretingVisitor implements Visitor<void> {
             const argName = argNames[i]!.text;
             this.symbolTable.setVariable(argName, new Slot(arg))
         }
+    }
+
+    addPrintObserver(observer: PrintObserver) {
+        const print = this.builtInFunctions.getVariable('print') as PrintFunction
+        print.addObserver(observer)
     }
 
 
