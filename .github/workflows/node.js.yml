@@ -34,6 +34,10 @@ jobs:
         ls ${{github.workspace}}
     - run: npm ci
     - run: npm run build --workspaces --if-present
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: './apps/frontend/build'
 
     
   deploy:
@@ -42,18 +46,9 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    steps:
-      - name: List files
-        run: |
-          ls ${{ github.workspaces }}
-          
+    steps:          
       - name: Setup Pages
         uses: actions/configure-pages@v5
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          # Upload entire repository
-          path: './apps/frontend/build'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
