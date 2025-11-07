@@ -37,8 +37,10 @@ jobs:
       env:
         BASE_PATH: '/${{ github.event.repository.name }}'
       run: npm run build --workspaces --if-present
+    - name: Setup Pages
+      uses: actions/configure-pages@v5
     - name: Upload artifact
-      uses: actions/upload-pages-artifact@v4
+      uses: actions/upload-pages-artifact@v3
       with:
         name: build-node-${{ matrix.node-version }}
         path: './apps/frontend/build'
