@@ -3,44 +3,59 @@
     <div id="variable-table"><VariableTable {variables}></VariableTable></div>
     <div id="outputs">
         {#each logs as message}
-            <p>{ message }</p>
+            { message }<br>
         {/each}
+    </div>
+    <div id="options">
+        <label for="interpreter-active">
+            <input id="interpreter-active" name="interpreter-active" type="checkbox" bind:checked={ interpreterActive }>
+            <span>interpreter active</span>
+        </label>
+        <input type="button" value="terminate" onclick={ terminateInterpreter }>
     </div>
 </div>
 
 <script lang="ts">
     import VariableTable from "$lib/VariableTable.svelte";
-    import { AstBuilderVisitor, FunctionTree, InterpretingVisitor, Slot, SymbolTable } from "@interactive-pseudo/interpreter";
-    import { PseudoLexer, PseudoParser } from "@interactive-pseudo/parser";
-    import { CharStream, CommonTokenStream } from 'antlr4'
+    import { Slot } from "@interactive-pseudo/interpreter";
+
+    //import workerscript with Vite Query Suffixes
+    //https://v3.vitejs.dev/guide/features.html#web-workers
+    import Worker from '$lib/interpreterWorker?worker&inline'
 
     let code = $state("")
+    let interpreterActive = $state(true)
     
-    const chars = $derived(new CharStream(code));
-    const lexer = $derived(new PseudoLexer(chars));
-    const tokens = $derived(new CommonTokenStream(lexer));
-    const parser = $derived(new PseudoParser(tokens));
 
     let variables = $state(new Map<string, Slot>());
 
+
+    let worker = new Worker()
+
     let logs: string[] = $state([])
-    const observer = {
-        update(message: string) {
-            logs.push(message)
+
+    function workerOnMessage(event: MessageEvent) {
+        const result = event.data
+        if (result.type == 'log') {
+            logs.push(result.message)
+        } else if (result.type == 'result') {
+            variables = new Map(result.message)
         }
     }
 
-    function changecode(e: Event) {
-        const symbolTable = new SymbolTable<Slot>();
-        const functionTable = new SymbolTable<FunctionTree>();
-        const interpreter = new InterpretingVisitor(symbolTable, functionTable);
-        interpreter.addPrintObserver(observer)
-        const parseTree = parser.program();
-        const visitor = new AstBuilderVisitor()
-        const ast = parseTree.accept(visitor);
+    function terminateInterpreter(_: Event) {
+        worker.terminate()
+    }
+
+    function changecode(_: Event) {
+        if (!interpreterActive) {
+            return;
+        }
         logs = []
-        ast.accept(interpreter)
-        variables = new Map(symbolTable.getAllVariables())
+        worker.terminate()
+        worker = new Worker()
+        worker.onmessage = workerOnMessage;
+        worker.postMessage(code)
     }
 
 </script>
@@ -62,6 +77,14 @@
 
     #outputs {
         grid-column: span 8;
+    }
+
+    #options {
+        grid-column: span 4;
+    }
+
+    label {
+        display: block;
     }
 
 </style>
