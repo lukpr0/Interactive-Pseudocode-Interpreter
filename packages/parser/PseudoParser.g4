@@ -82,7 +82,7 @@ accessor
     ;
 
 assignstat
-    : fullid ':=' expr NEWLINE
+    : fullid ':=' expr
     ;
 
 whilestat
