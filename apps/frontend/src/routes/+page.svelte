@@ -1,5 +1,7 @@
 <div class="grid">
-    <textarea bind:value={ code } oninput={changecode}></textarea>
+    <div class="code-wrapper">
+        <Codemirror bind:value={code} {vimMode} onchange={changecode}></Codemirror>
+    </div>
     <div id="variable-table"><VariableTable {variables}></VariableTable></div>
     <div id="outputs">
         {#each logs as message}
@@ -7,10 +9,14 @@
         {/each}
     </div>
     <div id="options">
-        <label for="interpreter-active">
+        <span style="display: flex">
             <input id="interpreter-active" name="interpreter-active" type="checkbox" bind:checked={ interpreterActive }>
-            <span>interpreter active</span>
-        </label>
+            <label for="interpreter-active">interpreter active</label>
+        </span>
+        <div>
+            <input id="vim-mode" type="checkbox" bind:checked={vimMode}>
+            <label for="vim-mode">Enable vim mode</label>
+        </div>
         <input type="button" value="terminate" onclick={ terminateInterpreter }>
     </div>
 </div>
@@ -22,8 +28,10 @@
     //import workerscript with Vite Query Suffixes
     //https://v3.vitejs.dev/guide/features.html#web-workers
     import Worker from '$lib/interpreterWorker?worker&inline'
+    import Codemirror from "$lib/Codemirror.svelte";
 
     let code = $state("")
+    let vimMode = $state(false)
     let interpreterActive = $state(true)
     
 
@@ -66,7 +74,8 @@
         grid-template-columns: repeat(12, 1fr);
     }
 
-    textarea {
+    .code-wrapper {
+        margin: 1em;
         height: 60vh;
         grid-column: span 8;
     }
@@ -85,6 +94,10 @@
 
     label {
         display: block;
+    }
+
+    input[type="checkbox"] {
+        vertical-align: middle;
     }
 
 </style>
