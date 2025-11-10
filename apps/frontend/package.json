@@ -12,9 +12,17 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
 	},
 	"dependencies": {
+		"@codemirror/autocomplete": "^6.19.1",
+		"@codemirror/commands": "^6.10.0",
+		"@codemirror/language": "^6.11.3",
+		"@codemirror/search": "^6.5.11",
+		"@codemirror/state": "^6.5.2",
+		"@codemirror/view": "^6.38.6",
 		"@interactive-pseudo/interpreter": "*",
 		"@interactive-pseudo/parser": "*",
-		"antlr4": "4.13.2"
+		"@replit/codemirror-vim": "^6.3.0",
+		"antlr4": "4.13.2",
+		"codemirror": "^6.0.2"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^7.0.0",
