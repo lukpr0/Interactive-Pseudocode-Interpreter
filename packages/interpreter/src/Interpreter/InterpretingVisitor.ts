@@ -594,6 +594,8 @@ export default class InterpretingVisitor implements Visitor<void> {
             return left.equals(right);
         } else if (left.type == Type.Boolean && right.type == Type.Boolean) {
             return left.equals(right)
+        } else if (left.type == Type.String && right.type == Type.String) {
+            return left.equals(right)
         } else if (left.type == Type.Nil) {
             return left.equals(right)
         } else if (right.type == Type.Nil) {
@@ -608,6 +610,8 @@ export default class InterpretingVisitor implements Visitor<void> {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.notEqual(right);
         } else if (left.type == Type.Boolean && right.type == Type.Boolean) {
+            return left.notEqual(right)
+        } else if (left.type == Type.String && right.type == Type.String) {
             return left.notEqual(right)
         } else if (left.type == Type.Nil) {
             return left.notEquals(right)

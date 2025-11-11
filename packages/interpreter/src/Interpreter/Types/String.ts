@@ -1,7 +1,7 @@
 import Type from "../Type.js";
 import type Float from "./Float.js";
 import type Integer from "./Integer.js";
-import type Boolean from "./Boolean.js";
+import Boolean from "./Boolean.js";
 import type Array from "./Array.js";
 import type Object from "./Object.js";
 
@@ -30,6 +30,14 @@ export default class String {
             return new String(char);
         }
         throw new Error(`index ${right} out of bound for ${this.value}`);
+    }
+
+    equals(right: String): Boolean {
+        return new Boolean(this.value == right.value);
+    }
+    
+    notEqual(right: String): Boolean {
+        return new Boolean(this.value != right.value);
     }
 
 }
