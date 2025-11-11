@@ -9,14 +9,8 @@
         {/each}
     </div>
     <div id="options">
-        <div class="option">
-            <input id="interpreter-active" name="interpreter-active" type="checkbox" bind:checked={ interpreterActive }>
-            <label for="interpreter-active">interpreter active</label>
-        </div>
-        <div class="option">
-            <input id="vim-mode" type="checkbox" bind:checked={vimMode}>
-            <label for="vim-mode">Enable vim mode</label>
-        </div>
+        <Option name="interpreter-active" bind:checked={interpreterActive}>interpreter-active</Option>
+        <Option name="vim-mode" bind:checked={vimMode}>Enable vim mode</Option>
         <input type="button" value="terminate" onclick={ terminateInterpreter }>
     </div>
 </div>
@@ -29,6 +23,7 @@
     //https://v3.vitejs.dev/guide/features.html#web-workers
     import Worker from '$lib/interpreterWorker?worker&inline'
     import Codemirror from "$lib/Codemirror.svelte";
+    import Option from "$lib/Option.svelte";
 
     let code = $state("")
     let vimMode = $state(false)
@@ -96,18 +91,4 @@
     #options {
         grid-column: span 4;
     }
-
-    .option {
-        display: flex;
-    }
-
-    label {
-        display: block;
-    }
-
-    input[type="checkbox"] {
-        vertical-align: middle;
-    }
-
-
 </style>
