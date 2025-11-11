@@ -12,6 +12,7 @@
         <Option name="interpreter-active" bind:checked={interpreterActive}>interpreter-active</Option>
         <Option name="vim-mode" bind:checked={vimMode}>Enable vim mode</Option>
         <input type="button" value="terminate" onclick={ terminateInterpreter }>
+        <input type="button" value="share" onclick={share}><input type="text" bind:value={shareLink}>
     </div>
 </div>
 
@@ -24,10 +25,13 @@
     import Worker from '$lib/interpreterWorker?worker&inline'
     import Codemirror from "$lib/Codemirror.svelte";
     import Option from "$lib/Option.svelte";
+    import { page } from "$app/state";
 
-    let code = $state("")
+    const codeFromParam = page.url.searchParams.get('code')
+    let code = $state(codeFromParam ? codeFromParam : "")
     let vimMode = $state(false)
     let interpreterActive = $state(true)
+    let shareLink = $state("")
     
 
     let variables = $state(new Map<string, Slot>());
@@ -46,6 +50,7 @@
         }
     }
 
+
     function terminateInterpreter(_: Event) {
         worker.terminate()
     }
@@ -59,6 +64,12 @@
         worker = new Worker()
         worker.onmessage = workerOnMessage;
         worker.postMessage(code)
+    }
+
+    function share(_: Event) {
+        const url = new URL(page.url.href.replace(page.url.search, ''))
+        url.searchParams.append('code', code)
+        shareLink = url.toString()
     }
 
 </script>
