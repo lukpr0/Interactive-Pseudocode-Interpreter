@@ -2,7 +2,7 @@ parser grammar PseudoParser;
 options { tokenVocab=PseudoLexer; }
 
 program
-    : (programstat | NEWLINE)* EOF
+    : (programstat? NEWLINE)* programstat? EOF
     ;
     
 
@@ -24,7 +24,7 @@ stat
     ;
 
 statlist
-    : (stat | NEWLINE)*
+    : (stat? NEWLINE)* stat?
     ;
 
 expr
@@ -118,9 +118,9 @@ algorithm
     ;
 
 arglist
-    : '(' IDENTIFIER (',' IDENTIFIER)* ')'
+    : '(' ( IDENTIFIER (',' IDENTIFIER)* )? ')'
     ;
 
 funccall
-    : IDENTIFIER '(' expr (',' expr)* ')'
+    : IDENTIFIER '(' ( expr (',' expr)* )? ')'
     ;
