@@ -8,3 +8,9 @@
 </svelte:head>
 
 {@render children()}
+
+<style>
+:global(.cm-gutters) {
+	min-height: 300px !important;
+}
+</style>
