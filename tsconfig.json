@@ -3,7 +3,6 @@
   "compilerOptions": {
     "disableSourceOfProjectReferenceRedirect": true,
   },
-  "files": [],
   "references": [
     {
       "path": "./packages/parser"
@@ -13,6 +12,7 @@
     },
     {
       "path": "./apps/cli"
-    }
-  ]
+    },
+  ],
+  "exclude": ["./apps/frontend/**/*"]
 }
