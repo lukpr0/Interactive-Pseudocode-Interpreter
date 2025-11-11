@@ -853,45 +853,95 @@ export default class PseudoParser extends Parser {
 			{
 			this.state = 145;
 			this.match(PseudoParser.RBRACK);
-			this.state = 157;
+			this.state = 147;
+			this._errHandler.sync(this);
+			_la = this._input.LA(1);
+			if (_la===1) {
+				{
+				this.state = 146;
+				this.match(PseudoParser.NEWLINE);
+				}
+			}
+
+			this.state = 172;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
 			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 310378512) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 260097) !== 0)) {
 				{
-				this.state = 146;
+				this.state = 149;
 				this.expr(0);
 				this.state = 151;
 				this._errHandler.sync(this);
-				_alt = this._interp.adaptivePredict(this._input, 12, this._ctx);
+				switch ( this._interp.adaptivePredict(this._input, 13, this._ctx) ) {
+				case 1:
+					{
+					this.state = 150;
+					this.match(PseudoParser.NEWLINE);
+					}
+					break;
+				}
+				this.state = 163;
+				this._errHandler.sync(this);
+				_alt = this._interp.adaptivePredict(this._input, 16, this._ctx);
 				while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
 					if (_alt === 1) {
 						{
 						{
-						this.state = 147;
+						this.state = 153;
 						this.match(PseudoParser.COMMA);
-						this.state = 148;
+						this.state = 155;
+						this._errHandler.sync(this);
+						_la = this._input.LA(1);
+						if (_la===1) {
+							{
+							this.state = 154;
+							this.match(PseudoParser.NEWLINE);
+							}
+						}
+
+						this.state = 157;
 						this.expr(0);
+						this.state = 159;
+						this._errHandler.sync(this);
+						switch ( this._interp.adaptivePredict(this._input, 15, this._ctx) ) {
+						case 1:
+							{
+							this.state = 158;
+							this.match(PseudoParser.NEWLINE);
+							}
+							break;
+						}
 						}
 						}
 					}
-					this.state = 153;
+					this.state = 165;
 					this._errHandler.sync(this);
-					_alt = this._interp.adaptivePredict(this._input, 12, this._ctx);
+					_alt = this._interp.adaptivePredict(this._input, 16, this._ctx);
 				}
-				this.state = 155;
+				this.state = 167;
 				this._errHandler.sync(this);
 				_la = this._input.LA(1);
 				if (_la===21) {
 					{
-					this.state = 154;
+					this.state = 166;
 					this.match(PseudoParser.COMMA);
+					}
+				}
+
+				this.state = 170;
+				this._errHandler.sync(this);
+				_la = this._input.LA(1);
+				if (_la===1) {
+					{
+					this.state = 169;
+					this.match(PseudoParser.NEWLINE);
 					}
 				}
 
 				}
 			}
 
-			this.state = 159;
+			this.state = 174;
 			this.match(PseudoParser.LBRACK);
 			}
 		}
@@ -915,37 +965,100 @@ export default class PseudoParser extends Parser {
 		this.enterRule(localctx, 18, PseudoParser.RULE_objectexpr);
 		let _la: number;
 		try {
+			let _alt: number;
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 161;
+			this.state = 176;
 			this.match(PseudoParser.LCURLY);
-			this.state = 170;
+			this.state = 178;
+			this._errHandler.sync(this);
+			_la = this._input.LA(1);
+			if (_la===1) {
+				{
+				this.state = 177;
+				this.match(PseudoParser.NEWLINE);
+				}
+			}
+
+			this.state = 203;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
 			if (_la===48) {
 				{
-				this.state = 162;
+				this.state = 180;
 				this.keyvaluepair();
-				this.state = 167;
+				this.state = 182;
+				this._errHandler.sync(this);
+				switch ( this._interp.adaptivePredict(this._input, 21, this._ctx) ) {
+				case 1:
+					{
+					this.state = 181;
+					this.match(PseudoParser.NEWLINE);
+					}
+					break;
+				}
+				this.state = 194;
+				this._errHandler.sync(this);
+				_alt = this._interp.adaptivePredict(this._input, 24, this._ctx);
+				while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
+					if (_alt === 1) {
+						{
+						{
+						this.state = 184;
+						this.match(PseudoParser.COMMA);
+						this.state = 186;
+						this._errHandler.sync(this);
+						_la = this._input.LA(1);
+						if (_la===1) {
+							{
+							this.state = 185;
+							this.match(PseudoParser.NEWLINE);
+							}
+						}
+
+						this.state = 188;
+						this.keyvaluepair();
+						this.state = 190;
+						this._errHandler.sync(this);
+						switch ( this._interp.adaptivePredict(this._input, 23, this._ctx) ) {
+						case 1:
+							{
+							this.state = 189;
+							this.match(PseudoParser.NEWLINE);
+							}
+							break;
+						}
+						}
+						}
+					}
+					this.state = 196;
+					this._errHandler.sync(this);
+					_alt = this._interp.adaptivePredict(this._input, 24, this._ctx);
+				}
+				this.state = 198;
 				this._errHandler.sync(this);
 				_la = this._input.LA(1);
-				while (_la===21) {
+				if (_la===21) {
 					{
-					{
-					this.state = 163;
+					this.state = 197;
 					this.match(PseudoParser.COMMA);
-					this.state = 164;
-					this.keyvaluepair();
 					}
-					}
-					this.state = 169;
-					this._errHandler.sync(this);
-					_la = this._input.LA(1);
 				}
+
+				this.state = 201;
+				this._errHandler.sync(this);
+				_la = this._input.LA(1);
+				if (_la===1) {
+					{
+					this.state = 200;
+					this.match(PseudoParser.NEWLINE);
+					}
+				}
+
 				}
 			}
 
-			this.state = 172;
+			this.state = 205;
 			this.match(PseudoParser.RCURLY);
 			}
 		}
@@ -970,11 +1083,11 @@ export default class PseudoParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 174;
+			this.state = 207;
 			this.match(PseudoParser.IDENTIFIER);
-			this.state = 175;
+			this.state = 208;
 			this.match(PseudoParser.COLON);
-			this.state = 176;
+			this.state = 209;
 			this.expr(0);
 			}
 		}
@@ -1000,19 +1113,19 @@ export default class PseudoParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 178;
+			this.state = 211;
 			this.match(PseudoParser.IDENTIFIER);
-			this.state = 182;
+			this.state = 215;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
 			while (_la===28 || _la===30) {
 				{
 				{
-				this.state = 179;
+				this.state = 212;
 				this.accessor();
 				}
 				}
-				this.state = 184;
+				this.state = 217;
 				this._errHandler.sync(this);
 				_la = this._input.LA(1);
 			}
@@ -1037,18 +1150,18 @@ export default class PseudoParser extends Parser {
 		let localctx: AccessorContext = new AccessorContext(this, this._ctx, this.state);
 		this.enterRule(localctx, 24, PseudoParser.RULE_accessor);
 		try {
-			this.state = 191;
+			this.state = 224;
 			this._errHandler.sync(this);
 			switch (this._input.LA(1)) {
 			case 28:
 				localctx = new IndexAccessorContext(this, localctx);
 				this.enterOuterAlt(localctx, 1);
 				{
-				this.state = 185;
+				this.state = 218;
 				this.match(PseudoParser.RBRACK);
-				this.state = 186;
+				this.state = 219;
 				this.expr(0);
-				this.state = 187;
+				this.state = 220;
 				this.match(PseudoParser.LBRACK);
 				}
 				break;
@@ -1056,9 +1169,9 @@ export default class PseudoParser extends Parser {
 				localctx = new DotAccessorContext(this, localctx);
 				this.enterOuterAlt(localctx, 2);
 				{
-				this.state = 189;
+				this.state = 222;
 				this.match(PseudoParser.DOT);
-				this.state = 190;
+				this.state = 223;
 				this.match(PseudoParser.IDENTIFIER);
 				}
 				break;
@@ -1087,11 +1200,11 @@ export default class PseudoParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 193;
+			this.state = 226;
 			this.fullid();
-			this.state = 194;
+			this.state = 227;
 			this.match(PseudoParser.ASSIGN);
-			this.state = 195;
+			this.state = 228;
 			this.expr(0);
 			}
 		}
@@ -1116,25 +1229,25 @@ export default class PseudoParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 197;
+			this.state = 230;
 			this.match(PseudoParser.WHILE);
-			this.state = 198;
+			this.state = 231;
 			this.expr(0);
-			this.state = 199;
+			this.state = 232;
 			this.match(PseudoParser.DO);
-			this.state = 201;
+			this.state = 234;
 			this._errHandler.sync(this);
-			switch ( this._interp.adaptivePredict(this._input, 19, this._ctx) ) {
+			switch ( this._interp.adaptivePredict(this._input, 30, this._ctx) ) {
 			case 1:
 				{
-				this.state = 200;
+				this.state = 233;
 				this.match(PseudoParser.NEWLINE);
 				}
 				break;
 			}
-			this.state = 203;
+			this.state = 236;
 			this.statlist();
-			this.state = 204;
+			this.state = 237;
 			this.match(PseudoParser.END);
 			}
 		}
@@ -1159,20 +1272,20 @@ export default class PseudoParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 206;
+			this.state = 239;
 			this.match(PseudoParser.REPEAT);
-			this.state = 207;
+			this.state = 240;
 			this.statlist();
-			this.state = 208;
+			this.state = 241;
 			this.match(PseudoParser.UNTIL);
-			this.state = 209;
+			this.state = 242;
 			this.expr(0);
-			this.state = 211;
+			this.state = 244;
 			this._errHandler.sync(this);
-			switch ( this._interp.adaptivePredict(this._input, 20, this._ctx) ) {
+			switch ( this._interp.adaptivePredict(this._input, 31, this._ctx) ) {
 			case 1:
 				{
-				this.state = 210;
+				this.state = 243;
 				this.match(PseudoParser.NEWLINE);
 				}
 				break;
@@ -1202,53 +1315,53 @@ export default class PseudoParser extends Parser {
 			let _alt: number;
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 213;
+			this.state = 246;
 			this.ifhead();
-			this.state = 214;
+			this.state = 247;
 			this.statlist();
-			this.state = 221;
+			this.state = 254;
 			this._errHandler.sync(this);
-			_alt = this._interp.adaptivePredict(this._input, 21, this._ctx);
+			_alt = this._interp.adaptivePredict(this._input, 32, this._ctx);
 			while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
 				if (_alt === 1) {
 					{
 					{
-					this.state = 215;
+					this.state = 248;
 					this.match(PseudoParser.ELSE);
-					this.state = 216;
+					this.state = 249;
 					this.ifhead();
-					this.state = 217;
+					this.state = 250;
 					this.statlist();
 					}
 					}
 				}
-				this.state = 223;
+				this.state = 256;
 				this._errHandler.sync(this);
-				_alt = this._interp.adaptivePredict(this._input, 21, this._ctx);
+				_alt = this._interp.adaptivePredict(this._input, 32, this._ctx);
 			}
-			this.state = 229;
+			this.state = 262;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
 			if (_la===17) {
 				{
-				this.state = 224;
+				this.state = 257;
 				this.match(PseudoParser.ELSE);
-				this.state = 226;
+				this.state = 259;
 				this._errHandler.sync(this);
-				switch ( this._interp.adaptivePredict(this._input, 22, this._ctx) ) {
+				switch ( this._interp.adaptivePredict(this._input, 33, this._ctx) ) {
 				case 1:
 					{
-					this.state = 225;
+					this.state = 258;
 					this.match(PseudoParser.NEWLINE);
 					}
 					break;
 				}
-				this.state = 228;
+				this.state = 261;
 				this.statlist();
 				}
 			}
 
-			this.state = 231;
+			this.state = 264;
 			this.match(PseudoParser.END);
 			}
 		}
@@ -1273,18 +1386,18 @@ export default class PseudoParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 233;
+			this.state = 266;
 			this.match(PseudoParser.IF);
-			this.state = 234;
+			this.state = 267;
 			this.expr(0);
-			this.state = 235;
+			this.state = 268;
 			this.match(PseudoParser.THEN);
-			this.state = 237;
+			this.state = 270;
 			this._errHandler.sync(this);
-			switch ( this._interp.adaptivePredict(this._input, 24, this._ctx) ) {
+			switch ( this._interp.adaptivePredict(this._input, 35, this._ctx) ) {
 			case 1:
 				{
-				this.state = 236;
+				this.state = 269;
 				this.match(PseudoParser.NEWLINE);
 				}
 				break;
@@ -1312,25 +1425,25 @@ export default class PseudoParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 239;
+			this.state = 272;
 			this.match(PseudoParser.FOR);
-			this.state = 240;
+			this.state = 273;
 			this.iterator();
-			this.state = 241;
+			this.state = 274;
 			this.match(PseudoParser.DO);
-			this.state = 243;
+			this.state = 276;
 			this._errHandler.sync(this);
-			switch ( this._interp.adaptivePredict(this._input, 25, this._ctx) ) {
+			switch ( this._interp.adaptivePredict(this._input, 36, this._ctx) ) {
 			case 1:
 				{
-				this.state = 242;
+				this.state = 275;
 				this.match(PseudoParser.NEWLINE);
 				}
 				break;
 			}
-			this.state = 245;
+			this.state = 278;
 			this.statlist();
-			this.state = 246;
+			this.state = 279;
 			this.match(PseudoParser.END);
 			}
 		}
@@ -1355,11 +1468,11 @@ export default class PseudoParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 248;
+			this.state = 281;
 			this.match(PseudoParser.IDENTIFIER);
-			this.state = 249;
+			this.state = 282;
 			this.match(PseudoParser.IN);
-			this.state = 250;
+			this.state = 283;
 			this.range();
 			}
 		}
@@ -1385,21 +1498,21 @@ export default class PseudoParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 252;
+			this.state = 285;
 			this.expr(0);
-			this.state = 253;
+			this.state = 286;
 			this.match(PseudoParser.DOTDOT);
-			this.state = 255;
+			this.state = 288;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
 			if (_la===19) {
 				{
-				this.state = 254;
+				this.state = 287;
 				this.match(PseudoParser.EQUALS);
 				}
 			}
 
-			this.state = 257;
+			this.state = 290;
 			this.expr(0);
 			}
 		}
@@ -1424,17 +1537,17 @@ export default class PseudoParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 259;
+			this.state = 292;
 			this.match(PseudoParser.FUNCTION);
-			this.state = 260;
+			this.state = 293;
 			this.match(PseudoParser.IDENTIFIER);
-			this.state = 261;
+			this.state = 294;
 			this.arglist();
-			this.state = 262;
+			this.state = 295;
 			this.match(PseudoParser.NEWLINE);
-			this.state = 263;
+			this.state = 296;
 			this.statlist();
-			this.state = 264;
+			this.state = 297;
 			this.match(PseudoParser.END);
 			}
 		}
@@ -1460,35 +1573,35 @@ export default class PseudoParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 266;
+			this.state = 299;
 			this.match(PseudoParser.LPAREN);
-			this.state = 275;
+			this.state = 308;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
 			if (_la===48) {
 				{
-				this.state = 267;
+				this.state = 300;
 				this.match(PseudoParser.IDENTIFIER);
-				this.state = 272;
+				this.state = 305;
 				this._errHandler.sync(this);
 				_la = this._input.LA(1);
 				while (_la===21) {
 					{
 					{
-					this.state = 268;
+					this.state = 301;
 					this.match(PseudoParser.COMMA);
-					this.state = 269;
+					this.state = 302;
 					this.match(PseudoParser.IDENTIFIER);
 					}
 					}
-					this.state = 274;
+					this.state = 307;
 					this._errHandler.sync(this);
 					_la = this._input.LA(1);
 				}
 				}
 			}
 
-			this.state = 277;
+			this.state = 310;
 			this.match(PseudoParser.RPAREN);
 			}
 		}
@@ -1514,37 +1627,37 @@ export default class PseudoParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 279;
+			this.state = 312;
 			this.match(PseudoParser.IDENTIFIER);
-			this.state = 280;
+			this.state = 313;
 			this.match(PseudoParser.LPAREN);
-			this.state = 289;
+			this.state = 322;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
 			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 310378512) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 260097) !== 0)) {
 				{
-				this.state = 281;
+				this.state = 314;
 				this.expr(0);
-				this.state = 286;
+				this.state = 319;
 				this._errHandler.sync(this);
 				_la = this._input.LA(1);
 				while (_la===21) {
 					{
 					{
-					this.state = 282;
+					this.state = 315;
 					this.match(PseudoParser.COMMA);
-					this.state = 283;
+					this.state = 316;
 					this.expr(0);
 					}
 					}
-					this.state = 288;
+					this.state = 321;
 					this._errHandler.sync(this);
 					_la = this._input.LA(1);
 				}
 				}
 			}
 
-			this.state = 291;
+			this.state = 324;
 			this.match(PseudoParser.RPAREN);
 			}
 		}
@@ -1590,7 +1703,7 @@ export default class PseudoParser extends Parser {
 		return true;
 	}
 
-	public static readonly _serializedATN: number[] = [4,1,51,294,2,0,7,0,2,
+	public static readonly _serializedATN: number[] = [4,1,51,327,2,0,7,0,2,
 	1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,7,7,7,2,8,7,8,2,9,7,9,2,
 	10,7,10,2,11,7,11,2,12,7,12,2,13,7,13,2,14,7,14,2,15,7,15,2,16,7,16,2,17,
 	7,17,2,18,7,18,2,19,7,19,2,20,7,20,2,21,7,21,2,22,7,22,2,23,7,23,1,0,3,
@@ -1600,92 +1713,105 @@ export default class PseudoParser extends Parser {
 	4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,3,4,108,8,4,1,4,1,4,1,
 	4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,
 	4,1,4,1,4,5,4,133,8,4,10,4,12,4,136,9,4,1,5,1,5,1,6,1,6,1,7,1,7,3,7,144,
-	8,7,1,8,1,8,1,8,1,8,5,8,150,8,8,10,8,12,8,153,9,8,1,8,3,8,156,8,8,3,8,158,
-	8,8,1,8,1,8,1,9,1,9,1,9,1,9,5,9,166,8,9,10,9,12,9,169,9,9,3,9,171,8,9,1,
-	9,1,9,1,10,1,10,1,10,1,10,1,11,1,11,5,11,181,8,11,10,11,12,11,184,9,11,
-	1,12,1,12,1,12,1,12,1,12,1,12,3,12,192,8,12,1,13,1,13,1,13,1,13,1,14,1,
-	14,1,14,1,14,3,14,202,8,14,1,14,1,14,1,14,1,15,1,15,1,15,1,15,1,15,3,15,
-	212,8,15,1,16,1,16,1,16,1,16,1,16,1,16,5,16,220,8,16,10,16,12,16,223,9,
-	16,1,16,1,16,3,16,227,8,16,1,16,3,16,230,8,16,1,16,1,16,1,17,1,17,1,17,
-	1,17,3,17,238,8,17,1,18,1,18,1,18,1,18,3,18,244,8,18,1,18,1,18,1,18,1,19,
-	1,19,1,19,1,19,1,20,1,20,1,20,3,20,256,8,20,1,20,1,20,1,21,1,21,1,21,1,
-	21,1,21,1,21,1,21,1,22,1,22,1,22,1,22,5,22,271,8,22,10,22,12,22,274,9,22,
-	3,22,276,8,22,1,22,1,22,1,23,1,23,1,23,1,23,1,23,5,23,285,8,23,10,23,12,
-	23,288,9,23,3,23,290,8,23,1,23,1,23,1,23,0,1,8,24,0,2,4,6,8,10,12,14,16,
-	18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,0,4,1,0,43,44,2,0,33,34,36,
-	37,1,0,31,32,2,0,19,19,38,42,322,0,54,1,0,0,0,2,64,1,0,0,0,4,75,1,0,0,0,
-	6,83,1,0,0,0,8,107,1,0,0,0,10,137,1,0,0,0,12,139,1,0,0,0,14,141,1,0,0,0,
-	16,145,1,0,0,0,18,161,1,0,0,0,20,174,1,0,0,0,22,178,1,0,0,0,24,191,1,0,
-	0,0,26,193,1,0,0,0,28,197,1,0,0,0,30,206,1,0,0,0,32,213,1,0,0,0,34,233,
-	1,0,0,0,36,239,1,0,0,0,38,248,1,0,0,0,40,252,1,0,0,0,42,259,1,0,0,0,44,
-	266,1,0,0,0,46,279,1,0,0,0,48,50,3,2,1,0,49,48,1,0,0,0,49,50,1,0,0,0,50,
-	51,1,0,0,0,51,53,5,1,0,0,52,49,1,0,0,0,53,56,1,0,0,0,54,52,1,0,0,0,54,55,
-	1,0,0,0,55,58,1,0,0,0,56,54,1,0,0,0,57,59,3,2,1,0,58,57,1,0,0,0,58,59,1,
-	0,0,0,59,60,1,0,0,0,60,61,5,0,0,1,61,1,1,0,0,0,62,65,3,4,2,0,63,65,3,42,
-	21,0,64,62,1,0,0,0,64,63,1,0,0,0,65,3,1,0,0,0,66,76,3,26,13,0,67,76,3,28,
-	14,0,68,76,3,30,15,0,69,76,3,32,16,0,70,76,3,36,18,0,71,76,3,8,4,0,72,76,
-	3,10,5,0,73,76,3,14,7,0,74,76,3,12,6,0,75,66,1,0,0,0,75,67,1,0,0,0,75,68,
-	1,0,0,0,75,69,1,0,0,0,75,70,1,0,0,0,75,71,1,0,0,0,75,72,1,0,0,0,75,73,1,
-	0,0,0,75,74,1,0,0,0,76,5,1,0,0,0,77,79,3,4,2,0,78,77,1,0,0,0,78,79,1,0,
-	0,0,79,80,1,0,0,0,80,82,5,1,0,0,81,78,1,0,0,0,82,85,1,0,0,0,83,81,1,0,0,
-	0,83,84,1,0,0,0,84,87,1,0,0,0,85,83,1,0,0,0,86,88,3,4,2,0,87,86,1,0,0,0,
-	87,88,1,0,0,0,88,7,1,0,0,0,89,90,6,4,-1,0,90,108,5,46,0,0,91,108,5,47,0,
-	0,92,108,5,49,0,0,93,108,7,0,0,0,94,108,5,45,0,0,95,108,3,46,23,0,96,108,
-	5,48,0,0,97,108,3,16,8,0,98,108,3,18,9,0,99,100,5,4,0,0,100,108,3,8,4,10,
-	101,102,5,32,0,0,102,108,3,8,4,9,103,104,5,23,0,0,104,105,3,8,4,0,105,106,
-	5,24,0,0,106,108,1,0,0,0,107,89,1,0,0,0,107,91,1,0,0,0,107,92,1,0,0,0,107,
-	93,1,0,0,0,107,94,1,0,0,0,107,95,1,0,0,0,107,96,1,0,0,0,107,97,1,0,0,0,
-	107,98,1,0,0,0,107,99,1,0,0,0,107,101,1,0,0,0,107,103,1,0,0,0,108,134,1,
-	0,0,0,109,110,10,6,0,0,110,111,7,1,0,0,111,133,3,8,4,7,112,113,10,5,0,0,
-	113,114,7,2,0,0,114,133,3,8,4,6,115,116,10,4,0,0,116,117,7,3,0,0,117,133,
-	3,8,4,5,118,119,10,3,0,0,119,120,5,2,0,0,120,133,3,8,4,4,121,122,10,2,0,
-	0,122,123,5,3,0,0,123,133,3,8,4,3,124,125,10,8,0,0,125,126,5,28,0,0,126,
-	127,3,8,4,0,127,128,5,27,0,0,128,133,1,0,0,0,129,130,10,7,0,0,130,131,5,
-	30,0,0,131,133,5,48,0,0,132,109,1,0,0,0,132,112,1,0,0,0,132,115,1,0,0,0,
-	132,118,1,0,0,0,132,121,1,0,0,0,132,124,1,0,0,0,132,129,1,0,0,0,133,136,
-	1,0,0,0,134,132,1,0,0,0,134,135,1,0,0,0,135,9,1,0,0,0,136,134,1,0,0,0,137,
-	138,5,15,0,0,138,11,1,0,0,0,139,140,5,16,0,0,140,13,1,0,0,0,141,143,5,14,
-	0,0,142,144,3,8,4,0,143,142,1,0,0,0,143,144,1,0,0,0,144,15,1,0,0,0,145,
-	157,5,28,0,0,146,151,3,8,4,0,147,148,5,21,0,0,148,150,3,8,4,0,149,147,1,
-	0,0,0,150,153,1,0,0,0,151,149,1,0,0,0,151,152,1,0,0,0,152,155,1,0,0,0,153,
-	151,1,0,0,0,154,156,5,21,0,0,155,154,1,0,0,0,155,156,1,0,0,0,156,158,1,
-	0,0,0,157,146,1,0,0,0,157,158,1,0,0,0,158,159,1,0,0,0,159,160,5,27,0,0,
-	160,17,1,0,0,0,161,170,5,25,0,0,162,167,3,20,10,0,163,164,5,21,0,0,164,
-	166,3,20,10,0,165,163,1,0,0,0,166,169,1,0,0,0,167,165,1,0,0,0,167,168,1,
-	0,0,0,168,171,1,0,0,0,169,167,1,0,0,0,170,162,1,0,0,0,170,171,1,0,0,0,171,
-	172,1,0,0,0,172,173,5,26,0,0,173,19,1,0,0,0,174,175,5,48,0,0,175,176,5,
-	35,0,0,176,177,3,8,4,0,177,21,1,0,0,0,178,182,5,48,0,0,179,181,3,24,12,
-	0,180,179,1,0,0,0,181,184,1,0,0,0,182,180,1,0,0,0,182,183,1,0,0,0,183,23,
-	1,0,0,0,184,182,1,0,0,0,185,186,5,28,0,0,186,187,3,8,4,0,187,188,5,27,0,
-	0,188,192,1,0,0,0,189,190,5,30,0,0,190,192,5,48,0,0,191,185,1,0,0,0,191,
-	189,1,0,0,0,192,25,1,0,0,0,193,194,3,22,11,0,194,195,5,20,0,0,195,196,3,
-	8,4,0,196,27,1,0,0,0,197,198,5,7,0,0,198,199,3,8,4,0,199,201,5,9,0,0,200,
-	202,5,1,0,0,201,200,1,0,0,0,201,202,1,0,0,0,202,203,1,0,0,0,203,204,3,6,
-	3,0,204,205,5,12,0,0,205,29,1,0,0,0,206,207,5,10,0,0,207,208,3,6,3,0,208,
-	209,5,11,0,0,209,211,3,8,4,0,210,212,5,1,0,0,211,210,1,0,0,0,211,212,1,
-	0,0,0,212,31,1,0,0,0,213,214,3,34,17,0,214,221,3,6,3,0,215,216,5,17,0,0,
-	216,217,3,34,17,0,217,218,3,6,3,0,218,220,1,0,0,0,219,215,1,0,0,0,220,223,
-	1,0,0,0,221,219,1,0,0,0,221,222,1,0,0,0,222,229,1,0,0,0,223,221,1,0,0,0,
-	224,226,5,17,0,0,225,227,5,1,0,0,226,225,1,0,0,0,226,227,1,0,0,0,227,228,
-	1,0,0,0,228,230,3,6,3,0,229,224,1,0,0,0,229,230,1,0,0,0,230,231,1,0,0,0,
-	231,232,5,12,0,0,232,33,1,0,0,0,233,234,5,5,0,0,234,235,3,8,4,0,235,237,
-	5,8,0,0,236,238,5,1,0,0,237,236,1,0,0,0,237,238,1,0,0,0,238,35,1,0,0,0,
-	239,240,5,6,0,0,240,241,3,38,19,0,241,243,5,9,0,0,242,244,5,1,0,0,243,242,
-	1,0,0,0,243,244,1,0,0,0,244,245,1,0,0,0,245,246,3,6,3,0,246,247,5,12,0,
-	0,247,37,1,0,0,0,248,249,5,48,0,0,249,250,5,13,0,0,250,251,3,40,20,0,251,
-	39,1,0,0,0,252,253,3,8,4,0,253,255,5,29,0,0,254,256,5,19,0,0,255,254,1,
-	0,0,0,255,256,1,0,0,0,256,257,1,0,0,0,257,258,3,8,4,0,258,41,1,0,0,0,259,
-	260,5,18,0,0,260,261,5,48,0,0,261,262,3,44,22,0,262,263,5,1,0,0,263,264,
-	3,6,3,0,264,265,5,12,0,0,265,43,1,0,0,0,266,275,5,23,0,0,267,272,5,48,0,
-	0,268,269,5,21,0,0,269,271,5,48,0,0,270,268,1,0,0,0,271,274,1,0,0,0,272,
-	270,1,0,0,0,272,273,1,0,0,0,273,276,1,0,0,0,274,272,1,0,0,0,275,267,1,0,
-	0,0,275,276,1,0,0,0,276,277,1,0,0,0,277,278,5,24,0,0,278,45,1,0,0,0,279,
-	280,5,48,0,0,280,289,5,23,0,0,281,286,3,8,4,0,282,283,5,21,0,0,283,285,
-	3,8,4,0,284,282,1,0,0,0,285,288,1,0,0,0,286,284,1,0,0,0,286,287,1,0,0,0,
-	287,290,1,0,0,0,288,286,1,0,0,0,289,281,1,0,0,0,289,290,1,0,0,0,290,291,
-	1,0,0,0,291,292,5,24,0,0,292,47,1,0,0,0,31,49,54,58,64,75,78,83,87,107,
-	132,134,143,151,155,157,167,170,182,191,201,211,221,226,229,237,243,255,
-	272,275,286,289];
+	8,7,1,8,1,8,3,8,148,8,8,1,8,1,8,3,8,152,8,8,1,8,1,8,3,8,156,8,8,1,8,1,8,
+	3,8,160,8,8,5,8,162,8,8,10,8,12,8,165,9,8,1,8,3,8,168,8,8,1,8,3,8,171,8,
+	8,3,8,173,8,8,1,8,1,8,1,9,1,9,3,9,179,8,9,1,9,1,9,3,9,183,8,9,1,9,1,9,3,
+	9,187,8,9,1,9,1,9,3,9,191,8,9,5,9,193,8,9,10,9,12,9,196,9,9,1,9,3,9,199,
+	8,9,1,9,3,9,202,8,9,3,9,204,8,9,1,9,1,9,1,10,1,10,1,10,1,10,1,11,1,11,5,
+	11,214,8,11,10,11,12,11,217,9,11,1,12,1,12,1,12,1,12,1,12,1,12,3,12,225,
+	8,12,1,13,1,13,1,13,1,13,1,14,1,14,1,14,1,14,3,14,235,8,14,1,14,1,14,1,
+	14,1,15,1,15,1,15,1,15,1,15,3,15,245,8,15,1,16,1,16,1,16,1,16,1,16,1,16,
+	5,16,253,8,16,10,16,12,16,256,9,16,1,16,1,16,3,16,260,8,16,1,16,3,16,263,
+	8,16,1,16,1,16,1,17,1,17,1,17,1,17,3,17,271,8,17,1,18,1,18,1,18,1,18,3,
+	18,277,8,18,1,18,1,18,1,18,1,19,1,19,1,19,1,19,1,20,1,20,1,20,3,20,289,
+	8,20,1,20,1,20,1,21,1,21,1,21,1,21,1,21,1,21,1,21,1,22,1,22,1,22,1,22,5,
+	22,304,8,22,10,22,12,22,307,9,22,3,22,309,8,22,1,22,1,22,1,23,1,23,1,23,
+	1,23,1,23,5,23,318,8,23,10,23,12,23,321,9,23,3,23,323,8,23,1,23,1,23,1,
+	23,0,1,8,24,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,
+	44,46,0,4,1,0,43,44,2,0,33,34,36,37,1,0,31,32,2,0,19,19,38,42,366,0,54,
+	1,0,0,0,2,64,1,0,0,0,4,75,1,0,0,0,6,83,1,0,0,0,8,107,1,0,0,0,10,137,1,0,
+	0,0,12,139,1,0,0,0,14,141,1,0,0,0,16,145,1,0,0,0,18,176,1,0,0,0,20,207,
+	1,0,0,0,22,211,1,0,0,0,24,224,1,0,0,0,26,226,1,0,0,0,28,230,1,0,0,0,30,
+	239,1,0,0,0,32,246,1,0,0,0,34,266,1,0,0,0,36,272,1,0,0,0,38,281,1,0,0,0,
+	40,285,1,0,0,0,42,292,1,0,0,0,44,299,1,0,0,0,46,312,1,0,0,0,48,50,3,2,1,
+	0,49,48,1,0,0,0,49,50,1,0,0,0,50,51,1,0,0,0,51,53,5,1,0,0,52,49,1,0,0,0,
+	53,56,1,0,0,0,54,52,1,0,0,0,54,55,1,0,0,0,55,58,1,0,0,0,56,54,1,0,0,0,57,
+	59,3,2,1,0,58,57,1,0,0,0,58,59,1,0,0,0,59,60,1,0,0,0,60,61,5,0,0,1,61,1,
+	1,0,0,0,62,65,3,4,2,0,63,65,3,42,21,0,64,62,1,0,0,0,64,63,1,0,0,0,65,3,
+	1,0,0,0,66,76,3,26,13,0,67,76,3,28,14,0,68,76,3,30,15,0,69,76,3,32,16,0,
+	70,76,3,36,18,0,71,76,3,8,4,0,72,76,3,10,5,0,73,76,3,14,7,0,74,76,3,12,
+	6,0,75,66,1,0,0,0,75,67,1,0,0,0,75,68,1,0,0,0,75,69,1,0,0,0,75,70,1,0,0,
+	0,75,71,1,0,0,0,75,72,1,0,0,0,75,73,1,0,0,0,75,74,1,0,0,0,76,5,1,0,0,0,
+	77,79,3,4,2,0,78,77,1,0,0,0,78,79,1,0,0,0,79,80,1,0,0,0,80,82,5,1,0,0,81,
+	78,1,0,0,0,82,85,1,0,0,0,83,81,1,0,0,0,83,84,1,0,0,0,84,87,1,0,0,0,85,83,
+	1,0,0,0,86,88,3,4,2,0,87,86,1,0,0,0,87,88,1,0,0,0,88,7,1,0,0,0,89,90,6,
+	4,-1,0,90,108,5,46,0,0,91,108,5,47,0,0,92,108,5,49,0,0,93,108,7,0,0,0,94,
+	108,5,45,0,0,95,108,3,46,23,0,96,108,5,48,0,0,97,108,3,16,8,0,98,108,3,
+	18,9,0,99,100,5,4,0,0,100,108,3,8,4,10,101,102,5,32,0,0,102,108,3,8,4,9,
+	103,104,5,23,0,0,104,105,3,8,4,0,105,106,5,24,0,0,106,108,1,0,0,0,107,89,
+	1,0,0,0,107,91,1,0,0,0,107,92,1,0,0,0,107,93,1,0,0,0,107,94,1,0,0,0,107,
+	95,1,0,0,0,107,96,1,0,0,0,107,97,1,0,0,0,107,98,1,0,0,0,107,99,1,0,0,0,
+	107,101,1,0,0,0,107,103,1,0,0,0,108,134,1,0,0,0,109,110,10,6,0,0,110,111,
+	7,1,0,0,111,133,3,8,4,7,112,113,10,5,0,0,113,114,7,2,0,0,114,133,3,8,4,
+	6,115,116,10,4,0,0,116,117,7,3,0,0,117,133,3,8,4,5,118,119,10,3,0,0,119,
+	120,5,2,0,0,120,133,3,8,4,4,121,122,10,2,0,0,122,123,5,3,0,0,123,133,3,
+	8,4,3,124,125,10,8,0,0,125,126,5,28,0,0,126,127,3,8,4,0,127,128,5,27,0,
+	0,128,133,1,0,0,0,129,130,10,7,0,0,130,131,5,30,0,0,131,133,5,48,0,0,132,
+	109,1,0,0,0,132,112,1,0,0,0,132,115,1,0,0,0,132,118,1,0,0,0,132,121,1,0,
+	0,0,132,124,1,0,0,0,132,129,1,0,0,0,133,136,1,0,0,0,134,132,1,0,0,0,134,
+	135,1,0,0,0,135,9,1,0,0,0,136,134,1,0,0,0,137,138,5,15,0,0,138,11,1,0,0,
+	0,139,140,5,16,0,0,140,13,1,0,0,0,141,143,5,14,0,0,142,144,3,8,4,0,143,
+	142,1,0,0,0,143,144,1,0,0,0,144,15,1,0,0,0,145,147,5,28,0,0,146,148,5,1,
+	0,0,147,146,1,0,0,0,147,148,1,0,0,0,148,172,1,0,0,0,149,151,3,8,4,0,150,
+	152,5,1,0,0,151,150,1,0,0,0,151,152,1,0,0,0,152,163,1,0,0,0,153,155,5,21,
+	0,0,154,156,5,1,0,0,155,154,1,0,0,0,155,156,1,0,0,0,156,157,1,0,0,0,157,
+	159,3,8,4,0,158,160,5,1,0,0,159,158,1,0,0,0,159,160,1,0,0,0,160,162,1,0,
+	0,0,161,153,1,0,0,0,162,165,1,0,0,0,163,161,1,0,0,0,163,164,1,0,0,0,164,
+	167,1,0,0,0,165,163,1,0,0,0,166,168,5,21,0,0,167,166,1,0,0,0,167,168,1,
+	0,0,0,168,170,1,0,0,0,169,171,5,1,0,0,170,169,1,0,0,0,170,171,1,0,0,0,171,
+	173,1,0,0,0,172,149,1,0,0,0,172,173,1,0,0,0,173,174,1,0,0,0,174,175,5,27,
+	0,0,175,17,1,0,0,0,176,178,5,25,0,0,177,179,5,1,0,0,178,177,1,0,0,0,178,
+	179,1,0,0,0,179,203,1,0,0,0,180,182,3,20,10,0,181,183,5,1,0,0,182,181,1,
+	0,0,0,182,183,1,0,0,0,183,194,1,0,0,0,184,186,5,21,0,0,185,187,5,1,0,0,
+	186,185,1,0,0,0,186,187,1,0,0,0,187,188,1,0,0,0,188,190,3,20,10,0,189,191,
+	5,1,0,0,190,189,1,0,0,0,190,191,1,0,0,0,191,193,1,0,0,0,192,184,1,0,0,0,
+	193,196,1,0,0,0,194,192,1,0,0,0,194,195,1,0,0,0,195,198,1,0,0,0,196,194,
+	1,0,0,0,197,199,5,21,0,0,198,197,1,0,0,0,198,199,1,0,0,0,199,201,1,0,0,
+	0,200,202,5,1,0,0,201,200,1,0,0,0,201,202,1,0,0,0,202,204,1,0,0,0,203,180,
+	1,0,0,0,203,204,1,0,0,0,204,205,1,0,0,0,205,206,5,26,0,0,206,19,1,0,0,0,
+	207,208,5,48,0,0,208,209,5,35,0,0,209,210,3,8,4,0,210,21,1,0,0,0,211,215,
+	5,48,0,0,212,214,3,24,12,0,213,212,1,0,0,0,214,217,1,0,0,0,215,213,1,0,
+	0,0,215,216,1,0,0,0,216,23,1,0,0,0,217,215,1,0,0,0,218,219,5,28,0,0,219,
+	220,3,8,4,0,220,221,5,27,0,0,221,225,1,0,0,0,222,223,5,30,0,0,223,225,5,
+	48,0,0,224,218,1,0,0,0,224,222,1,0,0,0,225,25,1,0,0,0,226,227,3,22,11,0,
+	227,228,5,20,0,0,228,229,3,8,4,0,229,27,1,0,0,0,230,231,5,7,0,0,231,232,
+	3,8,4,0,232,234,5,9,0,0,233,235,5,1,0,0,234,233,1,0,0,0,234,235,1,0,0,0,
+	235,236,1,0,0,0,236,237,3,6,3,0,237,238,5,12,0,0,238,29,1,0,0,0,239,240,
+	5,10,0,0,240,241,3,6,3,0,241,242,5,11,0,0,242,244,3,8,4,0,243,245,5,1,0,
+	0,244,243,1,0,0,0,244,245,1,0,0,0,245,31,1,0,0,0,246,247,3,34,17,0,247,
+	254,3,6,3,0,248,249,5,17,0,0,249,250,3,34,17,0,250,251,3,6,3,0,251,253,
+	1,0,0,0,252,248,1,0,0,0,253,256,1,0,0,0,254,252,1,0,0,0,254,255,1,0,0,0,
+	255,262,1,0,0,0,256,254,1,0,0,0,257,259,5,17,0,0,258,260,5,1,0,0,259,258,
+	1,0,0,0,259,260,1,0,0,0,260,261,1,0,0,0,261,263,3,6,3,0,262,257,1,0,0,0,
+	262,263,1,0,0,0,263,264,1,0,0,0,264,265,5,12,0,0,265,33,1,0,0,0,266,267,
+	5,5,0,0,267,268,3,8,4,0,268,270,5,8,0,0,269,271,5,1,0,0,270,269,1,0,0,0,
+	270,271,1,0,0,0,271,35,1,0,0,0,272,273,5,6,0,0,273,274,3,38,19,0,274,276,
+	5,9,0,0,275,277,5,1,0,0,276,275,1,0,0,0,276,277,1,0,0,0,277,278,1,0,0,0,
+	278,279,3,6,3,0,279,280,5,12,0,0,280,37,1,0,0,0,281,282,5,48,0,0,282,283,
+	5,13,0,0,283,284,3,40,20,0,284,39,1,0,0,0,285,286,3,8,4,0,286,288,5,29,
+	0,0,287,289,5,19,0,0,288,287,1,0,0,0,288,289,1,0,0,0,289,290,1,0,0,0,290,
+	291,3,8,4,0,291,41,1,0,0,0,292,293,5,18,0,0,293,294,5,48,0,0,294,295,3,
+	44,22,0,295,296,5,1,0,0,296,297,3,6,3,0,297,298,5,12,0,0,298,43,1,0,0,0,
+	299,308,5,23,0,0,300,305,5,48,0,0,301,302,5,21,0,0,302,304,5,48,0,0,303,
+	301,1,0,0,0,304,307,1,0,0,0,305,303,1,0,0,0,305,306,1,0,0,0,306,309,1,0,
+	0,0,307,305,1,0,0,0,308,300,1,0,0,0,308,309,1,0,0,0,309,310,1,0,0,0,310,
+	311,5,24,0,0,311,45,1,0,0,0,312,313,5,48,0,0,313,322,5,23,0,0,314,319,3,
+	8,4,0,315,316,5,21,0,0,316,318,3,8,4,0,317,315,1,0,0,0,318,321,1,0,0,0,
+	319,317,1,0,0,0,319,320,1,0,0,0,320,323,1,0,0,0,321,319,1,0,0,0,322,314,
+	1,0,0,0,322,323,1,0,0,0,323,324,1,0,0,0,324,325,5,24,0,0,325,47,1,0,0,0,
+	42,49,54,58,64,75,78,83,87,107,132,134,143,147,151,155,159,163,167,170,
+	172,178,182,186,190,194,198,201,203,215,224,234,244,254,259,262,270,276,
+	288,305,308,319,322];
 
 	private static __ATN: ATN;
 	public static get _ATN(): ATN {
@@ -2468,6 +2594,12 @@ export class ArrayexprContext extends ParserRuleContext {
 	public LBRACK(): TerminalNode {
 		return this.getToken(PseudoParser.LBRACK, 0);
 	}
+	public NEWLINE_list(): TerminalNode[] {
+	    	return this.getTokens(PseudoParser.NEWLINE);
+	}
+	public NEWLINE(i: number): TerminalNode {
+		return this.getToken(PseudoParser.NEWLINE, i);
+	}
 	public expr_list(): ExprContext[] {
 		return this.getTypedRuleContexts(ExprContext) as ExprContext[];
 	}
@@ -2504,6 +2636,12 @@ export class ObjectexprContext extends ParserRuleContext {
 	}
 	public RCURLY(): TerminalNode {
 		return this.getToken(PseudoParser.RCURLY, 0);
+	}
+	public NEWLINE_list(): TerminalNode[] {
+	    	return this.getTokens(PseudoParser.NEWLINE);
+	}
+	public NEWLINE(i: number): TerminalNode {
+		return this.getToken(PseudoParser.NEWLINE, i);
 	}
 	public keyvaluepair_list(): KeyvaluepairContext[] {
 		return this.getTypedRuleContexts(KeyvaluepairContext) as KeyvaluepairContext[];
