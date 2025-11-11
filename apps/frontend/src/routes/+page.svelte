@@ -9,11 +9,11 @@
         {/each}
     </div>
     <div id="options">
-        <span style="display: flex">
+        <div class="option">
             <input id="interpreter-active" name="interpreter-active" type="checkbox" bind:checked={ interpreterActive }>
             <label for="interpreter-active">interpreter active</label>
-        </span>
-        <div>
+        </div>
+        <div class="option">
             <input id="vim-mode" type="checkbox" bind:checked={vimMode}>
             <label for="vim-mode">Enable vim mode</label>
         </div>
@@ -72,12 +72,15 @@
     .grid {
         display: grid;
         grid-template-columns: repeat(12, 1fr);
+        grid-template-rows: repeat(8, 1fr);
     }
 
     .code-wrapper {
         margin: 1em;
         height: 60vh;
         grid-column: span 8;
+        grid-row: span 6;
+        overflow: auto;
     }
 
     #variable-table {
@@ -92,6 +95,10 @@
         grid-column: span 4;
     }
 
+    .option {
+        display: flex;
+    }
+
     label {
         display: block;
     }
@@ -99,5 +106,6 @@
     input[type="checkbox"] {
         vertical-align: middle;
     }
+
 
 </style>
