@@ -643,13 +643,13 @@ export default class InterpretingVisitor implements Visitor<void> {
             }
             return value;
         })
-        const currentScope = this.symbolTable.child
+        const currentScope = this.symbolTable
         const funcScope = new SymbolTable<Slot>();
-        this.symbolTable.child = funcScope;
+        this.symbolTable = funcScope;
         this.setVariables(func.args, argValues)
         func.stats.accept(this)
 
-        this.symbolTable.child = currentScope
+        this.symbolTable = currentScope
     }
 
     private handleBuiltInFunction(func: BuiltInFunction, args: ExprTree[]) {
