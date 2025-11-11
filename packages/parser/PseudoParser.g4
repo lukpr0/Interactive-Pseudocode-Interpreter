@@ -65,7 +65,7 @@ arrayexpr
     ;
 
 objectexpr
-    : '{' (keyvaluepair (',' keyvaluepair)?)? '}'
+    : '{' (keyvaluepair (',' keyvaluepair)*)? '}'
     ;
 
 keyvaluepair
