@@ -8,10 +8,10 @@ self.onmessage = (event) => {
     const lexer = new PseudoLexer(chars);
     const tokens = new CommonTokenStream(lexer);
     const parser = new PseudoParser(tokens);
-    performEpicCalculation(parser);
+    runInterpreter(parser);
 }
 
-function performEpicCalculation(parser: PseudoParser) {
+function runInterpreter(parser: PseudoParser) {
     const observer = {
         update(message: string) {
             self.postMessage({type: 'log', message: message})
