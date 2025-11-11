@@ -72,7 +72,7 @@
     .grid {
         display: grid;
         grid-template-columns: repeat(12, 1fr);
-        grid-template-rows: repeat(8, 1fr);
+        grid-template-rows: repeat(8, 12vh);
     }
 
     .code-wrapper {
@@ -89,6 +89,8 @@
 
     #outputs {
         grid-column: span 8;
+        grid-row: span 2;
+        overflow: auto;
     }
 
     #options {
