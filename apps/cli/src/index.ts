@@ -31,7 +31,11 @@ const ast = tree.accept(visitor);
 const symbols = new SymbolTable<Slot>()
 const functions = new SymbolTable<FunctionTree>()
 const interpreter = new InterpretingVisitor(symbols, functions);
-
+interpreter.addPrintObserver({
+    update(message) {
+        console.log(message);
+    }
+})
 //Print AST
 const astPrinter = new ASTPrinter();
 const astString = ast.accept(astPrinter);
