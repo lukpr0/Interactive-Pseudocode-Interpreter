@@ -594,6 +594,10 @@ export default class InterpretingVisitor implements Visitor<void> {
             return left.equals(right);
         } else if (left.type == Type.Boolean && right.type == Type.Boolean) {
             return left.equals(right)
+        } else if (left.type == Type.Nil) {
+            return left.equals(right)
+        } else if (right.type == Type.Nil) {
+            return right.equals(left)
         } else {
             const errorMessage = `incompatible types for operator = : ${left.type}, ${right.type}`;
             throw new Error(errorMessage);
@@ -605,6 +609,10 @@ export default class InterpretingVisitor implements Visitor<void> {
             return left.notEqual(right);
         } else if (left.type == Type.Boolean && right.type == Type.Boolean) {
             return left.notEqual(right)
+        } else if (left.type == Type.Nil) {
+            return left.notEquals(right)
+        } else if (right.type == Type.Nil) {
+            return right.notEquals(left)
         } else {
             const errorMessage = `incompatible types for operator != : ${left.type}, ${right.type}`;
             throw new Error(errorMessage);
