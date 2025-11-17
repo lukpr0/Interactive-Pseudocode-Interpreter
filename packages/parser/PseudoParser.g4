@@ -37,10 +37,10 @@ expr
     | IDENTIFIER                        # IdLiteral
     | arrayexpr                         # ArrayExpr
     | objectexpr                        # ObjectExpr
-    | 'not' expr                        # Negation
-    | '-' expr                          # UnaryMinus
     | expr '[' expr ']'                 # IndexAccess
     | expr '.' IDENTIFIER               # DotAccess
+    | 'not' expr                        # Negation
+    | '-' expr                          # UnaryMinus
     | expr op=('*' | '/' | 'div' | 'mod') expr  # Multiplicative
     | expr op=('+' | '-') expr          # Additive
     | expr op=('>' | '<' | '<=' | '>=' | '=' | '!=') expr # Comparison
