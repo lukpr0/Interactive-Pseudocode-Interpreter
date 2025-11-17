@@ -35,9 +35,10 @@ import PrintFunction from "./BuiltInFunctions/PrintFunction.js";
 import String from "./Types/String.js";
 import { ArrayConstructor, LengthFunction, PushFunction } from "./BuiltInFunctions/ArrayFunctions.js";
 import Nil from "./Types/Nil.js";
-import { CeilFunction, FloorFunction, SquarerootFunction } from "./BuiltInFunctions/MathFunctions.js";
+import { CeilFunction, FloorFunction, PowFunction, SquarerootFunction } from "./BuiltInFunctions/MathFunctions.js";
 import type ContineTree from "../AST/ContinueTree.js";
 import type PrintObserver from "./PrintObserver.js";
+import { CharFunction, CodepointFunction } from "./BuiltInFunctions/StringFunctions.js";
 
 export default class InterpretingVisitor implements Visitor<void> {
     symbolTable: SymbolTable<Slot>;
@@ -65,6 +66,9 @@ export default class InterpretingVisitor implements Visitor<void> {
         this.builtInFunctions.setVariable('floor', new FloorFunction());
         this.builtInFunctions.setVariable('ceil', new CeilFunction());
         this.builtInFunctions.setVariable('sqrt', new SquarerootFunction());
+        this.builtInFunctions.setVariable('codepoint', new CodepointFunction());
+        this.builtInFunctions.setVariable('char', new CharFunction());
+        this.builtInFunctions.setVariable('pow', new PowFunction());
     }
 
     visitStatlist(expr: StatListTree): void {

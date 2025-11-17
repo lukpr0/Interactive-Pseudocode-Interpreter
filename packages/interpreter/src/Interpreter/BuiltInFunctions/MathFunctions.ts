@@ -45,3 +45,22 @@ export class SquarerootFunction extends BuiltInFunction {
         return new Float(value);
     }
 }
+
+export class PowFunction extends BuiltInFunction {
+    constructor() {
+        super(2, 'pow')
+    }
+
+    eval(args: Value[]): Value {
+        if (args[0]?.type != Type.Integer && args[0]?.type != Type.Float) {
+            throw new Error(`Argument must be of type integer or float, found ${args[0]?.type}`)
+        }
+        if (args[1]?.type != Type.Integer && args[1]?.type != Type.Float) {
+            throw new Error(`Argument must be of type integer or float, found ${args[1]?.type}`)
+        }
+        if (args[0].type == Type.Integer && args[1].type == Type.Integer) {
+            return new Integer(args[0].value ** args[1].value)
+        }
+        return new Float(Number(args[0].value) ** Number(args[1].value))
+    }
+}
