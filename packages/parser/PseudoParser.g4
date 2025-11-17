@@ -86,23 +86,23 @@ assignstat
     ;
 
 whilestat
-    : 'while' expr 'do' NEWLINE? statlist 'end'
+    : 'while' expr 'do' NEWLINE statlist 'end'
     ;
 
 repeatstat
-    : 'repeat' statlist 'until' expr NEWLINE?
+    : 'repeat' statlist 'until' expr
     ;
 
 ifstat
-    : ifhead statlist ('else' ifhead statlist)* ('else' NEWLINE? statlist)? 'end'
+    : ifhead statlist ('else' ifhead statlist)* ('else' NEWLINE statlist)? 'end'
     ;
 
 ifhead
-    : 'if' expr 'then' NEWLINE?
+    : 'if' expr 'then' NEWLINE
     ;
 
 forstat
-    : 'for' iterator 'do' NEWLINE? statlist 'end'
+    : 'for' iterator 'do' NEWLINE statlist 'end'
     ;
 
 iterator
