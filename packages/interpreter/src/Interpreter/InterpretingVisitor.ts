@@ -321,7 +321,7 @@ export default class InterpretingVisitor implements Visitor<void> {
 
     visitIf(expr: IfTree): void {
         let branchExecuted = false;
-        for (let i = 0; i < expr.conditions.length; i++) {
+        for (let i = 0; i < expr.conditions.length && !branchExecuted; i++) {
             const cond = expr.conditions[i];
             const list = expr.lists[i];
             cond?.accept(this)
