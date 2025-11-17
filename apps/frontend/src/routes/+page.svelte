@@ -4,9 +4,16 @@
     </div>
     <div id="variable-table"><VariableTable {variables}></VariableTable></div>
     <div id="outputs">
-        {#each logs as message}
-            { message }<br>
-        {/each}
+        {#if error}
+        <div id="errors">
+            { error }
+        </div>
+        {/if}
+        <div id="logs">
+            {#each logs as message}
+                { message }<br>
+            {/each}
+        </div>
     </div>
     <div id="options">
         <Option name="interpreter-active" bind:checked={interpreterActive}>interpreter-active</Option>
@@ -32,7 +39,7 @@
     let vimMode = $state(false)
     let interpreterActive = $state(true)
     let shareLink = $state("")
-    
+    let error = $state("")
 
     let variables = $state(new Map<string, Slot>());
 
@@ -43,10 +50,16 @@
 
     function workerOnMessage(event: MessageEvent) {
         const result = event.data
-        if (result.type == 'log') {
-            logs.push(result.message)
-        } else if (result.type == 'result') {
-            variables = new Map(result.message)
+        switch (result.type) {
+            case 'log':
+                logs.push(result.message)
+                break;
+            case 'result':
+                variables = new Map(result.message)
+                break;
+            case 'error':
+                error = result.message;
+                break;
         }
     }
 
@@ -60,6 +73,7 @@
             return;
         }
         logs = []
+        error = "";
         worker.terminate()
         worker = new Worker()
         worker.onmessage = workerOnMessage;
