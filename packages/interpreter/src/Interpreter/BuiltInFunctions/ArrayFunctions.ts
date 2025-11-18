@@ -55,3 +55,29 @@ export class PushFunction extends BuiltInFunction {
         return new Nil()
     }
 }
+
+export class PopFunction extends BuiltInFunction {
+    constructor() {
+        super(1, 'pop')
+    }
+
+    eval(args: Value[]): Value {
+        if (args[0]?.type != Type.Array) {
+            throw new Error(`Argument must be of type array, found ${args[0]?.type}`);
+        }
+        return args[0].pop()
+    }
+}
+
+export class DequeueFunction extends BuiltInFunction {
+    constructor() {
+        super(1, 'dequeue');
+    }
+
+    eval(args: Value[]): Value {
+        if (args[0]?.type != Type.Array) {
+            throw new Error(`Argument must be of type array, found ${args[0]?.type}`);
+        }
+        return args[0].dequeue()
+    }
+}
