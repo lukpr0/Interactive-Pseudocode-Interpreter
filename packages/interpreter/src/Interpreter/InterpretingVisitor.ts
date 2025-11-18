@@ -33,7 +33,7 @@ import { Token } from "antlr4";
 import type BuiltInFunction from "./BuiltInFunctions/BuiltInFunction.js";
 import PrintFunction from "./BuiltInFunctions/PrintFunction.js";
 import String from "./Types/String.js";
-import { ArrayConstructor, LengthFunction, PushFunction } from "./BuiltInFunctions/ArrayFunctions.js";
+import { ArrayConstructor, DequeueFunction, LengthFunction, PopFunction, PushFunction } from "./BuiltInFunctions/ArrayFunctions.js";
 import Nil from "./Types/Nil.js";
 import { CeilFunction, FloorFunction, PowFunction, SquarerootFunction } from "./BuiltInFunctions/MathFunctions.js";
 import type ContineTree from "../AST/ContinueTree.js";
@@ -60,15 +60,21 @@ export default class InterpretingVisitor implements Visitor<void> {
         this.builtInFunctions = new SymbolTable();
 
         this.builtInFunctions.setVariable('print', new PrintFunction());
+
         this.builtInFunctions.setVariable('len', new LengthFunction());
         this.builtInFunctions.setVariable('Array', new ArrayConstructor());
         this.builtInFunctions.setVariable('push', new PushFunction());
+        this.builtInFunctions.setVariable('pop', new PopFunction());
+        this.builtInFunctions.setVariable('dequeue', new DequeueFunction())
+
         this.builtInFunctions.setVariable('floor', new FloorFunction());
         this.builtInFunctions.setVariable('ceil', new CeilFunction());
         this.builtInFunctions.setVariable('sqrt', new SquarerootFunction());
+        this.builtInFunctions.setVariable('pow', new PowFunction());
+
         this.builtInFunctions.setVariable('codepoint', new CodepointFunction());
         this.builtInFunctions.setVariable('char', new CharFunction());
-        this.builtInFunctions.setVariable('pow', new PowFunction());
+
     }
 
     visitStatlist(expr: StatListTree): void {

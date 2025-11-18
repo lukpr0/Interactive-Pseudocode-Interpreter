@@ -56,6 +56,24 @@ export default class Array {
     push(value: Value) {
         this.value.push(new Slot(value));
     }
+
+    pop(): Value {
+        const value = this.value.pop()?.value
+        if (value) {
+            return value;
+        } else {
+            throw new Error(`No element in Array`)
+        }
+    }
+
+    dequeue(): Value {
+        const value = this.value.shift()?.value
+        if (value) {
+            return value;
+        } else {
+            throw new Error(`No element in Array`)
+        }
+    }
 }
 
 
