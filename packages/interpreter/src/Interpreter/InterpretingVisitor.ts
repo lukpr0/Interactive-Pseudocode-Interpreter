@@ -167,62 +167,69 @@ export default class InterpretingVisitor implements Visitor<void> {
                 throw new Error(`can't use dot access on type ${left.type}`);
             }
         }
-        expr.left.accept(this)
-        expr.right.accept(this)
-        const right = this.stack.pop()
-        const left = this.stack.pop()
-        if (left === undefined || right === undefined) {
-            throw new Error("left or right operand missing")
-        }
         let result;
-        switch (expr.operator.type) {
-            case PseudoParser.PLUS:
-                result = this.handlePlus(left, right);
-                break
-            case PseudoParser.MINUS:
-                result = this.handleMinus(left, right);
-                break;
-            case PseudoParser.STAR:
-                result = this.handleMultiply(left, right);
-                break;
-            case PseudoParser.SLASH:
-                result = this.handleDivide(left, right);
-                break;
-            case PseudoParser.DIV:
-                result = this.handleIntDivide(left, right);
-                break;
-            case PseudoParser.MOD:
-                result = this.handleModulo(left, right);
-                break;
-            case PseudoParser.AND:
-                result = this.handleAnd(left, right);
-                break;
-            case PseudoParser.OR:
-                result = this.handleOr(left, right);
-                break;
-            case PseudoParser.LESSTHAN:
-                result = this.handleLess(left, right)
-                break;
-            case PseudoParser.GREATERTHAN:
-                result = this.handleGreater(left, right)
-                break;
-            case PseudoParser.LESSEQUAL:
-                result = this.handleLessEqual(left, right)
-                break;
-            case PseudoParser.GREATEREQUAL:
-                result = this.handleGreaterEqual(left, right)
-                break;
-            case PseudoParser.EQUALS:
-                result = this.handleEquals(left, right)
-                break;
-            case PseudoParser.NOTEQUAL:
-                result = this.handleNotEqual(left, right)
-                break;
-            case PseudoParser.LBRACK:
-                result = this.handleIndexAccess(left, right)
-                break;
-            default:
-                throw new Error("no valid operator found")
+        if (this.isLazy(expr.operator)) {
+            switch (expr.operator.type) {
+                case PseudoParser.AND:
+                    result = this.handleAnd(expr.left, expr.right);
+                    break;
+                case PseudoParser.OR:
+                    result = this.handleOr(expr.left, expr.right);
+                    break;
+                default:
+                    throw new Error("no valid operator found")
+            }
+        } else {
+            expr.left.accept(this)
+            expr.right.accept(this)
+            const right = this.stack.pop()
+            const left = this.stack.pop()
+            if (left === undefined || right === undefined) {
+                throw new Error("left or right operand missing")
+            }
+            switch (expr.operator.type) {
+                case PseudoParser.PLUS:
+                    result = this.handlePlus(left, right);
+                    break
+                case PseudoParser.MINUS:
+                    result = this.handleMinus(left, right);
+                    break;
+                case PseudoParser.STAR:
+                    result = this.handleMultiply(left, right);
+                    break;
+                case PseudoParser.SLASH:
+                    result = this.handleDivide(left, right);
+                    break;
+                case PseudoParser.DIV:
+                    result = this.handleIntDivide(left, right);
+                    break;
+                case PseudoParser.MOD:
+                    result = this.handleModulo(left, right);
+                    break;
+                case PseudoParser.LESSTHAN:
+                    result = this.handleLess(left, right)
+                    break;
+                case PseudoParser.GREATERTHAN:
+                    result = this.handleGreater(left, right)
+                    break;
+                case PseudoParser.LESSEQUAL:
+                    result = this.handleLessEqual(left, right)
+                    break;
+                case PseudoParser.GREATEREQUAL:
+                    result = this.handleGreaterEqual(left, right)
+                    break;
+                case PseudoParser.EQUALS:
+                    result = this.handleEquals(left, right)
+                    break;
+                case PseudoParser.NOTEQUAL:
+                    result = this.handleNotEqual(left, right)
+                    break;
+                case PseudoParser.LBRACK:
+                    result = this.handleIndexAccess(left, right)
+                    break;
+                default:
+                    throw new Error("no valid operator found")
+            }
         }
         this.stack.push(result)
     }
@@ -486,6 +493,10 @@ export default class InterpretingVisitor implements Visitor<void> {
         this.stack.push(object)
     }
 
+    private isLazy(token: Token): boolean {
+        return [PseudoParser.AND, PseudoParser.OR].includes(token.type)
+    }
+
     private handlePlus(left: Value, right: Value): Value {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.add(right);
@@ -545,29 +556,61 @@ export default class InterpretingVisitor implements Visitor<void> {
         }
     }
 
-    private handleAnd(left: Value, right: Value): Value {
-        if (left.type == Type.Boolean && right.type == Type.Boolean) {
-            return left.and(right);
-        } else {
-            const errorMessage = `incompatible types for operator %: ${left.type}, ${right.type}`;
+    private handleAnd(left: ExprTree, right: ExprTree): Value {
+        left.accept(this);
+        const leftValue = this.stack.pop();
+        if (!leftValue) {
+            throw new Error("left operand missing");
+        }
+        if (leftValue.type != Type.Boolean) {
+            const errorMessage = `incompatible type for operator and: ${leftValue.type}`;
             throw new Error(errorMessage);
         }
-    }
-
-    private handleOr(left: Value, right: Value): Value {
-        if (left.type == Type.Boolean && right.type == Type.Boolean) {
-            return left.or(right);
-        } else {
-            const errorMessage = `incompatible types for operator %: ${left.type}, ${right.type}`;
+        if (!leftValue.value) {
+            return new Boolean(false);
+        }
+        right.accept(this);
+        const rightValue = this.stack.pop();
+        if (!rightValue) {
+            throw new Error("left operand missing");
+        }
+        if (rightValue.type != Type.Boolean) {
+            const errorMessage = `incompatible type for operator and: ${rightValue.type}`;
             throw new Error(errorMessage);
         }
+        return leftValue.and(rightValue);
     }
 
+    private handleOr(left: ExprTree, right: ExprTree): Value {
+        left.accept(this);
+        const leftValue = this.stack.pop();
+        if (!leftValue) {
+            throw new Error("left operand missing");
+        }
+        if (leftValue.type != Type.Boolean) {
+            const errorMessage = `incompatible type for operator or: ${leftValue.type}`;
+            throw new Error(errorMessage);
+        }
+        if (leftValue.value) {
+            return new Boolean(true);
+        }
+        right.accept(this);
+        const rightValue = this.stack.pop();
+        if (!rightValue) {
+            throw new Error("left operand missing");
+        }
+        if (rightValue.type != Type.Boolean) {
+            const errorMessage = `incompatible type for operator or: ${rightValue.type}`;
+            throw new Error(errorMessage);
+        }
+        return leftValue.or(rightValue)
+    }
+    
     private handleLess(left: Value, right: Value): Value {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.less(right);
         } else {
-            const errorMessage = `incompatible types for operator < : ${left.type}, ${right.type}`;
+            const errorMessage = `incompatible types for operator > : ${left.type}, ${right.type}`;
             throw new Error(errorMessage);
         }
     }
