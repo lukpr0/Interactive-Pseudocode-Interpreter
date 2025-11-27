@@ -2,7 +2,7 @@ import Slot from "../Slot.js";
 import Type from "../Type.js";
 import type { Value } from "../Value.js";
 
-export default class Object {
+export default class PseudoObject {
 
     type: Type.Object = Type.Object
     values: Map<string, Slot>

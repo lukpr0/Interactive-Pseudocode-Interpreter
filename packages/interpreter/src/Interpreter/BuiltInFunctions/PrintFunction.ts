@@ -1,5 +1,5 @@
 import type PrintObserver from "../PrintObserver.js";
-import Nil from "../Types/Nil.js";
+import { PseudoNil } from "../Types/index.js";
 import type { Value } from "../Value.js";
 import BuiltInFunction from "./BuiltInFunction.js";
 
@@ -18,7 +18,7 @@ export default class PrintFunction extends BuiltInFunction {
             throw new Error("no message found")
         } 
         this.notify(message.toString());
-        return new Nil();
+        return new PseudoNil();
     }
 
     addObserver(observer: PrintObserver) {

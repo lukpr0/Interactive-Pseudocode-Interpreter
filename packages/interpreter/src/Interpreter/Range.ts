@@ -1,8 +1,8 @@
-import Integer from "./Types/Integer.js";
+import { PseudoInteger } from "./Types/index.js";
 import type Iterable from "./Iterable.js";
 import Type from "./Type.js";
 
-export default class Range implements Iterable<Integer> {
+export default class Range implements Iterable<PseudoInteger> {
 
     type: Type.Iterator = Type.Iterator;
 
@@ -26,9 +26,9 @@ export default class Range implements Iterable<Integer> {
         }
     }
 
-    next(): Integer {
+    next(): PseudoInteger {
         this.current += 1n;
-        return new Integer(this.current);
+        return new PseudoInteger(this.current);
     }
 
     toString(): string {

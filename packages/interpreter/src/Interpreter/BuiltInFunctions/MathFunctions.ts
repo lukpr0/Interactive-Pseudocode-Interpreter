@@ -1,6 +1,5 @@
 import Type from "../Type.js"
-import Float from "../Types/Float.js"
-import Integer from "../Types/Integer.js"
+import { PseudoFloat, PseudoInteger} from "../Types/index.js"
 import type { Value } from "../Value.js"
 import BuiltInFunction from "./BuiltInFunction.js"
 
@@ -14,7 +13,7 @@ export class FloorFunction extends BuiltInFunction {
             throw new Error(`Argument must be of type integer or float, found ${args[0]?.type}`)
         }
         const value = Math.floor(Number(args[0].value));
-        return new Integer(BigInt(value));
+        return new PseudoInteger(BigInt(value));
     }
 }
 
@@ -28,7 +27,7 @@ export class CeilFunction extends BuiltInFunction {
             throw new Error(`Argument must be of type integer or float, found ${args[0]?.type}`)
         }
         const value = Math.ceil(Number(args[0].value));
-        return new Integer(BigInt(value));
+        return new PseudoInteger(BigInt(value));
     }
 }
 
@@ -42,7 +41,7 @@ export class SquarerootFunction extends BuiltInFunction {
             throw new Error(`Argument must be of type integer or float, found ${args[0]?.type}`)
         }
         const value = Math.sqrt(Number(args[0].value));
-        return new Float(value);
+        return new PseudoFloat(value);
     }
 }
 
@@ -59,8 +58,8 @@ export class PowFunction extends BuiltInFunction {
             throw new Error(`Argument must be of type integer or float, found ${args[1]?.type}`)
         }
         if (args[0].type == Type.Integer && args[1].type == Type.Integer) {
-            return new Integer(args[0].value ** args[1].value)
+            return new PseudoInteger(BigInt(args[0].value ** args[1].value))
         }
-        return new Float(Number(args[0].value) ** Number(args[1].value))
+        return new PseudoFloat(Number(args[0].value) ** Number(args[1].value))
     }
 }
