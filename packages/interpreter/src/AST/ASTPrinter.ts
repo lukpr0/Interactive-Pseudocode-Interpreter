@@ -19,7 +19,7 @@ import type KeyValueTree from "./KeyValueTree.js";
 import type ObjectTree from "./ObjectTree.js";
 import type BreakTree from "./BreakTree.js";
 import type ReturnTree from "./ReturnTree.js";
-import type ContineTree from "./ContinueTree.js";
+import type ContinueTree from "./ContinueTree.js";
 
 export default class ASTPrinter implements Visitor<string> {
 
@@ -163,7 +163,7 @@ export default class ASTPrinter implements Visitor<string> {
         return `(return ${expr.value.accept(this)})`;
     }
 
-    visitContinue(expr: ContineTree): string {
+    visitContinue(expr: ContinueTree): string {
         return `(continue)`
     }
 
