@@ -1,36 +1,14 @@
-import { PseudoParser } from "@interactive-pseudo/parser";
-import SymbolTable from "./SymbolTable.js";
-import type AssignTree from "../AST/AssignTree.js";
-import { BinaryOperationTree, ExprTree, UnaryOperationTree } from "../AST/ExprTree.js";
-import type ProgramTree from "../AST/ProgramTree.js";
-import type Visitor from "../AST/Visitor.js";
-import type { Value } from "./Value.js";
-import Type from "./Type.js";
-import type WhileTree from "../AST/WhileTree.js";
-import type StatListTree from "../AST/StatListTree.js";
-import type RepeatUntilTree from "../AST/RepeatUntil.js";
-import type IfTree from "../AST/IfTree.js";
-import type ForTree from "../AST/ForTree.js";
-import type IteratorTree from "../AST/IteratorTree.js";
-import type RangeTree from "../AST/RangeTree.js";
-import Range from "./Range.js";
-import FunctionTree from "../AST/FunctionTree.js";
-import FunctionCallTree from "../AST/FunctionCallTree.js";
-import type ArrayTree from "../AST/ArrayTree.js";
-import { PseudoInteger, PseudoFloat, PseudoBoolean, PseudoArray, PseudoObject, PseudoNil, PseudoString } from "./Types/index.js";
-import type FullIdTree from "../AST/FullIdTree.js";
-import { DotAccessorTree, IndexAccessorTree } from "../AST/AccessorTree.js";
-import Slot from "./Slot.js";
-import type KeyValueTree from "../AST/KeyValueTree.js";
-import type ObjectTree from "../AST/ObjectTree.js";
-import type BreakTree from "../AST/BreakTree.js";
-import type ReturnTree from "../AST/ReturnTree.js";
 import { Token } from "antlr4";
+import { PseudoParser } from "@interactive-pseudo/parser";
+import type { WhileTree, StatListTree, RepeatUntilTree, IfTree, ForTree, IteratorTree, RangeTree, KeyValueTree, ObjectTree, BreakTree, ReturnTree, ContinueTree, AssignTree, ProgramTree, Visitor, ArrayTree, FullIdTree } from "../AST/index.js";
+import type { Value } from "./Value.js";
 import type BuiltInFunction from "./BuiltInFunctions/BuiltInFunction.js";
-import { ArrayConstructor, DequeueFunction, LengthFunction, PopFunction, PushFunction, CeilFunction, FloorFunction, PowFunction, SquarerootFunction, PrintFunction  } from "./BuiltInFunctions/index.js";
-import type ContineTree from "../AST/ContinueTree.js";
 import type PrintObserver from "./PrintObserver.js";
-import { CharFunction, CodepointFunction } from "./BuiltInFunctions/StringFunctions.js";
+
+import { BinaryOperationTree, UnaryOperationTree, FunctionCallTree, FunctionTree, ExprTree, DotAccessorTree, IndexAccessorTree } from "../AST/index.js"
+import { PseudoInteger, PseudoFloat, PseudoBoolean, PseudoArray, PseudoObject, PseudoNil, PseudoString } from "./Types/index.js";
+import { ArrayConstructor, DequeueFunction, LengthFunction, PopFunction, PushFunction, CeilFunction, FloorFunction, PowFunction, SquarerootFunction, PrintFunction, CharFunction, CodepointFunction } from "./BuiltInFunctions/index.js";
+import { Slot, SymbolTable, Type, Range} from "./index.js"
 
 export default class InterpretingVisitor implements Visitor<void> {
     symbolTable: SymbolTable<Slot>;
@@ -107,7 +85,6 @@ export default class InterpretingVisitor implements Visitor<void> {
 
     visitAssign(assign: AssignTree): void {
         assign.expr.accept(this)
-        //assign.id.accept(this);
         const value = this.stack.pop()
         if (value === undefined) {
             throw new Error("value is unexpectedly undefined");
@@ -459,7 +436,7 @@ export default class InterpretingVisitor implements Visitor<void> {
         this.returning = true;
     }
 
-    visitContinue(expr: ContineTree): void {
+    visitContinue(expr: ContinueTree): void {
         this.continuing = true;
     }
 
@@ -467,9 +444,7 @@ export default class InterpretingVisitor implements Visitor<void> {
 
     visitDotName(expr: DotAccessorTree): void {}
 
-    visitKeyValue(expr: KeyValueTree): void {
-        
-    }
+    visitKeyValue(expr: KeyValueTree): void {}
 
     visitObject(expr: ObjectTree): void {
         const object = new PseudoObject();
@@ -725,6 +700,5 @@ export default class InterpretingVisitor implements Visitor<void> {
         const print = this.builtInFunctions.getVariable('print') as PrintFunction
         print.addObserver(observer)
     }
-
 
 }
