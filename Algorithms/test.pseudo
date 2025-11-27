@@ -45,7 +45,7 @@ end
 
 list := [7, 4, 8, 2, 9, 4, 8]
 sorted := MergeSort(list)
-print(sorted)
+print(nil = nil)
 
 
 
