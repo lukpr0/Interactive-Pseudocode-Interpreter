@@ -6,9 +6,6 @@ import type ProgramTree from "../AST/ProgramTree.js";
 import type Visitor from "../AST/Visitor.js";
 import type { Value } from "./Value.js";
 import Type from "./Type.js";
-import Integer from "./Types/Integer.js";
-import Float from "./Types/Float.js";
-import Boolean from "./Types/Boolean.js";
 import type WhileTree from "../AST/WhileTree.js";
 import type StatListTree from "../AST/StatListTree.js";
 import type RepeatUntilTree from "../AST/RepeatUntil.js";
@@ -20,22 +17,17 @@ import Range from "./Range.js";
 import FunctionTree from "../AST/FunctionTree.js";
 import FunctionCallTree from "../AST/FunctionCallTree.js";
 import type ArrayTree from "../AST/ArrayTree.js";
-import Array from "./Types/Array.js";
+import { PseudoInteger, PseudoFloat, PseudoBoolean, PseudoArray, PseudoObject, PseudoNil, PseudoString } from "./Types/index.js";
 import type FullIdTree from "../AST/FullIdTree.js";
 import { DotAccessorTree, IndexAccessorTree } from "../AST/AccessorTree.js";
 import Slot from "./Slot.js";
 import type KeyValueTree from "../AST/KeyValueTree.js";
 import type ObjectTree from "../AST/ObjectTree.js";
-import Object from "./Types/Object.js";
 import type BreakTree from "../AST/BreakTree.js";
 import type ReturnTree from "../AST/ReturnTree.js";
 import { Token } from "antlr4";
 import type BuiltInFunction from "./BuiltInFunctions/BuiltInFunction.js";
-import PrintFunction from "./BuiltInFunctions/PrintFunction.js";
-import String from "./Types/String.js";
-import { ArrayConstructor, DequeueFunction, LengthFunction, PopFunction, PushFunction } from "./BuiltInFunctions/ArrayFunctions.js";
-import Nil from "./Types/Nil.js";
-import { CeilFunction, FloorFunction, PowFunction, SquarerootFunction } from "./BuiltInFunctions/MathFunctions.js";
+import { ArrayConstructor, DequeueFunction, LengthFunction, PopFunction, PushFunction, CeilFunction, FloorFunction, PowFunction, SquarerootFunction, PrintFunction  } from "./BuiltInFunctions/index.js";
 import type ContineTree from "../AST/ContinueTree.js";
 import type PrintObserver from "./PrintObserver.js";
 import { CharFunction, CodepointFunction } from "./BuiltInFunctions/StringFunctions.js";
@@ -244,20 +236,20 @@ export default class InterpretingVisitor implements Visitor<void> {
             }
             this.stack.push(slot.value);
         } else if (expr.operand.type == PseudoParser.INT) {
-            const value = new Integer(BigInt(expr.operand.text));
+            const value = new PseudoInteger(BigInt(expr.operand.text));
             this.stack.push(value);
         } else if (expr.operand.type == PseudoParser.FLOAT) {
-            const value = new Float(Number.parseFloat(expr.operand.text));
+            const value = new PseudoFloat(Number.parseFloat(expr.operand.text));
             this.stack.push(value);
         } else if (expr.operand.type == PseudoParser.TRUE || expr.operand.type == PseudoParser.FALSE) {
             const isTrue = expr.operand.text == 'true';
-            const value = new Boolean(isTrue);
+            const value = new PseudoBoolean(isTrue);
             this.stack.push(value);
         } else if (expr.operand.type == PseudoParser.STRING) {
-            const value = new String(expr.operand.text.slice(1, -1));
+            const value = new PseudoString(expr.operand.text.slice(1, -1));
             this.stack.push(value);
         } else if (expr.operand.type == PseudoParser.NIL) {
-            const value = new Nil();
+            const value = new PseudoNil();
             this.stack.push(value);
         }
 
@@ -268,13 +260,13 @@ export default class InterpretingVisitor implements Visitor<void> {
             }
             if (expr.operator && expr.operator.type == PseudoParser.MINUS) {
                 if (fromStack.type == Type.Integer || fromStack.type == Type.Float) {
-                    this.stack.push(fromStack.mult(new Integer(-1n)));
+                    this.stack.push(fromStack.mult(new PseudoInteger(-1n)));
                 } else {
                     throw new Error(`operator - incompatible with type ${fromStack.type}`)
                 }
             } else if (expr.operator && expr.operator.type == PseudoParser.NOT) {
                 if (fromStack.type == Type.Boolean) {
-                    this.stack.push(new Boolean(!fromStack.value))
+                    this.stack.push(new PseudoBoolean(!fromStack.value))
                 }
             }
         }
@@ -287,7 +279,7 @@ export default class InterpretingVisitor implements Visitor<void> {
         this.symbolTable.addChild(new SymbolTable());
             expr.cond.accept(this);
             const fromStack = this.stack.pop();
-            if (!(fromStack instanceof Boolean)) {
+            if (!(fromStack instanceof PseudoBoolean)) {
                 throw new Error("While-loop requires boolean expression");
             }
             if (fromStack.value) {
@@ -321,7 +313,7 @@ export default class InterpretingVisitor implements Visitor<void> {
             }
             expr.cond.accept(this);
             const fromStack = this.stack.pop();
-            if (!(fromStack instanceof Boolean)) {
+            if (!(fromStack instanceof PseudoBoolean)) {
                 throw new Error("Repeat-Until requires boolean expression")
             }
             if (fromStack.value) {
@@ -340,7 +332,7 @@ export default class InterpretingVisitor implements Visitor<void> {
             cond?.accept(this)
             const fromStack = this.stack.pop();
 
-            if (!(fromStack instanceof Boolean)) {
+            if (!(fromStack instanceof PseudoBoolean)) {
                 throw new Error("If-Statement requires boolean expression")
             }
             if (fromStack.value) {
@@ -423,7 +415,7 @@ export default class InterpretingVisitor implements Visitor<void> {
     }
 
     visitArray(expr: ArrayTree): void {
-        const array = new Array();
+        const array = new PseudoArray();
         for (const element of expr.elements) {
             element.accept(this);
             const value = this.stack.pop()
@@ -480,7 +472,7 @@ export default class InterpretingVisitor implements Visitor<void> {
     }
 
     visitObject(expr: ObjectTree): void {
-        const object = new Object();
+        const object = new PseudoObject();
         for (const kvp of expr.elements) {
             const key = kvp.key.text;
             kvp.value.accept(this)
@@ -503,7 +495,7 @@ export default class InterpretingVisitor implements Visitor<void> {
         } else if (left.type == Type.String && (right.type == Type.String || right.type == Type.Integer || right.type == Type.Float || right.type == Type.Boolean || right.type == Type.Array || right.type == Type.Object)) {
             return left.add(right)
         } else if (right.type == Type.String && (left.type == Type.String || left.type == Type.Integer || left.type == Type.Float || left.type == Type.Boolean || left.type == Type.Array || left.type == Type.Object)) {
-            return new String("").add(left).add(right)
+            return new PseudoString("").add(left).add(right)
         } {
             const errorMessage = `incompatible types for operator +: ${left.type}, ${right.type}`;
             throw new Error(errorMessage);
@@ -567,7 +559,7 @@ export default class InterpretingVisitor implements Visitor<void> {
             throw new Error(errorMessage);
         }
         if (!leftValue.value) {
-            return new Boolean(false);
+            return new PseudoBoolean(false);
         }
         right.accept(this);
         const rightValue = this.stack.pop();
@@ -592,7 +584,7 @@ export default class InterpretingVisitor implements Visitor<void> {
             throw new Error(errorMessage);
         }
         if (leftValue.value) {
-            return new Boolean(true);
+            return new PseudoBoolean(true);
         }
         right.accept(this);
         const rightValue = this.stack.pop();

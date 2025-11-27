@@ -2,7 +2,7 @@ import Slot from "../Slot.js";
 import Type from "../Type.js";
 import type { Value } from "../Value.js";
 
-export default class Array {
+export default class PseudoArray {
     type: Type.Array = Type.Array
     value: Slot[]
     constructor () {

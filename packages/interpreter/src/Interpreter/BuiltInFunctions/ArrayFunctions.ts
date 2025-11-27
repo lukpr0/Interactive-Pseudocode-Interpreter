@@ -1,9 +1,7 @@
 import Type from "../Type.js";
-import Array from "../Types/Array.js";
-import Integer from "../Types/Integer.js";
-import Nil from "../Types/Nil.js";
 import type { Value } from "../Value.js";
 import BuiltInFunction from "./BuiltInFunction.js";
+import { PseudoArray, PseudoInteger, PseudoNil } from '../Types/index.js'
 
 export class ArrayConstructor extends BuiltInFunction {
 
@@ -12,7 +10,7 @@ export class ArrayConstructor extends BuiltInFunction {
     }
 
     eval(args: Value[]): Value {
-        const array = new Array()
+        const array = new PseudoArray()
         if (args[0]?.type != Type.Integer) {
             throw new Error(`Argument must be of type integer, found ${args[0]?.type}`)
         }
@@ -34,7 +32,7 @@ export class LengthFunction extends BuiltInFunction {
         if (args[0]?.type != Type.Array && args[0]?.type != Type.String) {
             throw new Error(`Argument must be of type integer, found ${args[0]?.type}`)
         }
-        return new Integer(BigInt(args[0].value.length))
+        return new PseudoInteger(BigInt(args[0].value.length))
     }
 
 }
@@ -52,7 +50,7 @@ export class PushFunction extends BuiltInFunction {
             throw new Error(`No value to push found`)
         }
         args[0].push(args[1])
-        return new Nil()
+        return new PseudoNil()
     }
 }
 

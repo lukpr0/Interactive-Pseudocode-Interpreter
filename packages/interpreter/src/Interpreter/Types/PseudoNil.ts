@@ -1,8 +1,8 @@
 import Type from "../Type.js";
 import type { Value } from "../Value.js";
-import Boolean from "./Boolean.js";
+import { PseudoBoolean } from "./index.js";
 
-export default class Object {
+export default class PseudoNil {
 
     type: Type.Nil = Type.Nil
 
@@ -16,19 +16,19 @@ export default class Object {
         return 'nil';
     }
 
-    equals(right: Value): Boolean {
+    equals(right: Value): PseudoBoolean {
         if (right.type == Type.Nil) {
-            return new Boolean(true)
+            return new PseudoBoolean(true)
         } else {
-            return new Boolean(false)
+            return new PseudoBoolean(false)
         }
     }
 
-    notEquals(right: Value): Boolean {
+    notEquals(right: Value): PseudoBoolean {
         if (right.type != Type.Nil) {
-            return new Boolean(true)
+            return new PseudoBoolean(true)
         } else {
-            return new Boolean(false)
+            return new PseudoBoolean(false)
         }
     }
 }

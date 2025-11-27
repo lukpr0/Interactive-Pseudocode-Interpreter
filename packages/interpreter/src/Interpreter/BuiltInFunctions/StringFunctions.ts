@@ -1,5 +1,5 @@
 import Type from "../Type";
-import { Integer, String as PseudoString } from "../Types";
+import { PseudoInteger, PseudoString as PseudoString } from "../Types";
 import type { Value } from "../Value";
 import BuiltInFunction from "./BuiltInFunction";
 
@@ -17,7 +17,7 @@ export class CodepointFunction extends BuiltInFunction {
         if (!value) {
             throw new Error("No codepoint for value")
         }
-        return new Integer(BigInt(value))
+        return new PseudoInteger(BigInt(value))
     }
 
 }

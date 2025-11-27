@@ -1,19 +1,13 @@
-import type Float from "./Types/Float.js";
-import type Integer from "./Types/Integer.js";
-import type Boolean from "./Types/Boolean.js";
-import type Array from "./Types/Array.js";
+import type { PseudoFloat, PseudoInteger, PseudoBoolean, PseudoArray, PseudoObject, PseudoString, PseudoNil } from "./Types/index.js";
 import type Range from "./Range.js";
-import type Object from "./Types/Object.js";
-import type String from './Types/String.js'
-import type Nil from './Types/Nil.js'
 
 export type Value 
-    = Integer
-    | Float
-    | Boolean
+    = PseudoInteger
+    | PseudoFloat
+    | PseudoBoolean
     | Range
-    | Array
-    | Object
-    | String
-    | Nil
+    | PseudoArray
+    | PseudoObject
+    | PseudoString
+    | PseudoNil
     ; 
