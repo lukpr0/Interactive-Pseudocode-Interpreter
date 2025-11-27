@@ -5,6 +5,8 @@
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
+	<meta name="description" content="An interactive interpreter for pseudocode programming education educational learn learning algorithms computer science">
+	<title>PseudoInterpreter</title>
 </svelte:head>
 
 {@render children()}
