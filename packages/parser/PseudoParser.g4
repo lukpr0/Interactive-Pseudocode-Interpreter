@@ -61,11 +61,11 @@ returnstat
     : 'return' expr?;
 
 arrayexpr
-    : '[' NEWLINE? (expr NEWLINE? (',' NEWLINE? expr NEWLINE?)* ','? NEWLINE? )? ']'
+    : '[' NEWLINE* (expr NEWLINE* (',' NEWLINE* expr NEWLINE*)* ','? NEWLINE* )? ']'
     ;
 
 objectexpr
-    : '{' NEWLINE? (keyvaluepair NEWLINE? (',' NEWLINE? keyvaluepair NEWLINE?)* ','? NEWLINE? )? '}'
+    : '{' NEWLINE* (keyvaluepair NEWLINE* (',' NEWLINE* keyvaluepair NEWLINE*)* ','? NEWLINE* )? '}'
     ;
 
 keyvaluepair
