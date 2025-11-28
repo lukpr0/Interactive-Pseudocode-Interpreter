@@ -63,3 +63,47 @@ export class PowFunction extends BuiltInFunction {
         return new PseudoFloat(Number(args[0].value) ** Number(args[1].value))
     }
 }
+
+export class MaxFunction extends BuiltInFunction {
+    constructor() {
+        super(2, 'max')
+    }
+
+    eval(args: Value[]): Value {
+        if (args[0]?.type != Type.Integer && args[0]?.type != Type.Float) {
+            throw new Error(`Argument must be of type integer or float, found ${args[0]?.type}`)
+        }
+        if (args[1]?.type != Type.Integer && args[1]?.type != Type.Float) {
+            throw new Error(`Argument must be of type integer or float, found ${args[1]?.type}`)
+        }
+        const a = args[0]
+        const b = args[1]
+        if (a.greaterEqual(b)) {
+            return a
+        } else {
+            return b
+        }
+    }
+}
+
+export class MinFunction extends BuiltInFunction {
+    constructor() {
+        super(2, 'max')
+    }
+
+    eval(args: Value[]): Value {
+        if (args[0]?.type != Type.Integer && args[0]?.type != Type.Float) {
+            throw new Error(`Argument must be of type integer or float, found ${args[0]?.type}`)
+        }
+        if (args[1]?.type != Type.Integer && args[1]?.type != Type.Float) {
+            throw new Error(`Argument must be of type integer or float, found ${args[1]?.type}`)
+        }
+        const a = args[0]
+        const b = args[1]
+        if (a.less(b)) {
+            return a
+        } else {
+            return b
+        }
+    }
+}
