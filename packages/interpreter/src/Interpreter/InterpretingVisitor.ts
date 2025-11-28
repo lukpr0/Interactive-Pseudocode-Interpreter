@@ -7,7 +7,7 @@ import type PrintObserver from "./PrintObserver.js";
 
 import { BinaryOperationTree, UnaryOperationTree, FunctionCallTree, FunctionTree, ExprTree, DotAccessorTree, IndexAccessorTree } from "../AST/index.js"
 import { PseudoInteger, PseudoFloat, PseudoBoolean, PseudoArray, PseudoObject, PseudoNil, PseudoString } from "./Types/index.js";
-import { ArrayConstructor, DequeueFunction, LengthFunction, PopFunction, PushFunction, CeilFunction, FloorFunction, PowFunction, SquarerootFunction, PrintFunction, CharFunction, CodepointFunction } from "./BuiltInFunctions/index.js";
+import { ArrayConstructor, DequeueFunction, LengthFunction, PopFunction, PushFunction, CeilFunction, FloorFunction, PowFunction, SquarerootFunction, PrintFunction, CharFunction, CodepointFunction, MaxFunction, MinFunction } from "./BuiltInFunctions/index.js";
 import { Slot, SymbolTable, Type, Range} from "./index.js"
 
 export default class InterpretingVisitor implements Visitor<void> {
@@ -41,6 +41,8 @@ export default class InterpretingVisitor implements Visitor<void> {
         this.builtInFunctions.setVariable('ceil', new CeilFunction());
         this.builtInFunctions.setVariable('sqrt', new SquarerootFunction());
         this.builtInFunctions.setVariable('pow', new PowFunction());
+        this.builtInFunctions.setVariable('max', new MaxFunction());
+        this.builtInFunctions.setVariable('min', new MinFunction());
 
         this.builtInFunctions.setVariable('codepoint', new CodepointFunction());
         this.builtInFunctions.setVariable('char', new CharFunction());
