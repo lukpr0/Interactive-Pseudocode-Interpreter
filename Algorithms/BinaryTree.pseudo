@@ -1,0 +1,40 @@
+t := {num:0, left:nil, right: nil}
+
+function insert(tree, num)
+  if num < tree.num then
+    if tree.left != nil then
+      insert(tree.left, num)
+    else
+      tree.left := {num:num, left:nil, right:nil}
+    end
+  else if num > tree.num then
+    if tree.right != nil then
+      insert(tree.right, num)
+    else
+      tree.right := {num:num, left:nil, right:nil}
+    end
+  end
+end
+
+
+insert(t, 2)
+insert(t, 6)
+insert(t, 5)
+insert(t, 4)
+insert(t, 9)
+insert(t, 2)
+
+function printTree(tree)
+  l := ""
+  if tree.left != nil then
+    l := printTree(tree.left)
+  end
+  r := ""
+  if tree.right != nil then
+    r := printTree(tree.right)
+  end
+  return "(" + tree.num + " " + l + " " + r + ")"
+end
+
+s:= printTree(t)
+

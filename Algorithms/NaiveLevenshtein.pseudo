@@ -1,0 +1,31 @@
+function min(vals)
+  x := vals[0]
+  for i in 1 .. len(vals) do
+    if vals[i] < x then
+      x := vals[i]
+    end
+  end
+  return x
+end
+
+function tail(string)
+  res := ""
+  for i in 1 .. len(string) do
+    res := res + string[i]
+  end
+  return res
+end
+
+function lev(a, b)
+  if len(b) = 0 then
+    return len(a)
+  else if len(a) = 0 then
+    return len(b)
+  else if a[0] = b[0] then
+    return lev(tail(a), tail(b))
+  else
+    return 1 + min([lev(tail(a), b), lev(a, tail(b)), lev(tail(a), tail(b))])
+  end
+end
+
+print(lev("Hallo Welt", "Hello World"))

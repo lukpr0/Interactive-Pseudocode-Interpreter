@@ -1,0 +1,32 @@
+
+stack := { size: 0, elements: [] }
+
+function stack_push(stack, element)
+  if len(stack.elements) > stack.size then
+    stack.elements[stack.size] := element
+    stack.size := stack.size + 1
+  else
+    push(stack.elements, element)
+    stack.size := stack.size + 1
+  end
+end
+
+function stack_pop(stack)
+  last := stack.elements[stack.size-1]
+  stack.size := stack.size - 1
+  return last
+end
+
+function stack_peek(stack)
+  last := stack.elements[stack.size-1]
+  return last
+end
+
+stack_push(stack, 10)
+stack_push(stack, 11)
+stack_push(stack, 12)
+stack_push(stack, 13)
+stack_pop(stack)
+print(stack_peek(stack))
+print(stack.size)
+print(stack.elements)

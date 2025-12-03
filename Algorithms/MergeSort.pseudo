@@ -1,0 +1,33 @@
+
+function MergeSort(arr, len)
+    if len <= 1 then
+        return arr
+    end
+    l := []
+    r := []
+    nx := len-1
+    for i in 0 ..= nx div 2 do
+        push(l, arr[i])
+    end
+
+    for i in nx div 2 ..= nx do
+        push(r, arr[i])
+    end
+
+    l := MergeSort(l, len div 2)
+    r := MergeSort(l, len div 2)
+
+    return Merge(l, r)
+end
+
+function Merge(l, r)
+    y := []
+    nl := len(l)-1
+    nr := len(r)-1
+    il := 0
+    for i in 0 ..= nl+nr+1 do
+        if il > nl then
+            push(y, l[il])
+        end
+    end
+end

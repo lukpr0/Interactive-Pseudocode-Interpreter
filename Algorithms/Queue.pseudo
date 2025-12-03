@@ -1,0 +1,21 @@
+queue := { start: 0, last: -1, elements: []}
+
+function enqueue(queue, element)
+  push(queue.elements, element)
+  queue.last := queue.last + 1
+end
+
+function dequeue(queue)
+  element := queue.elements[queue.start]
+  queue.start := queue.start + 1
+  return element
+end
+
+enqueue(queue, 1)
+enqueue(queue, 2)
+enqueue(queue, 3)
+print(dequeue(queue))
+print(dequeue(queue))
+enqueue(queue, 2)
+print(dequeue(queue))
+print(dequeue(queue))

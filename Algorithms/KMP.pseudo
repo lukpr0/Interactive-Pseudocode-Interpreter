@@ -1,0 +1,47 @@
+s := "abababcbababcababcab"
+p := "ababcabab"
+p := "ab"
+
+function prefix(w)
+  n := len(w)
+  
+  N := Array(n+1, 0)
+  
+  i := 0
+  j := -1
+  
+  N[i] := j
+  
+  while i < n do
+    while j >= 0 and w[j] != w[i] do
+      j := N[j]
+    end
+    i := i+1
+    j := j+1
+    N[i] := j
+  end
+  return N
+end
+
+function search(w, t)
+  n := len(w)
+  m := len(t)
+  N := prefix(w)
+  print(N)
+  i := 0
+  j := 0
+  while i < m do
+    while j >= 0 and t[i] != w[j] do
+      j := N[j]
+    end
+    i := i+1
+    j := j+1
+  
+    if j = n then
+      print(i-n)
+      j := N[j]
+    end
+  end
+end
+
+search(p, s)
