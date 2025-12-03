@@ -1,0 +1,65 @@
+function ggT(a, b)
+  x := [a, 1, 0]
+  y := [b, 0 ,1]
+  while y[0] > 0 do
+    q := x[0] div y[0]
+    c := []
+    for i in 0 .. 3 do
+      push(c, x[i]-q*y[i])
+    end
+    x := y
+    y := c
+  end
+  return x
+end
+
+function stringToNums(string)
+  nums := []
+  for i in 0 .. len(string) do
+    push(nums, codepoint(string[i])-codepoint("a"))
+  end
+  return nums
+end
+
+function numsToString(nums)
+  str := ""
+  for i in 0 .. len(nums) do
+    str := str + char(nums[i]+codepoint("a"))
+  end
+  return str
+end
+
+function encode(m, e, N)
+  enc := []
+  for i in 0 .. len(m) do
+    push(enc, pow(m[i], e) mod N)
+  end
+  return enc
+end
+
+function decode(c, e, N)
+  dec := []
+  for i in 0 .. len(c) do
+    push(dec, pow(c[i], e) mod N)
+  end
+  return dec
+end
+
+primes := [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31]
+p := primes[4]
+q := primes[5]
+
+N := p*q
+phi := (p-1)*(q-1)
+e := 7
+
+x := ggT(phi, e)
+if x[2] < 0 then
+  x[2] := x[2] + phi
+end
+
+d := x[2]
+message := "helloworld"
+m := 8
+chiffre := encode(stringToNums(message), e, N)
+dechiff := numsToString(decode(chiffre, d, N))

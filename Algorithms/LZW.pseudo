@@ -1,0 +1,71 @@
+function lzw(text)
+  symbols := []
+  out := []
+  for i in 0 .. 26 do
+    push(symbols, char(codepoint("a")+i))
+  end
+  for i in 0 ..= 9 do
+    push(symbols, char(codepoint("0")+i))
+  end
+  while len(text) > 1 do
+    pre := find_prefix(text, symbols)
+    idx := in_arr(symbols, pre)
+    push(out, idx)
+    text := remove(text, len(pre))
+    x := text[0]
+    push(symbols, pre+x)
+  end
+  push(out, in_arr(symbols, text))
+  return [out, symbols]
+end
+
+function find_prefix(text, symbols)
+  max := ""
+  for i in 1 .. len(text) do
+    p := prefix(text, i)
+    if in_arr(symbols, p) < 0 then
+      break
+    end
+    max := p
+  end
+  return max
+end
+
+function in_arr(array, string)
+  for i in 0 .. len(array) do
+    if array[i] = string then
+      return i
+    end
+  end
+  return -1
+end
+
+function prefix(string, n)
+  pre := ""
+  for i in 0 .. n do
+    pre := pre + string[i]
+  end
+  return pre
+end
+
+function remove(string, n)
+  res := ""
+  for i in n .. len(string) do
+    res := res + string[i]
+  end
+  return res
+end
+
+text := "haha"
+//text := "lzwlz78lz77lzclzmwlzap"
+
+table := lzw(text)
+out := table[0]
+sym := table[1]
+coded := []
+for i in 0 .. len(out) do
+  push(coded, sym[out[i]])
+end
+print(coded)
+print(len(text))
+print(len(out))

@@ -1,0 +1,52 @@
+
+
+function MergeSort(x)
+    if len(x) <= 1 then
+        return x
+    end
+    l := []
+    r := []
+    nx := len(x) - 1
+    for i in 0 ..= floor(nx/2) do
+        push(l, x[i])
+    end
+    for i in floor(nx/2)+1 ..= nx do
+        push(r, x[i])
+    end
+    l := MergeSort(l)
+    r := MergeSort(r)
+    return merge(l, r)
+end
+
+function merge(l, r)
+    y := []
+    nl := len(l)-1
+    nr := len(r)-1
+    il := 0
+    for i in 0 ..= nl+nr+1 do
+        if il > nl then
+            push(y, r[i-il])
+            continue
+        end
+        if il < i-nr then
+            push(y, l[il])
+            il := il+1
+            continue
+        end
+        if l[il] <= r[i-il] then
+            push(y, l[il])
+            il := il+1
+        else
+            push(y, r[i-il])
+        end
+    end
+    return y 
+end
+
+list := [7, 4, 8, 2, 9, 4, 8]
+sorted := MergeSort(list)
+print(nil = nil)
+
+
+
+

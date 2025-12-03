@@ -1,0 +1,53 @@
+function LinearSearch(A, x)
+  for i in 0 .. len(A) do
+    if A[i] = x then
+      return i
+    end
+  end
+end
+
+function BinarySearch(A, l, r, x)
+  repeat
+    pos := (r+l) div 2
+    value := A[pos]
+    if value = x then
+      return pos
+    else if value > x then
+      r := pos - 1
+    else
+      l := pos + 1
+    end
+  until r < l
+end
+
+function InterpolationSearch(A, x)
+  r := len(A)-1
+  l := 0
+  vL := A[l]
+  if vL = x then
+    return l
+  end
+  vR := A[r]
+  if vR = x then
+    return r
+  end
+  while r > l do
+    pos := floor(l * (x-vR)/(vL-vR) + r * (x-vL)/(vR-vL))
+    value := A[pos]
+    if value = x then
+      return pos
+    else if value < x then
+      l := max(l+1,pos)
+      vL := value
+    else
+      r := min(r-1, pos)
+      vR := value
+    end
+  end
+end
+
+
+nums := [2, 5, 8, 11, 14, 15, 17, 20, 24, 25, 27, 30, 32, 38, 39, 42, 45, 46, 50]
+a := LinearSearch(nums, 42)
+b := BinarySearch(nums, 0, len(nums)-1, 42)
+c := InterpolationSearch(nums, 42)
