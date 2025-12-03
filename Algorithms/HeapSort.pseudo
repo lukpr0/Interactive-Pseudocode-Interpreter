@@ -1,0 +1,56 @@
+function Parent(i)
+  return i-1 div 2
+end
+
+function Left(i)
+  return 2*i+1
+end
+
+function Right(i)
+  return 2*i+2
+end
+
+function MaxHeapify(H, i)
+  l := Left(i)
+  r := Right(i)
+  A := H.A
+  max := i
+  if l < H.size and A[l] > A[i] then
+    max := l
+  end
+  if r < H.size and A[r] > A[max] then
+    max := r
+  end
+  if max != i then
+    tmp := A[i]
+    A[i] := A[max]
+    A[max] := tmp
+    MaxHeapify(H, max)
+  end
+end
+
+function BuildMaxHeap(A)
+  H := { A: A, size: len(A) }
+  i := len(A) div 2 - 1
+  while i >= 0 do
+    MaxHeapify(H, i)
+    i := i - 1
+  end
+  return H
+end
+
+function Heapsort(A)
+  H := BuildMaxHeap(A)
+  i := len(H.A)-1
+  while i >= 1 do
+    tmp := H.A[i]
+    H.A[i] := H.A[0]
+    H.A[0] := tmp
+    H.size := H.size - 1
+    MaxHeapify(H, 0)
+    i := i - 1
+  end
+end
+
+A := [ 18, 47, 87, 16,  6, 82, 32, 35, 16,  1, 39, 32, 64, 28, 65, 45, 23, 88, 84, 94 ]
+Heapsort(A)
