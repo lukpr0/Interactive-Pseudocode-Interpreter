@@ -1,7 +1,7 @@
-import Type from "../Type";
-import { PseudoInteger, PseudoString as PseudoString } from "../Types";
-import type { Value } from "../Value";
-import BuiltInFunction from "./BuiltInFunction";
+import Type from "../Type.js";
+import { PseudoInteger, PseudoString as PseudoString } from "../Types/index.js";
+import type { Value } from "../Value.js";
+import BuiltInFunction from "./BuiltInFunction.js";
 
 export class CodepointFunction extends BuiltInFunction {
 
