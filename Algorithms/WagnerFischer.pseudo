@@ -1,0 +1,45 @@
+//Levenshtein Distance with Wagner-Fischer algorithm
+function LevenshteinDistance(a, b)
+  m := len(a)
+  n := len(b)
+  d := []
+  for i in 0 ..= m do
+    push(d, Array(n+1, 0))
+  end
+
+  for i in 1 ..= m do
+    d[i][0] := i
+  end
+
+  for i in 1 ..= n do
+    d[0][i] := i
+  end
+
+
+  for j in 1 ..= n do
+    for i in 1 ..= m do
+      cost := 0
+      if a[i-1] = b[j-1] then
+        cost := 0
+      else
+        cost := 1
+      end
+      d[i][j] := min([d[i-1][j]+1, d[i][j-1]+1, d[i-1][j-1]+cost])
+    end
+  end
+  for i in 0 ..= m do
+    print(d[i])
+  end
+  return d[m][n]
+end
+
+function min(args)
+  x := args[0]
+  for i in 1 .. len(args) do
+    if x > args[i] then
+      x := args[i]
+    end
+  end
+  return x
+end
+dst := LevenshteinDistance("Hello world", "Hallo welt")

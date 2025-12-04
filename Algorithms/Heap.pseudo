@@ -1,0 +1,95 @@
+function Parent(i)
+  return (i-1) div 2
+end
+
+function Left(i)
+  return 2*i+1
+end
+
+function Right(i)
+  return 2*i+2
+end
+
+function MaxHeapify(H, i)
+  l := Left(i)
+  r := Right(i)
+  A := H.A
+  max := i
+  if l < H.size and A[l] > A[i] then
+    max := l
+  end
+  if r < H.size and A[r] > A[max] then
+    max := r
+  end
+  if max != i then
+    tmp := A[i]
+    A[i] := A[max]
+    A[max] := tmp
+    MaxHeapify(H, max)
+  end
+end
+
+function BuildMaxHeap(A)
+  H := { A: A, size: len(A) }
+  i := len(A) div 2 - 1
+  while i >= 0 do
+    MaxHeapify(H, i)
+    i := i - 1
+  end
+  return H
+end
+
+function HeapMax(H)
+  return H.A[0]
+end
+
+function HeapExtractMax(H)
+  if H.size < 1 then
+    print("Heap Unterlauf")
+    return -1
+  end
+  max := H.A[0]
+  H.A[0] := H.A[H.size-1]
+  H.size := H.size - 1
+  MaxHeapify(H, 0)
+  return max
+end
+
+function HeapIncreaseKey(H, i, key)
+  if key < H.A[i] then
+    print("Neuer Schlüssel ist kleiner als aktueller Schlüssel")
+    return -1
+  end
+  H.A[i] := key
+  while i > 0 and H.A[Parent(i)] < H.A[i] do
+    tmp := H.A[i]
+    H.A[i] := H.A[Parent(i)]
+    H.A[Parent(i)] := tmp
+    i := Parent(i)
+  end
+end
+
+
+function MaxHeapInsert(H, key)
+  H.size := H.size + 1
+  if len(H.A) = H.size then
+    push(H.A, -pow(10.,1000))
+  else
+   H.A[H.size] := -pow(10.,1000) 
+  end
+  print(H.size)
+  HeapIncreaseKey(H, H.size, key)
+end
+
+A := [ 18, 47, 87, 16,  6, 82, 32, 35, 16,  1, 39, 32, 64, 28, 65, 45, 23, 88, 84, 94 ]
+H := BuildMaxHeap(A)
+
+print(HeapExtractMax(H))
+print(HeapExtractMax(H))
+print(HeapExtractMax(H))
+
+HeapIncreaseKey(H, 1, 100)
+MaxHeapInsert(H, 200)
+MaxHeapInsert(H, 300)
+MaxHeapInsert(H, 400)
+MaxHeapInsert(H, 500)
