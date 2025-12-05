@@ -44,9 +44,9 @@
     import { PseudoLexer, PseudoParser } from "@interactive-pseudo/parser";
     import { LatexVisitor } from "$lib/latexVisitor";
     import { TypstVisitor } from "$lib/typstVisitor";
+    import { Codeli } from "$lib/codeli";
 
-    const codeFromParam = page.url.searchParams.get('code')
-    let code = $state(codeFromParam ? codeFromParam : "")
+    let code = $state(getCodeFromParam())
     let vimMode = $state(false)
     let interpreterActive = $state(true)
     let shareLink = $state("")
@@ -96,7 +96,12 @@
 
     function share(_: Event) {
         const url = new URL(page.url.href.replace(page.url.search, ''))
-        url.searchParams.append('code', code)
+
+        const [compressed, size] = Codeli.compress(code)
+        const encoded = Codeli.numsToStr(compressed, size)
+
+        url.searchParams.append('code', encoded)
+        url.searchParams.append('size', size.toString())
         shareLink = url.toString()
     }
 
@@ -126,6 +131,19 @@
 
         const latexBuilder = new TypstVisitor('  ', headers)
         markup = ast.accept(latexBuilder)
+    }
+
+    function getCodeFromParam() {
+        if (page.url.searchParams.has('size')) {
+            const size = page.url.searchParams.get('size')
+            const code = page.url.searchParams.get('code')
+            
+            const nums = Codeli.strToNums(code!, Number(size!))
+            const decompressed = Codeli.decompress(nums)
+            return decompressed;
+        } else {
+            return page.url.searchParams.has('code') ? page.url.searchParams.get('code')! : ''
+        }
     }
 
 </script>

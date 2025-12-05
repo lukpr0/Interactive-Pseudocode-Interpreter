@@ -22,11 +22,11 @@ fs.readdir(basePath, (err, files) => {
         let [compressedCodeli, sizeCodeli] = Codeli.compress(text);
 
 
-        const base66codeli = numsToStr(compressedCodeli, sizeCodeli)
-        const numsCodeli = strToNums(base66codeli, sizeCodeli)
+        const base66codeli = Codeli.numsToStr(compressedCodeli, sizeCodeli)
+        const numsCodeli = Codeli.strToNums(base66codeli, sizeCodeli)
 
-        const base66lzw = numsToStr(compressedLZW, sizeLZW)
-        const numsLZW = strToNums(base66lzw, sizeLZW)
+        const base66lzw = Codeli.numsToStr(compressedLZW, sizeLZW)
+        const numsLZW = Codeli.strToNums(base66lzw, sizeLZW)
 
         let decompressedLZW = LZW.decompress(numsLZW)
         let decompressedCodeli = Codeli.decompress(numsCodeli)
@@ -74,35 +74,3 @@ function round(x) {
 let comp = LZW1.compress(test)
 let decomp = LZW1.decompress(comp)
 console.log(decomp)*/
-
-const urlsafe="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_!-*";
-
-function numsToStr(nums, base) {
-    let result = 0n
-    for (const num of nums) {
-        result *= BigInt(base)
-        result += BigInt(num)
-    }
-    let encoded = ""
-    while (result > 0n) {
-        const pos = result % BigInt(urlsafe.length)
-        encoded += urlsafe[Number(pos)];
-        result /= BigInt(urlsafe.length);
-    }
-    return encoded.split("").reverse().join("")
-}
-
-function strToNums(str, base) {
-    let num = 0n
-    for (const char of str) {
-        num *= BigInt(urlsafe.length)
-        num += BigInt(urlsafe.indexOf(char))
-    }
-    let result = []
-    while (num > 0n) {
-        const pos = num % BigInt(base)
-        result.push(Number(pos))
-        num /= BigInt(base)
-    }
-    return result.reverse()
-}
