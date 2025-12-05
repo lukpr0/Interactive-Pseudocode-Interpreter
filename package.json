@@ -1,6 +1,6 @@
 {
   "name": "interactive-pseudo",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "",
   "main": "packages/interpreter/dist/index.js",
   "scripts": {
