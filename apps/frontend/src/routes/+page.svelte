@@ -20,12 +20,19 @@
         <Option name="vim-mode" bind:checked={vimMode}>Enable vim mode</Option>
         <input type="button" value="terminate" onclick={ terminateInterpreter }>
         <input type="button" value="share" onclick={share}><input type="text" bind:value={shareLink}>
+        <div>
+            <span>generate markup</span>
+            <Option name="generate-header" bind:checked={headers}>Generate headers (package imports)?</Option>
+            <input type="button" value="typst" onclick={generateTypst}>
+            <input type="button" value="latex" onclick={generateLatex}>
+            <textarea readonly>{markup}</textarea>
+        </div>
     </div>
 </div>
 
 <script lang="ts">
     import VariableTable from "$lib/VariableTable.svelte";
-    import { Slot } from "@interactive-pseudo/interpreter";
+    import { AstBuilderVisitor, Slot } from "@interactive-pseudo/interpreter";
 
     //import workerscript with Vite Query Suffixes
     //https://v3.vitejs.dev/guide/features.html#web-workers
@@ -33,6 +40,10 @@
     import Codemirror from "$lib/Codemirror.svelte";
     import Option from "$lib/Option.svelte";
     import { page } from "$app/state";
+    import { CharStream, CommonTokenStream } from "antlr4";
+    import { PseudoLexer, PseudoParser } from "@interactive-pseudo/parser";
+    import { LatexVisitor } from "$lib/latexVisitor";
+    import { TypstVisitor } from "$lib/typstVisitor";
 
     const codeFromParam = page.url.searchParams.get('code')
     let code = $state(codeFromParam ? codeFromParam : "")
@@ -42,6 +53,9 @@
     let error = $state("")
 
     let variables = $state(new Map<string, Slot>());
+    
+    let headers = $state(true)
+    let markup = $state("")
 
 
     let worker = new Worker()
@@ -84,6 +98,34 @@
         const url = new URL(page.url.href.replace(page.url.search, ''))
         url.searchParams.append('code', code)
         shareLink = url.toString()
+    }
+
+    function generateLatex(_: Event) {
+        const chars = new CharStream(code);
+        const lexer = new PseudoLexer(chars);
+        const tokens = new CommonTokenStream(lexer);
+        const parser = new PseudoParser(tokens);
+        const tree = parser.program();
+
+        const visitor = new AstBuilderVisitor()
+        const ast = tree.accept(visitor);
+
+        const latexBuilder = new LatexVisitor(headers)
+        markup = ast.accept(latexBuilder)
+    }
+
+    function generateTypst(_: Event) {
+        const chars = new CharStream(code);
+        const lexer = new PseudoLexer(chars);
+        const tokens = new CommonTokenStream(lexer);
+        const parser = new PseudoParser(tokens);
+        const tree = parser.program();
+
+        const visitor = new AstBuilderVisitor()
+        const ast = tree.accept(visitor);
+
+        const latexBuilder = new TypstVisitor('  ', headers)
+        markup = ast.accept(latexBuilder)
     }
 
 </script>
