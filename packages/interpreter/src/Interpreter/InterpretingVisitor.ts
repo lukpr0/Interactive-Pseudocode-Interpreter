@@ -263,8 +263,11 @@ export default class InterpretingVisitor implements Visitor<void> {
         this.symbolTable.addChild(new SymbolTable());
             expr.cond.accept(this);
             const fromStack = this.stack.pop();
+            if (fromStack === undefined) {
+                throw new EmptyStackError(expr.infoToken);
+            }
             if (!(fromStack instanceof PseudoBoolean)) {
-                throw new Error("While-loop requires boolean expression");
+                throw new UnexpectedTypeError([Type.Boolean], fromStack.type, expr.infoToken)
             }
             if (fromStack.value) {
                 expr.list.accept(this);
@@ -297,9 +300,14 @@ export default class InterpretingVisitor implements Visitor<void> {
             }
             expr.cond.accept(this);
             const fromStack = this.stack.pop();
-            if (!(fromStack instanceof PseudoBoolean)) {
-                throw new Error("Repeat-Until requires boolean expression")
+
+            if (fromStack === undefined) {
+                throw new EmptyStackError(expr.infoToken);
             }
+            if (!(fromStack instanceof PseudoBoolean)) {
+                throw new UnexpectedTypeError([Type.Boolean], fromStack.type, expr.infoToken)
+            }
+
             if (fromStack.value) {
                 this.symbolTable = parent;
                 break;
@@ -316,9 +324,13 @@ export default class InterpretingVisitor implements Visitor<void> {
             cond?.accept(this)
             const fromStack = this.stack.pop();
 
-            if (!(fromStack instanceof PseudoBoolean)) {
-                throw new Error("If-Statement requires boolean expression")
+            if (fromStack === undefined) {
+                throw new EmptyStackError(expr.infoToken);
             }
+            if (!(fromStack instanceof PseudoBoolean)) {
+                throw new UnexpectedTypeError([Type.Boolean], fromStack.type, expr.infoToken)
+            }
+
             if (fromStack.value) {
                 this.symbolTable.addChild(new SymbolTable());
                 branchExecuted = true;
@@ -336,10 +348,10 @@ export default class InterpretingVisitor implements Visitor<void> {
         expr.cond.accept(this)
         const iter = this.stack.pop()
         if (iter === undefined) {
-            throw new Error("No value found");
+            throw new EmptyStackError(expr.infoToken);
         }
         if (iter.type != Type.Iterator) {
-            throw new Error("Unexpected value, expected iterator");
+            throw new UnexpectedTypeError([Type.Iterator], iter.type, expr.infoToken)
         }
         const variableName = expr.cond.id.text;
         while (iter.hasNext()) {
