@@ -9,7 +9,8 @@ import { BinaryOperationTree, UnaryOperationTree, FunctionCallTree, FunctionTree
 import { PseudoInteger, PseudoFloat, PseudoBoolean, PseudoArray, PseudoObject, PseudoNil, PseudoString } from "./Types/index.js";
 import { ArrayConstructor, DequeueFunction, LengthFunction, PopFunction, PushFunction, CeilFunction, FloorFunction, PowFunction, SquarerootFunction, PrintFunction, CharFunction, CodepointFunction, MaxFunction, MinFunction } from "./BuiltInFunctions/index.js";
 import { Slot, SymbolTable, Type, Range} from "./index.js"
-import { PseudoTypeError, EmptyStackError, VariableError } from "./Errors/index.js";
+import { PseudoTypeError, EmptyStackError, VariableError, UnexpectedTypeError, FeatureNotImplementedError } from "./Errors/index.js";
+import { typeToString } from "./Type.js";
 
 export default class InterpretingVisitor implements Visitor<void> {
     symbolTable: SymbolTable<Slot>;
@@ -107,7 +108,7 @@ export default class InterpretingVisitor implements Visitor<void> {
                         throw new EmptyStackError(assign.infoToken);
                     }
                     if (index.type != Type.Integer && index.type != Type.Float) {
-                        throw new PseudoTypeError([Type.Integer, Type.Float], index.type, assign.infoToken)
+                        throw new UnexpectedTypeError([Type.Integer, Type.Float], index.type, assign.infoToken)
                     }
                     const indexAsNum = typeof index.value == "number" ? index.value : Number(index.value)
                     slot = slot.value.getSlot(indexAsNum);
@@ -133,13 +134,13 @@ export default class InterpretingVisitor implements Visitor<void> {
             if (expr.right instanceof UnaryOperationTree && expr.right.operand instanceof Token && expr.right.operand.type == PseudoParser.IDENTIFIER) {
                 const left = this.stack.pop()
                 if (left === undefined) {
-                    throw new Error("left or right operand missing")
+                    throw new EmptyStackError(expr.infoToken);
                 }
                 if (left.type == Type.Object) {
                     this.stack.push(left.get(expr.right.operand.text).value)
                     return;
                 }
-                throw new Error(`can't use dot access on type ${left.type}`);
+                throw new PseudoTypeError(`Member access not possible on type ${typeToString(left.type)}`, expr.infoToken)
             }
         }
         let result;
@@ -152,15 +153,15 @@ export default class InterpretingVisitor implements Visitor<void> {
                     result = this.handleOr(expr.left, expr.right);
                     break;
                 default:
-                    throw new Error("no valid operator found")
+                    throw new FeatureNotImplementedError(expr.infoToken)
             }
         } else {
-            expr.left.accept(this)
-            expr.right.accept(this)
-            const right = this.stack.pop()
-            const left = this.stack.pop()
+            expr.left.accept(this);
+            expr.right.accept(this);
+            const right = this.stack.pop();
+            const left = this.stack.pop();
             if (left === undefined || right === undefined) {
-                throw new Error("left or right operand missing")
+                throw new EmptyStackError(expr.infoToken);
             }
             switch (expr.operator.type) {
                 case PseudoParser.PLUS:
@@ -203,7 +204,7 @@ export default class InterpretingVisitor implements Visitor<void> {
                     result = this.handleIndexAccess(left, right)
                     break;
                 default:
-                    throw new Error("no valid operator found")
+                    throw new FeatureNotImplementedError(expr.infoToken)
             }
         }
         this.stack.push(result)
