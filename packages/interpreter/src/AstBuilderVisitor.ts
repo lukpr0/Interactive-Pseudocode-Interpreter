@@ -322,7 +322,7 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             this.inFunction = false;
             stats.functionRoot = true;
             stats.returnable = true;
-            const functionTree = new FunctionTree(name, ids, stats);
+            const functionTree = new FunctionTree(name, ids, stats, name);
             return functionTree;
         }
 
@@ -366,7 +366,7 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             for (const arg of ctx.expr_list()) {
                 args.push(this.visit(arg));
             }
-            const funccall = new FunctionCallTree(name, args);
+            const funccall = new FunctionCallTree(name, args, name);
             return funccall;
         }
 
