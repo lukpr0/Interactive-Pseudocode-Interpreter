@@ -1,4 +1,4 @@
-export { default as EmptyStackError } from './EmptyStackError.js'
+export { EmptyStackError } from './EmptyStackError.js'
 export * from './TypeError.js'
 export { VariableError } from './VariableError.js'
-export { default as FeatureNotImplementedError } from './FeatureNotImplementedError.js'
+export { FeatureNotImplementedError } from './FeatureNotImplementedError.js'
