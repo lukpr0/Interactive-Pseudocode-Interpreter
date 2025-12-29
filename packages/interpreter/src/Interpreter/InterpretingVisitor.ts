@@ -429,15 +429,18 @@ export default class InterpretingVisitor implements Visitor<void> {
         const name = expr.name.text
         let slot = this.symbolTable.getVariable(name);
         if (slot === undefined) {
-            throw new Error(`Variable ${name} does not exist`)
+            throw new VariableError(expr.infoToken);
         }
         let value = slot.value;
         for (const accessor of expr.accessors) {
             if (accessor instanceof IndexAccessorTree && value.type == Type.Array) {
                 accessor.index.accept(this);
                 const index = this.stack.pop()
-                if (index === undefined || index.type != Type.Integer && index.type != Type.Float) {
-                    throw new Error("Value expected, found nothing");
+                if (index === undefined) {
+                    throw new EmptyStackError(expr.infoToken);
+                }
+                if (index.type != Type.Integer && index.type != Type.Float) {
+                    throw new UnexpectedTypeError([Type.Integer, Type.Float], index.type, expr.infoToken)
                 }
                 const indexAsNum = typeof index.value == "number" ? index.value : Number(index.value)
                 value = value.getSlot(indexAsNum).value;
