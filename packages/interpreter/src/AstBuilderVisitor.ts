@@ -376,11 +376,12 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
 
         this.visitArrayexpr = (ctx: ArrayexprContext): Tree => {
             const elements = [] 
+            const token = ctx.LBRACK().symbol;
             for (const element of ctx.expr_list()) {
                 const exprTree = this.visit(element);
                 elements.push(exprTree);
             }
-            const arrayTree = new ArrayTree(elements);
+            const arrayTree = new ArrayTree(elements, token);
             return arrayTree;
         }
 

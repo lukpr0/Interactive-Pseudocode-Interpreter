@@ -418,7 +418,7 @@ export default class InterpretingVisitor implements Visitor<void> {
             element.accept(this);
             const value = this.stack.pop()
             if (value === undefined) {
-                throw new Error("Value expected, found nothing");
+                throw new EmptyStackError(expr.infoToken);
             }
             array.push(value)
         }
