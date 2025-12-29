@@ -1,5 +1,5 @@
 import type { Token } from "antlr4";
-import PseudoRuntimeError from "./PseudoRuntimeError.js";
+import { PseudoRuntimeError } from "./PseudoRuntimeError.js";
 import type Type from "../Type.js";
 import { typeToString } from "../Type.js";
 
