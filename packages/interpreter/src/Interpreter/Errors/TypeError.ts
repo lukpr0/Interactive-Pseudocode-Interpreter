@@ -19,3 +19,9 @@ export class UnexpectedTypeError extends PseudoTypeError {
         super(`expected ${expectedTypes} got ${typeToString(got)} instead`, token);
     }
 }
+
+export class IncompatibleTypesError extends PseudoTypeError {
+    constructor(left: Type, right: Type, operator: Token) {
+        super(`Incompatible types ${typeToString(left)}, ${typeToString(right)} for ${operator.text}`, operator)
+    }
+}

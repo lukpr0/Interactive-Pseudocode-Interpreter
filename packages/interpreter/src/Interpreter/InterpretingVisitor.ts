@@ -9,7 +9,7 @@ import { BinaryOperationTree, UnaryOperationTree, FunctionCallTree, FunctionTree
 import { PseudoInteger, PseudoFloat, PseudoBoolean, PseudoArray, PseudoObject, PseudoNil, PseudoString } from "./Types/index.js";
 import { ArrayConstructor, DequeueFunction, LengthFunction, PopFunction, PushFunction, CeilFunction, FloorFunction, PowFunction, SquarerootFunction, PrintFunction, CharFunction, CodepointFunction, MaxFunction, MinFunction } from "./BuiltInFunctions/index.js";
 import { Slot, SymbolTable, Type, Range} from "./index.js"
-import { PseudoTypeError, EmptyStackError, VariableError, UnexpectedTypeError, FeatureNotImplementedError } from "./Errors/index.js";
+import { PseudoTypeError, EmptyStackError, VariableError, UnexpectedTypeError, FeatureNotImplementedError, IncompatibleTypesError } from "./Errors/index.js";
 import { typeToString } from "./Type.js";
 
 export default class InterpretingVisitor implements Visitor<void> {
@@ -147,10 +147,10 @@ export default class InterpretingVisitor implements Visitor<void> {
         if (this.isLazy(expr.operator)) {
             switch (expr.operator.type) {
                 case PseudoParser.AND:
-                    result = this.handleAnd(expr.left, expr.right);
+                    result = this.handleAnd(expr.left, expr.right, expr.operator);
                     break;
                 case PseudoParser.OR:
-                    result = this.handleOr(expr.left, expr.right);
+                    result = this.handleOr(expr.left, expr.right, expr.operator);
                     break;
                 default:
                     throw new FeatureNotImplementedError(expr.infoToken)
@@ -165,43 +165,43 @@ export default class InterpretingVisitor implements Visitor<void> {
             }
             switch (expr.operator.type) {
                 case PseudoParser.PLUS:
-                    result = this.handlePlus(left, right);
+                    result = this.handlePlus(left, right, expr.operator);
                     break
                 case PseudoParser.MINUS:
-                    result = this.handleMinus(left, right);
+                    result = this.handleMinus(left, right, expr.operator);
                     break;
                 case PseudoParser.STAR:
-                    result = this.handleMultiply(left, right);
+                    result = this.handleMultiply(left, right, expr.operator);
                     break;
                 case PseudoParser.SLASH:
-                    result = this.handleDivide(left, right);
+                    result = this.handleDivide(left, right, expr.operator);
                     break;
                 case PseudoParser.DIV:
-                    result = this.handleIntDivide(left, right);
+                    result = this.handleIntDivide(left, right, expr.operator);
                     break;
                 case PseudoParser.MOD:
-                    result = this.handleModulo(left, right);
+                    result = this.handleModulo(left, right, expr.operator);
                     break;
                 case PseudoParser.LESSTHAN:
-                    result = this.handleLess(left, right)
+                    result = this.handleLess(left, right, expr.operator)
                     break;
                 case PseudoParser.GREATERTHAN:
-                    result = this.handleGreater(left, right)
+                    result = this.handleGreater(left, right, expr.operator)
                     break;
                 case PseudoParser.LESSEQUAL:
-                    result = this.handleLessEqual(left, right)
+                    result = this.handleLessEqual(left, right, expr.operator)
                     break;
                 case PseudoParser.GREATEREQUAL:
-                    result = this.handleGreaterEqual(left, right)
+                    result = this.handleGreaterEqual(left, right, expr.operator)
                     break;
                 case PseudoParser.EQUALS:
-                    result = this.handleEquals(left, right)
+                    result = this.handleEquals(left, right, expr.operator)
                     break;
                 case PseudoParser.NOTEQUAL:
-                    result = this.handleNotEqual(left, right)
+                    result = this.handleNotEqual(left, right, expr.operator)
                     break;
                 case PseudoParser.LBRACK:
-                    result = this.handleIndexAccess(left, right)
+                    result = this.handleIndexAccess(left, right, expr.operator)
                     break;
                 default:
                     throw new FeatureNotImplementedError(expr.infoToken)
@@ -488,7 +488,7 @@ export default class InterpretingVisitor implements Visitor<void> {
         return [PseudoParser.AND, PseudoParser.OR].includes(token.type)
     }
 
-    private handlePlus(left: Value, right: Value): Value {
+    private handlePlus(left: Value, right: Value, operator: Token): Value {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.add(right);
         } else if (left.type == Type.String && (right.type == Type.String || right.type == Type.Integer || right.type == Type.Float || right.type == Type.Boolean || right.type == Type.Array || right.type == Type.Object)) {
@@ -496,66 +496,59 @@ export default class InterpretingVisitor implements Visitor<void> {
         } else if (right.type == Type.String && (left.type == Type.String || left.type == Type.Integer || left.type == Type.Float || left.type == Type.Boolean || left.type == Type.Array || left.type == Type.Object)) {
             return new PseudoString("").add(left).add(right)
         } {
-            const errorMessage = `incompatible types for operator +: ${left.type}, ${right.type}`;
-            throw new Error(errorMessage);
+            throw new IncompatibleTypesError(left.type, right.type, operator)
         }
     }
 
-    private handleMinus(left: Value, right: Value): Value {
+    private handleMinus(left: Value, right: Value, operator: Token): Value {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.sub(right);
         } else {
-            const errorMessage = `incompatible types for operator -: ${left.type}, ${right.type}`;
-            throw new Error(errorMessage);
+            throw new IncompatibleTypesError(left.type, right.type, operator)
         }
     }
 
-    private handleMultiply(left: Value, right: Value): Value {
+    private handleMultiply(left: Value, right: Value, operator: Token): Value {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.mult(right);
         } else {
-            const errorMessage = `incompatible types for operator *: ${left.type}, ${right.type}`;
-            throw new Error(errorMessage);
+            throw new IncompatibleTypesError(left.type, right.type, operator)
         }
     }
 
-    private handleDivide(left: Value, right: Value): Value {
+    private handleDivide(left: Value, right: Value, operator: Token): Value {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.div(right);
         } else {
-            const errorMessage = `incompatible types for operator /: ${left.type}, ${right.type}`;
-            throw new Error(errorMessage);
+            throw new IncompatibleTypesError(left.type, right.type, operator)
         }
     }
 
-    private handleIntDivide(left: Value, right: Value): Value {
+    private handleIntDivide(left: Value, right: Value, operator: Token): Value {
         if (left.type == Type.Integer && right.type == Type.Integer) {
             return left.intDiv(right);
         } else {
-            const errorMessage = `incompatible types for operator div: ${left.type}, ${right.type}`;
-            throw new Error(errorMessage);
+            throw new IncompatibleTypesError(left.type, right.type, operator)
         }
 
     }
 
-    private handleModulo(left: Value, right: Value): Value {
+    private handleModulo(left: Value, right: Value, operator: Token): Value {
         if (left.type == Type.Integer && right.type == Type.Integer) {
             return left.mod(right);
         } else {
-            const errorMessage = `incompatible types for operator %: ${left.type}, ${right.type}`;
-            throw new Error(errorMessage);
+            throw new IncompatibleTypesError(left.type, right.type, operator)
         }
     }
 
-    private handleAnd(left: ExprTree, right: ExprTree): Value {
+    private handleAnd(left: ExprTree, right: ExprTree, operator: Token): Value {
         left.accept(this);
         const leftValue = this.stack.pop();
         if (!leftValue) {
-            throw new Error("left operand missing");
+            throw new EmptyStackError(operator)
         }
         if (leftValue.type != Type.Boolean) {
-            const errorMessage = `incompatible type for operator and: ${leftValue.type}`;
-            throw new Error(errorMessage);
+            throw new UnexpectedTypeError([Type.Boolean], leftValue.type, operator)
         }
         if (!leftValue.value) {
             return new PseudoBoolean(false);
@@ -563,24 +556,22 @@ export default class InterpretingVisitor implements Visitor<void> {
         right.accept(this);
         const rightValue = this.stack.pop();
         if (!rightValue) {
-            throw new Error("left operand missing");
+            throw new EmptyStackError(operator)
         }
         if (rightValue.type != Type.Boolean) {
-            const errorMessage = `incompatible type for operator and: ${rightValue.type}`;
-            throw new Error(errorMessage);
+            throw new UnexpectedTypeError([Type.Boolean], rightValue.type, operator)
         }
         return leftValue.and(rightValue);
     }
 
-    private handleOr(left: ExprTree, right: ExprTree): Value {
+    private handleOr(left: ExprTree, right: ExprTree, operator: Token): Value {
         left.accept(this);
         const leftValue = this.stack.pop();
         if (!leftValue) {
-            throw new Error("left operand missing");
+            throw new EmptyStackError(operator)
         }
         if (leftValue.type != Type.Boolean) {
-            const errorMessage = `incompatible type for operator or: ${leftValue.type}`;
-            throw new Error(errorMessage);
+            throw new UnexpectedTypeError([Type.Boolean], leftValue.type, operator)
         }
         if (leftValue.value) {
             return new PseudoBoolean(true);
@@ -588,52 +579,47 @@ export default class InterpretingVisitor implements Visitor<void> {
         right.accept(this);
         const rightValue = this.stack.pop();
         if (!rightValue) {
-            throw new Error("left operand missing");
+            throw new EmptyStackError(operator)
         }
         if (rightValue.type != Type.Boolean) {
-            const errorMessage = `incompatible type for operator or: ${rightValue.type}`;
-            throw new Error(errorMessage);
+            throw new UnexpectedTypeError([Type.Boolean], rightValue.type, operator)
         }
         return leftValue.or(rightValue)
     }
     
-    private handleLess(left: Value, right: Value): Value {
+    private handleLess(left: Value, right: Value, operator: Token): Value {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.less(right);
         } else {
-            const errorMessage = `incompatible types for operator > : ${left.type}, ${right.type}`;
-            throw new Error(errorMessage);
+            throw new IncompatibleTypesError(left.type, right.type, operator)
         }
     }
 
-    private handleGreater(left: Value, right: Value): Value {
+    private handleGreater(left: Value, right: Value, operator: Token): Value {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.greater(right);
         } else {
-            const errorMessage = `incompatible types for operator > : ${left.type}, ${right.type}`;
-            throw new Error(errorMessage);
+            throw new IncompatibleTypesError(left.type, right.type, operator)
         }
     }
 
-    private handleLessEqual(left: Value, right: Value): Value {
+    private handleLessEqual(left: Value, right: Value, operator: Token): Value {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.lessEqual(right);
         } else {
-            const errorMessage = `incompatible types for operator <= : ${left.type}, ${right.type}`;
-            throw new Error(errorMessage);
+            throw new IncompatibleTypesError(left.type, right.type, operator)
         }
     }
 
-    private handleGreaterEqual(left: Value, right: Value): Value {
+    private handleGreaterEqual(left: Value, right: Value, operator: Token): Value {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.greaterEqual(right);
         } else {
-            const errorMessage = `incompatible types for operator >= : ${left.type}, ${right.type}`;
-            throw new Error(errorMessage);
+            throw new IncompatibleTypesError(left.type, right.type, operator)
         }
     }
 
-    private handleEquals(left: Value, right: Value): Value {
+    private handleEquals(left: Value, right: Value, operator: Token): Value {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.equals(right);
         } else if (left.type == Type.Boolean && right.type == Type.Boolean) {
@@ -645,12 +631,11 @@ export default class InterpretingVisitor implements Visitor<void> {
         } else if (right.type == Type.Nil) {
             return right.equals(left)
         } else {
-            const errorMessage = `incompatible types for operator = : ${left.type}, ${right.type}`;
-            throw new Error(errorMessage);
+            throw new IncompatibleTypesError(left.type, right.type, operator)
         }
     }
 
-    private handleNotEqual(left: Value, right: Value): Value {
+    private handleNotEqual(left: Value, right: Value, operator: Token): Value {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.notEqual(right);
         } else if (left.type == Type.Boolean && right.type == Type.Boolean) {
@@ -662,17 +647,15 @@ export default class InterpretingVisitor implements Visitor<void> {
         } else if (right.type == Type.Nil) {
             return right.notEquals(left)
         } else {
-            const errorMessage = `incompatible types for operator != : ${left.type}, ${right.type}`;
-            throw new Error(errorMessage);
+            throw new IncompatibleTypesError(left.type, right.type, operator)
         }
     }
     
-    private handleIndexAccess(left: Value, right: Value): Value {
+    private handleIndexAccess(left: Value, right: Value, operator: Token): Value {
         if ((left.type == Type.Array || left.type == Type.String) && right.type == Type.Integer) {
             return left.get(Number(right.value))
         }
-        const errorMessage = `incompatible types for operator != : ${left.type}, ${right.type}`;
-        throw new Error(errorMessage);
+        throw new IncompatibleTypesError(left.type, right.type, operator)
     }
 
     private handleUserFunction(func: FunctionTree, args: ExprTree[], token: Token) {
