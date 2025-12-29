@@ -9,7 +9,7 @@ import { BinaryOperationTree, UnaryOperationTree, FunctionCallTree, FunctionTree
 import { PseudoInteger, PseudoFloat, PseudoBoolean, PseudoArray, PseudoObject, PseudoNil, PseudoString } from "./Types/index.js";
 import { ArrayConstructor, DequeueFunction, LengthFunction, PopFunction, PushFunction, CeilFunction, FloorFunction, PowFunction, SquarerootFunction, PrintFunction, CharFunction, CodepointFunction, MaxFunction, MinFunction } from "./BuiltInFunctions/index.js";
 import { Slot, SymbolTable, Type, Range} from "./index.js"
-import { PseudoTypeError, EmptyStackError, VariableError, UnexpectedTypeError, FeatureNotImplementedError, IncompatibleTypesError } from "./Errors/index.js";
+import { PseudoTypeError, EmptyStackError, VariableError, UnexpectedTypeError, FeatureNotImplementedError, IncompatibleTypesError, BuiltInTypeError, InternalError, LocatedInternalError, PseudoRuntimeError } from "./Errors/index.js";
 import { typeToString } from "./Type.js";
 
 export default class InterpretingVisitor implements Visitor<void> {
@@ -692,8 +692,18 @@ export default class InterpretingVisitor implements Visitor<void> {
             }
             argValues.push(argValue);
         }
-        const value = func.eval(argValues);
-        this.stack.push(value);
+        try {
+            const value = func.eval(argValues);
+            this.stack.push(value);
+        } catch (e) {
+            if (e instanceof BuiltInTypeError) {
+                throw new PseudoTypeError(e.message, token)
+            } else if (e instanceof InternalError) {
+                throw new LocatedInternalError(e.message, token)
+            } else if (e instanceof Error){
+                throw new PseudoRuntimeError(e.message, token);
+            } else throw e;
+        }
     }
 
     private setVariables(argNames: Token[], args: Value[]) {

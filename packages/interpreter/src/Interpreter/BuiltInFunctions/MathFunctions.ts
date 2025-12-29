@@ -1,3 +1,4 @@
+import { BuiltInTypeError } from "../Errors/index.js"
 import Type from "../Type.js"
 import { PseudoFloat, PseudoInteger} from "../Types/index.js"
 import type { Value } from "../Value.js"
@@ -10,7 +11,7 @@ export class FloorFunction extends BuiltInFunction {
 
     eval(args: Value[]): Value {
         if (args[0]?.type != Type.Integer && args[0]?.type != Type.Float) {
-            throw new Error(`Argument must be of type integer or float, found ${args[0]?.type}`)
+            throw new BuiltInTypeError([Type.Integer, Type.Float], args[0]!.type)
         }
         const value = Math.floor(Number(args[0].value));
         return new PseudoInteger(BigInt(value));
@@ -24,7 +25,7 @@ export class CeilFunction extends BuiltInFunction {
 
     eval(args: Value[]): Value {
         if (args[0]?.type != Type.Integer && args[0]?.type != Type.Float) {
-            throw new Error(`Argument must be of type integer or float, found ${args[0]?.type}`)
+            throw new BuiltInTypeError([Type.Integer, Type.Float], args[0]!.type)
         }
         const value = Math.ceil(Number(args[0].value));
         return new PseudoInteger(BigInt(value));
@@ -38,7 +39,7 @@ export class SquarerootFunction extends BuiltInFunction {
 
     eval(args: Value[]): Value {
         if (args[0]?.type != Type.Integer && args[0]?.type != Type.Float) {
-            throw new Error(`Argument must be of type integer or float, found ${args[0]?.type}`)
+            throw new BuiltInTypeError([Type.Integer, Type.Float], args[0]!.type)
         }
         const value = Math.sqrt(Number(args[0].value));
         return new PseudoFloat(value);
@@ -52,10 +53,10 @@ export class PowFunction extends BuiltInFunction {
 
     eval(args: Value[]): Value {
         if (args[0]?.type != Type.Integer && args[0]?.type != Type.Float) {
-            throw new Error(`Argument must be of type integer or float, found ${args[0]?.type}`)
+            throw new BuiltInTypeError([Type.Integer, Type.Float], args[0]!.type)
         }
         if (args[1]?.type != Type.Integer && args[1]?.type != Type.Float) {
-            throw new Error(`Argument must be of type integer or float, found ${args[1]?.type}`)
+            throw new BuiltInTypeError([Type.Integer, Type.Float], args[1]!.type)
         }
         if (args[0].type == Type.Integer && args[1].type == Type.Integer) {
             return new PseudoInteger(BigInt(args[0].value ** args[1].value))
@@ -71,10 +72,10 @@ export class MaxFunction extends BuiltInFunction {
 
     eval(args: Value[]): Value {
         if (args[0]?.type != Type.Integer && args[0]?.type != Type.Float) {
-            throw new Error(`Argument must be of type integer or float, found ${args[0]?.type}`)
+            throw new BuiltInTypeError([Type.Integer, Type.Float], args[0]!.type)
         }
         if (args[1]?.type != Type.Integer && args[1]?.type != Type.Float) {
-            throw new Error(`Argument must be of type integer or float, found ${args[1]?.type}`)
+            throw new BuiltInTypeError([Type.Integer, Type.Float], args[1]!.type)
         }
         const a = args[0]
         const b = args[1]
@@ -93,10 +94,10 @@ export class MinFunction extends BuiltInFunction {
 
     eval(args: Value[]): Value {
         if (args[0]?.type != Type.Integer && args[0]?.type != Type.Float) {
-            throw new Error(`Argument must be of type integer or float, found ${args[0]?.type}`)
+            throw new BuiltInTypeError([Type.Integer, Type.Float], args[0]!.type)
         }
         if (args[1]?.type != Type.Integer && args[1]?.type != Type.Float) {
-            throw new Error(`Argument must be of type integer or float, found ${args[1]?.type}`)
+            throw new BuiltInTypeError([Type.Integer, Type.Float], args[1]!.type)
         }
         const a = args[0]
         const b = args[1]
