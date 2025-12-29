@@ -66,8 +66,9 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             const expr = ctx.expr()
             const child = this.visit(expr);
             const id = ctx.fullid().accept(this)
+            const token = ctx.ASSIGN().symbol;
             if (child instanceof ExprTree && id instanceof FullIdTree) {
-                const tree = new AssignTree(id, child);
+                const tree = new AssignTree(id, child, token);
                 return tree;
             }
             console.log(child instanceof ExprTree, id instanceof FullIdTree)

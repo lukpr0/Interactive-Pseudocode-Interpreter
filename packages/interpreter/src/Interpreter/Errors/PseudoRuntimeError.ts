@@ -3,7 +3,7 @@ import type { Token } from "antlr4"
 export default class PseudoRuntimeError extends Error {
     token: Token
     constructor(message: string, token: Token) {
-        super(message);
+        super(`${message} at ${token}`);
         this.token = token;
     }
 }
