@@ -1,3 +1,4 @@
 export { default as EmptyStackError } from './EmptyStackError.js'
-export { default as PseudoTypeError } from './TypeError.js'
+export * from './TypeError.js'
 export { default as VariableError } from './VariableError.js'
+export { default as FeatureNotImplementedError } from './FeatureNotImplementedError.js'
