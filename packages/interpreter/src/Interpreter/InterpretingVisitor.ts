@@ -9,6 +9,7 @@ import { BinaryOperationTree, UnaryOperationTree, FunctionCallTree, FunctionTree
 import { PseudoInteger, PseudoFloat, PseudoBoolean, PseudoArray, PseudoObject, PseudoNil, PseudoString } from "./Types/index.js";
 import { ArrayConstructor, DequeueFunction, LengthFunction, PopFunction, PushFunction, CeilFunction, FloorFunction, PowFunction, SquarerootFunction, PrintFunction, CharFunction, CodepointFunction, MaxFunction, MinFunction } from "./BuiltInFunctions/index.js";
 import { Slot, SymbolTable, Type, Range} from "./index.js"
+import { PseudoTypeError, EmptyStackError, VariableError } from "./Errors/index.js";
 
 export default class InterpretingVisitor implements Visitor<void> {
     symbolTable: SymbolTable<Slot>;
@@ -89,21 +90,24 @@ export default class InterpretingVisitor implements Visitor<void> {
         assign.expr.accept(this)
         const value = this.stack.pop()
         if (value === undefined) {
-            throw new Error("value is unexpectedly undefined");
+            throw new EmptyStackError(assign.infoToken);
         }
         if (assign.id.accessors.length == 0) {
             this.symbolTable.setVariable(assign.id.name.text, new Slot(value));
         } else {
             let slot = this.symbolTable.getVariable(assign.id.name.text);
             if (slot === undefined) {
-                throw new Error(`Variable ${assign.id.name.text} does not exist`)
+                throw new VariableError(assign.id.name);
             }
             for (const accessor of assign.id.accessors) {
                 if (accessor instanceof IndexAccessorTree && slot.value.type == Type.Array) {
                     accessor.index.accept(this);
                     const index = this.stack.pop()
-                    if (index === undefined || index.type != Type.Integer && index.type != Type.Float) {
-                        throw new Error("Value expected, found nothing");
+                    if (index === undefined) {
+                        throw new EmptyStackError(assign.infoToken);
+                    }
+                    if (index.type != Type.Integer && index.type != Type.Float) {
+                        throw new PseudoTypeError([Type.Integer, Type.Float], index.type, assign.infoToken)
                     }
                     const indexAsNum = typeof index.value == "number" ? index.value : Number(index.value)
                     slot = slot.value.getSlot(indexAsNum);
