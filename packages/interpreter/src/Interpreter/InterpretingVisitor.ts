@@ -216,7 +216,7 @@ export default class InterpretingVisitor implements Visitor<void> {
         } else if (expr.operand.type == PseudoParser.IDENTIFIER) {
             const slot = this.symbolTable.getVariable(expr.operand.text);
             if (slot === undefined) {
-                throw new Error(`Variable ${expr.operand.text} does not exist`)
+                throw new VariableError(expr.operand)
             }
             this.stack.push(slot.value);
         } else if (expr.operand.type == PseudoParser.INT) {
@@ -240,13 +240,13 @@ export default class InterpretingVisitor implements Visitor<void> {
         if (expr.operator) {
             const fromStack = this.stack.pop();
             if (!fromStack) {
-                throw new Error("no operand found");
+                throw new EmptyStackError(expr.operator);
             }
             if (expr.operator && expr.operator.type == PseudoParser.MINUS) {
                 if (fromStack.type == Type.Integer || fromStack.type == Type.Float) {
                     this.stack.push(fromStack.mult(new PseudoInteger(-1n)));
                 } else {
-                    throw new Error(`operator - incompatible with type ${fromStack.type}`)
+                    throw new UnexpectedTypeError([Type.Integer, Type.Float], fromStack.type, expr.operator)
                 }
             } else if (expr.operator && expr.operator.type == PseudoParser.NOT) {
                 if (fromStack.type == Type.Boolean) {
