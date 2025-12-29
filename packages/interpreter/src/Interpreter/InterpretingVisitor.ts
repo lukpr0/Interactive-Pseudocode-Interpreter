@@ -400,16 +400,16 @@ export default class InterpretingVisitor implements Visitor<void> {
         const name = expr.name.text;
         const builtin = this.builtInFunctions.getVariable(name);
         if (builtin !== undefined) {
-            this.handleBuiltInFunction(builtin, expr.args)
+            this.handleBuiltInFunction(builtin, expr.args, expr.infoToken)
             return;
         }
         const user = this.functionTable.getVariable(name);
         if (user !== undefined) {
-            this.handleUserFunction(user, expr.args);
+            this.handleUserFunction(user, expr.args, expr.infoToken);
             this.returning = false;
             return;
         }
-        throw new Error(`line ${expr.name.line}:${expr.name.column} ${name} is not a function`);
+        throw new PseudoTypeError(`${name} is not a function`, expr.infoToken)
     }
 
     visitArray(expr: ArrayTree): void {
@@ -672,15 +672,15 @@ export default class InterpretingVisitor implements Visitor<void> {
         throw new Error(errorMessage);
     }
 
-    private handleUserFunction(func: FunctionTree, args: ExprTree[]) {
+    private handleUserFunction(func: FunctionTree, args: ExprTree[], token: Token) {
         if (args.length != func.args.length) {
-            throw new Error(`wrong number of parameters, ${func.name} expects ${func.args.length} paramters, got ${args.length}`)
+            throw new PseudoTypeError(`wrong number of parameters, ${func.name} expects ${func.args.length} paramters, got ${args.length}`, token)
         }
         const argValues = args.map(arg => {
             arg.accept(this)
             const value = this.stack.pop();
             if (value === undefined) {
-                throw new Error("No value found");
+                throw new EmptyStackError(token);
             }
             return value;
         })
@@ -693,16 +693,16 @@ export default class InterpretingVisitor implements Visitor<void> {
         this.symbolTable = currentScope
     }
 
-    private handleBuiltInFunction(func: BuiltInFunction, args: ExprTree[]) {
+    private handleBuiltInFunction(func: BuiltInFunction, args: ExprTree[], token: Token) {
         if (args.length != func.argsCount) {
-            throw new Error(`wrong number of parameters, ${func.name} expects ${func.argsCount} paramters, got ${args.length}`)
+            throw new PseudoTypeError(`wrong number of parameters, ${func.name} expects ${func.argsCount} paramters, got ${args.length}`, token)
         }
         const argValues = [];
         for (const arg of args) {
             arg.accept(this);
             const argValue = this.stack.pop();
             if (argValue === undefined) {
-                throw new Error("No value found");
+                throw new EmptyStackError(token);
             }
             argValues.push(argValue);
         }
