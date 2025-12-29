@@ -258,8 +258,9 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
         this.visitWhilestat = (ctx: WhilestatContext): Tree => {
             const cond = this.visit(ctx.expr());
             const list = this.visit(ctx.statlist());
+            const token = ctx.WHILE().symbol;
             if (list instanceof StatListTree) {
-                const whileTree = new WhileTree(cond, list);
+                const whileTree = new WhileTree(cond, list, token);
                 return whileTree;
             } else {
                 throw new Error("Unexpected subtree");
@@ -269,8 +270,9 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
         this.visitRepeatstat = (ctx: RepeatstatContext): Tree => {
             const cond = this.visit(ctx.expr());
             const list = this.visit(ctx.statlist());
+            const token = ctx.REPEAT().symbol;
             if (list instanceof StatListTree) {
-                const repeatTree = new RepeatUntilTree(cond, list);
+                const repeatTree = new RepeatUntilTree(cond, list, token);
                 return repeatTree;
             } else {
                 throw new Error("Unexpected subtree");
@@ -283,6 +285,7 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
 
             const condCount = ctx.ifhead_list().length;
             const listCount = ctx.statlist_list().length;
+            const token = ctx.ifhead_list()[0]!.IF().symbol;
 
             for (let i = 0; i < ctx.ifhead_list().length; i++) {
                 const condition = this.visit(ctx.ifhead_list()[i]!.expr());
@@ -302,7 +305,7 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
                 lists.push(list);
             }
 
-            return new IfTree(conditions, lists)
+            return new IfTree(conditions, lists, token)
         }
 
         this.visitAlgorithm = (ctx: AlgorithmContext): Tree => {
@@ -326,13 +329,14 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
         this.visitForstat = (ctx: ForstatContext): Tree => {
             const iterator = this.visit(ctx.iterator());
             const list = this.visit(ctx.statlist());
+            const token = ctx.FOR().symbol;
             if (!(iterator instanceof IteratorTree)) {
                 throw new Error("Received no valid Iterator");
             }
             if (!(list instanceof StatListTree)) {
                 throw new Error("Unexpected subtree");
             }
-            const forTree = new ForTree(iterator, list);
+            const forTree = new ForTree(iterator, list, token);
             return forTree;
         }
 
