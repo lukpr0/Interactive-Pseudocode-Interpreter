@@ -477,7 +477,7 @@ export default class InterpretingVisitor implements Visitor<void> {
             kvp.value.accept(this)
             const value = this.stack.pop()
             if (value === undefined) {
-                throw new Error("Value expected, found nothing");
+                throw new EmptyStackError(expr.infoToken);
             }
             object.set(key, value);
         }

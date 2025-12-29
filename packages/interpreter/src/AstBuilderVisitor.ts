@@ -417,7 +417,8 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
                 }
                 return kvpTree
             });
-            const tree = new ObjectTree(kvps);
+            const token = ctx.LCURLY().symbol;
+            const tree = new ObjectTree(kvps, token);
             return tree;
         }
 
