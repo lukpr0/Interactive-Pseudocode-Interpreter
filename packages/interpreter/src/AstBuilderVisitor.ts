@@ -344,8 +344,9 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             const id = ctx.IDENTIFIER().symbol;
             const from = this.visit(ctx.range().expr(0))
             const to = this.visit(ctx.range().expr(1))
+            const token = ctx.range().DOTDOT().symbol;
             const inclusive = ctx.range().EQUALS() != null;
-            const rangeTree = new RangeTree(from, to, inclusive)
+            const rangeTree = new RangeTree(from, to, inclusive, token)
             const iterator = new IteratorTree(id, rangeTree);
             return iterator;
         }

@@ -380,14 +380,16 @@ export default class InterpretingVisitor implements Visitor<void> {
         const to = this.stack.pop()
         const from = this.stack.pop()
         if (to === undefined || from === undefined) {
-            throw new Error("left or right operand missing")
+            throw new EmptyStackError(expr.infoToken);
         }
-        if (from.type == Type.Integer && to.type == Type.Integer) {
-            const range = new Range(from.value, to.value, expr.inclusive)
-            this.stack.push(range)
-        } else {
-            throw new Error(`incompatible types for range ${from.type} ${to.type}`)
+        if (from.type != Type.Integer) {
+            throw new UnexpectedTypeError([Type.Integer], from.type, expr.infoToken);
         }
+        if (to.type != Type.Integer) {
+            throw new UnexpectedTypeError([Type.Integer], to.type, expr.infoToken);
+        }
+        const range = new Range(from.value, to.value, expr.inclusive)
+        this.stack.push(range)
     }
 
     visitFunction(expr: FunctionTree): void {
