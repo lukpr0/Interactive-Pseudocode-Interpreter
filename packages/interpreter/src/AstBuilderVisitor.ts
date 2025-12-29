@@ -389,7 +389,7 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             const id = ctx.IDENTIFIER().symbol;
             const accessors = ctx.accessor_list()
                 .map(accessor => this.visit(accessor));
-            const tree = new FullIdTree(id, accessors);
+            const tree = new FullIdTree(id, accessors, id);
             return tree;
         }
 
