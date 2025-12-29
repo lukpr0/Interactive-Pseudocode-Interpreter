@@ -1,4 +1,3 @@
-export { default as AbstractTree } from './AbstractTree.js'
 export * from './AccessorTree.js'
 export { default as ArrayTree } from './ArrayTree.js'
 export { default as AssignTree } from './AssignTree.js'
