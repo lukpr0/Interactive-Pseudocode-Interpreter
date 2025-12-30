@@ -111,7 +111,13 @@ export default class InterpretingVisitor implements Visitor<void> {
                         throw new UnexpectedTypeError([Type.Integer, Type.Float], index.type, assign.infoToken)
                     }
                     const indexAsNum = typeof index.value == "number" ? index.value : Number(index.value)
-                    slot = slot.value.getSlot(indexAsNum);
+                    try {
+                        slot = slot.value.getSlot(indexAsNum);
+                    } catch (e) {
+                        if (e instanceof Error) {
+                            throw new PseudoRuntimeError(e.message, assign.infoToken)
+                        } else throw e;
+                    }
                 } else if (accessor instanceof DotAccessorTree && slot.value.type == Type.Object) {
                     slot = slot.value.get(accessor.name.text);
                 }
@@ -443,7 +449,13 @@ export default class InterpretingVisitor implements Visitor<void> {
                     throw new UnexpectedTypeError([Type.Integer, Type.Float], index.type, expr.infoToken)
                 }
                 const indexAsNum = typeof index.value == "number" ? index.value : Number(index.value)
-                value = value.getSlot(indexAsNum).value;
+                try {
+                    value = value.getSlot(indexAsNum).value;
+                } catch (e) {
+                    if (e instanceof Error) {
+                        throw new PseudoRuntimeError(e.message, expr.infoToken)
+                    } else throw e;
+                }
             } else if (accessor instanceof DotAccessorTree && value.type == Type.Object) {
                 value = value.get(accessor.name.text).value
             }
@@ -653,7 +665,13 @@ export default class InterpretingVisitor implements Visitor<void> {
     
     private handleIndexAccess(left: Value, right: Value, operator: Token): Value {
         if ((left.type == Type.Array || left.type == Type.String) && right.type == Type.Integer) {
-            return left.get(Number(right.value))
+            try {
+                return left.get(Number(right.value))
+            } catch (e) {
+                if (e instanceof Error) {
+                    throw new PseudoRuntimeError(e.message, operator)
+                } else throw e;
+            }
         }
         throw new IncompatibleTypesError(left.type, right.type, operator)
     }
