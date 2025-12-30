@@ -115,11 +115,17 @@ export default class InterpretingVisitor implements Visitor<void> {
                         slot = slot.value.getSlot(indexAsNum);
                     } catch (e) {
                         if (e instanceof Error) {
-                            throw new PseudoRuntimeError(e.message, assign.infoToken)
+                            throw new PseudoRuntimeError(e.message, assign.infoToken);
                         } else throw e;
                     }
                 } else if (accessor instanceof DotAccessorTree && slot.value.type == Type.Object) {
-                    slot = slot.value.get(accessor.name.text);
+                    try {
+                        slot = slot.value.get(accessor.name.text);
+                    } catch (e) {
+                        if (e instanceof Error) {
+                            throw new PseudoRuntimeError(e.message, assign.infoToken);
+                        } else throw e;
+                    }
                 }
             }
             slot.value = value;
@@ -143,7 +149,14 @@ export default class InterpretingVisitor implements Visitor<void> {
                     throw new EmptyStackError(expr.infoToken);
                 }
                 if (left.type == Type.Object) {
-                    this.stack.push(left.get(expr.right.operand.text).value)
+                    try {
+                        const object = left.get(expr.right.operand.text).value;
+                        this.stack.push(object);
+                    } catch (e) {
+                        if (e instanceof Error) {
+                            throw new PseudoRuntimeError(e.message, expr.infoToken)
+                        } else throw e;
+                    }
                     return;
                 }
                 throw new PseudoTypeError(`Member access not possible on type ${typeToString(left.type)}`, expr.infoToken)
@@ -457,7 +470,13 @@ export default class InterpretingVisitor implements Visitor<void> {
                     } else throw e;
                 }
             } else if (accessor instanceof DotAccessorTree && value.type == Type.Object) {
-                value = value.get(accessor.name.text).value
+                try {
+                    value = value.get(accessor.name.text).value
+                } catch (e) {
+                    if (e instanceof Error) {
+                        throw new PseudoRuntimeError(e.message, expr.infoToken);
+                    } else throw e;
+                }
             }
         }
         this.stack.push(value);
