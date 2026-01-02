@@ -30,4 +30,7 @@ function Merge(l, r)
             push(y, l[il])
         end
     end
+    return y
 end
+a := [ 18, 47, 87, 16,  6, 82, 32, 35, 16,  1, 39, 32, 64, 28, 65, 45, 23, 88, 84, 94 ]
+MergeSort(a, len(a))
