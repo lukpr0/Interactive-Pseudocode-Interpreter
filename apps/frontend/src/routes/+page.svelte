@@ -1,12 +1,12 @@
 <div class="grid">
     <div class="code-wrapper">
-        <Codemirror bind:value={code} {vimMode} onchange={changecode}></Codemirror>
+        <Codemirror bind:value={code} {vimMode} errors={errorLocations} onchange={changecode}></Codemirror>
     </div>
     <div id="variable-table"><VariableTable {variables}></VariableTable></div>
     <div id="outputs">
-        {#if error}
+        {#if displayedError}
         <div id="errors">
-            { error }
+            { displayedError }
         </div>
         {/if}
         <div id="logs">
@@ -45,12 +45,14 @@
     import { LatexVisitor } from "$lib/latexVisitor";
     import { TypstVisitor } from "$lib/typstVisitor";
     import { Codeli } from "$lib/codeli";
+    import type ErrorInformation from "$lib/errorLocation";
 
     let code = $state(getCodeFromParam())
     let vimMode = $state(false)
     let interpreterActive = $state(true)
     let shareLink = $state("")
-    let error = $state("")
+    let displayedError = $state("")
+    let errorLocations: ErrorInformation[] = $state([])
 
     let variables = $state(new Map<string, Slot>());
     
@@ -72,22 +74,38 @@
                 variables = new Map(result.message)
                 break;
             case 'error':
-                error = result.message;
+                console.log(result.message);
+                handleError(result.message);
                 break;
         }
     }
 
+    function handleError(error: any) {
+        switch (error.type) {
+            case 'located':
+                while (errorLocations.length > 0)  { errorLocations.pop(); }
+                errorLocations.push(error)
+                displayedError = `${error.name}: ${error.text}`;
+                break
+            case 'error':
+                displayedError = `${error.name}: ${error.text}`;
+            case 'other':
+                displayedError = error.error;
+                break
+        }
+    }
 
     function terminateInterpreter(_: Event) {
         worker.terminate()
     }
 
-    function changecode(_: Event) {
+    function changecode() {
         if (!interpreterActive) {
             return;
         }
         logs = []
-        error = "";
+        displayedError = "";
+        while (errorLocations.length > 0) errorLocations.pop();
         worker.terminate()
         worker = new Worker()
         worker.onmessage = workerOnMessage;
