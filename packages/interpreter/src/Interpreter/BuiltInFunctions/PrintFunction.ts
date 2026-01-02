@@ -1,3 +1,4 @@
+import { InternalError } from "../Errors/index.js";
 import type PrintObserver from "../PrintObserver.js";
 import { PseudoNil } from "../Types/index.js";
 import type { Value } from "../Value.js";
@@ -15,7 +16,7 @@ export default class PrintFunction extends BuiltInFunction {
     eval(args: Value[]): Value {
         const message = args[0]
         if (!message) {
-            throw new Error("no message found")
+            throw new InternalError("no message found")
         } 
         this.notify(message.toString());
         return new PseudoNil();
