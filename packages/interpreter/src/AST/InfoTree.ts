@@ -1,5 +1,5 @@
-import type { Token } from "antlr4";
+import type NodeLocation from "./NodeLocations.js";
 
 export default interface InfoTree {
-    infoToken: Token;
+    location: NodeLocation;
 }

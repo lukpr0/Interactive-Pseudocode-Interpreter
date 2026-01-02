@@ -8,6 +8,6 @@ export class BuiltInTypeError extends Error {
             .join(' | ');
         super(`expected ${expectedTypes} got ${typeToString(got)} instead`)
         this.name = "BuiltInTypeError";
-        Object.setPrototypeOf(this, BuiltInTypeError.prototype);
+        Object.setPrototypeOf(this, new.target.prototype);
     }
 }

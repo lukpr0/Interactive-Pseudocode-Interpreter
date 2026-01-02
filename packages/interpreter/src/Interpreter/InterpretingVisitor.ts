@@ -11,6 +11,8 @@ import { ArrayConstructor, DequeueFunction, LengthFunction, PopFunction, PushFun
 import { Slot, SymbolTable, Type, Range} from "./index.js"
 import { PseudoTypeError, EmptyStackError, VariableError, UnexpectedTypeError, FeatureNotImplementedError, IncompatibleTypesError, BuiltInTypeError, InternalError, LocatedInternalError, PseudoRuntimeError } from "./Errors/index.js";
 import { typeToString } from "./Type.js";
+import { tokenToNodeLocation } from "../AST/NodeLocations.js";
+import type NodeLocation from "../AST/NodeLocations.js";
 
 export default class InterpretingVisitor implements Visitor<void> {
     symbolTable: SymbolTable<Slot>;
@@ -91,31 +93,31 @@ export default class InterpretingVisitor implements Visitor<void> {
         assign.expr.accept(this)
         const value = this.stack.pop()
         if (value === undefined) {
-            throw new EmptyStackError(assign.infoToken);
+            throw new EmptyStackError(assign.location);
         }
         if (assign.id.accessors.length == 0) {
             this.symbolTable.setVariable(assign.id.name.text, new Slot(value));
         } else {
             let slot = this.symbolTable.getVariable(assign.id.name.text);
             if (slot === undefined) {
-                throw new VariableError(assign.id.name);
+                throw new VariableError(assign.id.name, tokenToNodeLocation(assign.id.name));
             }
             for (const accessor of assign.id.accessors) {
                 if (accessor instanceof IndexAccessorTree && slot.value.type == Type.Array) {
                     accessor.index.accept(this);
                     const index = this.stack.pop()
                     if (index === undefined) {
-                        throw new EmptyStackError(assign.infoToken);
+                        throw new EmptyStackError(assign.location);
                     }
                     if (index.type != Type.Integer && index.type != Type.Float) {
-                        throw new UnexpectedTypeError([Type.Integer, Type.Float], index.type, assign.infoToken)
+                        throw new UnexpectedTypeError([Type.Integer, Type.Float], index.type, assign.location)
                     }
                     const indexAsNum = typeof index.value == "number" ? index.value : Number(index.value)
                     try {
                         slot = slot.value.getSlot(indexAsNum);
                     } catch (e) {
                         if (e instanceof Error) {
-                            throw new PseudoRuntimeError(e.message, assign.infoToken);
+                            throw new PseudoRuntimeError(e.message, assign.location);
                         } else throw e;
                     }
                 } else if (accessor instanceof DotAccessorTree && slot.value.type == Type.Object) {
@@ -123,7 +125,7 @@ export default class InterpretingVisitor implements Visitor<void> {
                         slot = slot.value.get(accessor.name.text);
                     } catch (e) {
                         if (e instanceof Error) {
-                            throw new PseudoRuntimeError(e.message, assign.infoToken);
+                            throw new PseudoRuntimeError(e.message, assign.location);
                         } else throw e;
                     }
                 }
@@ -146,7 +148,7 @@ export default class InterpretingVisitor implements Visitor<void> {
             if (expr.right instanceof UnaryOperationTree && expr.right.operand instanceof Token && expr.right.operand.type == PseudoParser.IDENTIFIER) {
                 const left = this.stack.pop()
                 if (left === undefined) {
-                    throw new EmptyStackError(expr.infoToken);
+                    throw new EmptyStackError(expr.location);
                 }
                 if (left.type == Type.Object) {
                     try {
@@ -154,12 +156,12 @@ export default class InterpretingVisitor implements Visitor<void> {
                         this.stack.push(object);
                     } catch (e) {
                         if (e instanceof Error) {
-                            throw new PseudoRuntimeError(e.message, expr.infoToken)
+                            throw new PseudoRuntimeError(e.message, expr.location)
                         } else throw e;
                     }
                     return;
                 }
-                throw new PseudoTypeError(`Member access not possible on type ${typeToString(left.type)}`, expr.infoToken)
+                throw new PseudoTypeError(`Member access not possible on type ${typeToString(left.type)}`, expr.location)
             }
         }
         let result;
@@ -172,7 +174,7 @@ export default class InterpretingVisitor implements Visitor<void> {
                     result = this.handleOr(expr.left, expr.right, expr.operator);
                     break;
                 default:
-                    throw new FeatureNotImplementedError(expr.infoToken)
+                    throw new FeatureNotImplementedError(expr.location)
             }
         } else {
             expr.left.accept(this);
@@ -180,7 +182,7 @@ export default class InterpretingVisitor implements Visitor<void> {
             const right = this.stack.pop();
             const left = this.stack.pop();
             if (left === undefined || right === undefined) {
-                throw new EmptyStackError(expr.infoToken);
+                throw new EmptyStackError(expr.location);
             }
             switch (expr.operator.type) {
                 case PseudoParser.PLUS:
@@ -223,7 +225,7 @@ export default class InterpretingVisitor implements Visitor<void> {
                     result = this.handleIndexAccess(left, right, expr.operator)
                     break;
                 default:
-                    throw new FeatureNotImplementedError(expr.infoToken)
+                    throw new FeatureNotImplementedError(expr.location)
             }
         }
         this.stack.push(result)
@@ -235,7 +237,7 @@ export default class InterpretingVisitor implements Visitor<void> {
         } else if (expr.operand.type == PseudoParser.IDENTIFIER) {
             const slot = this.symbolTable.getVariable(expr.operand.text);
             if (slot === undefined) {
-                throw new VariableError(expr.operand)
+                throw new VariableError(expr.operand, tokenToNodeLocation(expr.operand))
             }
             this.stack.push(slot.value);
         } else if (expr.operand.type == PseudoParser.INT) {
@@ -259,13 +261,13 @@ export default class InterpretingVisitor implements Visitor<void> {
         if (expr.operator) {
             const fromStack = this.stack.pop();
             if (!fromStack) {
-                throw new EmptyStackError(expr.operator);
+                throw new EmptyStackError(tokenToNodeLocation(expr.operator));
             }
             if (expr.operator && expr.operator.type == PseudoParser.MINUS) {
                 if (fromStack.type == Type.Integer || fromStack.type == Type.Float) {
                     this.stack.push(fromStack.mult(new PseudoInteger(-1n)));
                 } else {
-                    throw new UnexpectedTypeError([Type.Integer, Type.Float], fromStack.type, expr.operator)
+                    throw new UnexpectedTypeError([Type.Integer, Type.Float], fromStack.type, tokenToNodeLocation(expr.operator))
                 }
             } else if (expr.operator && expr.operator.type == PseudoParser.NOT) {
                 if (fromStack.type == Type.Boolean) {
@@ -283,10 +285,10 @@ export default class InterpretingVisitor implements Visitor<void> {
             expr.cond.accept(this);
             const fromStack = this.stack.pop();
             if (fromStack === undefined) {
-                throw new EmptyStackError(expr.infoToken);
+                throw new EmptyStackError(expr.location);
             }
             if (!(fromStack instanceof PseudoBoolean)) {
-                throw new UnexpectedTypeError([Type.Boolean], fromStack.type, expr.infoToken)
+                throw new UnexpectedTypeError([Type.Boolean], fromStack.type, expr.location)
             }
             if (fromStack.value) {
                 expr.list.accept(this);
@@ -321,10 +323,10 @@ export default class InterpretingVisitor implements Visitor<void> {
             const fromStack = this.stack.pop();
 
             if (fromStack === undefined) {
-                throw new EmptyStackError(expr.infoToken);
+                throw new EmptyStackError(expr.location);
             }
             if (!(fromStack instanceof PseudoBoolean)) {
-                throw new UnexpectedTypeError([Type.Boolean], fromStack.type, expr.infoToken)
+                throw new UnexpectedTypeError([Type.Boolean], fromStack.type, expr.location)
             }
 
             if (fromStack.value) {
@@ -344,10 +346,10 @@ export default class InterpretingVisitor implements Visitor<void> {
             const fromStack = this.stack.pop();
 
             if (fromStack === undefined) {
-                throw new EmptyStackError(expr.infoToken);
+                throw new EmptyStackError(expr.location);
             }
             if (!(fromStack instanceof PseudoBoolean)) {
-                throw new UnexpectedTypeError([Type.Boolean], fromStack.type, expr.infoToken)
+                throw new UnexpectedTypeError([Type.Boolean], fromStack.type, expr.location)
             }
 
             if (fromStack.value) {
@@ -367,10 +369,10 @@ export default class InterpretingVisitor implements Visitor<void> {
         expr.cond.accept(this)
         const iter = this.stack.pop()
         if (iter === undefined) {
-            throw new EmptyStackError(expr.infoToken);
+            throw new EmptyStackError(expr.location);
         }
         if (iter.type != Type.Iterator) {
-            throw new UnexpectedTypeError([Type.Iterator], iter.type, expr.infoToken)
+            throw new UnexpectedTypeError([Type.Iterator], iter.type, expr.location)
         }
         const variableName = expr.cond.id.text;
         while (iter.hasNext()) {
@@ -399,13 +401,13 @@ export default class InterpretingVisitor implements Visitor<void> {
         const to = this.stack.pop()
         const from = this.stack.pop()
         if (to === undefined || from === undefined) {
-            throw new EmptyStackError(expr.infoToken);
+            throw new EmptyStackError(expr.location);
         }
         if (from.type != Type.Integer) {
-            throw new UnexpectedTypeError([Type.Integer], from.type, expr.infoToken);
+            throw new UnexpectedTypeError([Type.Integer], from.type, expr.location);
         }
         if (to.type != Type.Integer) {
-            throw new UnexpectedTypeError([Type.Integer], to.type, expr.infoToken);
+            throw new UnexpectedTypeError([Type.Integer], to.type, expr.location);
         }
         const range = new Range(from.value, to.value, expr.inclusive)
         this.stack.push(range)
@@ -419,16 +421,16 @@ export default class InterpretingVisitor implements Visitor<void> {
         const name = expr.name.text;
         const builtin = this.builtInFunctions.getVariable(name);
         if (builtin !== undefined) {
-            this.handleBuiltInFunction(builtin, expr.args, expr.infoToken)
+            this.handleBuiltInFunction(builtin, expr.args, expr.location)
             return;
         }
         const user = this.functionTable.getVariable(name);
         if (user !== undefined) {
-            this.handleUserFunction(user, expr.args, expr.infoToken);
+            this.handleUserFunction(user, expr.args, expr.location);
             this.returning = false;
             return;
         }
-        throw new PseudoTypeError(`${name} is not a function`, expr.infoToken)
+        throw new PseudoTypeError(`${name} is not a function`, expr.location)
     }
 
     visitArray(expr: ArrayTree): void {
@@ -437,7 +439,7 @@ export default class InterpretingVisitor implements Visitor<void> {
             element.accept(this);
             const value = this.stack.pop()
             if (value === undefined) {
-                throw new EmptyStackError(expr.infoToken);
+                throw new EmptyStackError(expr.location);
             }
             array.push(value)
         }
@@ -448,7 +450,7 @@ export default class InterpretingVisitor implements Visitor<void> {
         const name = expr.name.text
         let slot = this.symbolTable.getVariable(name);
         if (slot === undefined) {
-            throw new VariableError(expr.infoToken);
+            throw new VariableError(expr.name, expr.location);
         }
         let value = slot.value;
         for (const accessor of expr.accessors) {
@@ -456,17 +458,17 @@ export default class InterpretingVisitor implements Visitor<void> {
                 accessor.index.accept(this);
                 const index = this.stack.pop()
                 if (index === undefined) {
-                    throw new EmptyStackError(expr.infoToken);
+                    throw new EmptyStackError(expr.location);
                 }
                 if (index.type != Type.Integer && index.type != Type.Float) {
-                    throw new UnexpectedTypeError([Type.Integer, Type.Float], index.type, expr.infoToken)
+                    throw new UnexpectedTypeError([Type.Integer, Type.Float], index.type, expr.location)
                 }
                 const indexAsNum = typeof index.value == "number" ? index.value : Number(index.value)
                 try {
                     value = value.getSlot(indexAsNum).value;
                 } catch (e) {
                     if (e instanceof Error) {
-                        throw new PseudoRuntimeError(e.message, expr.infoToken)
+                        throw new PseudoRuntimeError(e.message, expr.location)
                     } else throw e;
                 }
             } else if (accessor instanceof DotAccessorTree && value.type == Type.Object) {
@@ -474,7 +476,7 @@ export default class InterpretingVisitor implements Visitor<void> {
                     value = value.get(accessor.name.text).value
                 } catch (e) {
                     if (e instanceof Error) {
-                        throw new PseudoRuntimeError(e.message, expr.infoToken);
+                        throw new PseudoRuntimeError(e.message, expr.location);
                     } else throw e;
                 }
             }
@@ -508,7 +510,7 @@ export default class InterpretingVisitor implements Visitor<void> {
             kvp.value.accept(this)
             const value = this.stack.pop()
             if (value === undefined) {
-                throw new EmptyStackError(expr.infoToken);
+                throw new EmptyStackError(expr.location);
             }
             object.set(key, value);
         }
@@ -527,7 +529,7 @@ export default class InterpretingVisitor implements Visitor<void> {
         } else if (right.type == Type.String && (left.type == Type.String || left.type == Type.Integer || left.type == Type.Float || left.type == Type.Boolean || left.type == Type.Array || left.type == Type.Object)) {
             return new PseudoString("").add(left).add(right)
         } {
-            throw new IncompatibleTypesError(left.type, right.type, operator)
+            throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
         }
     }
 
@@ -535,7 +537,7 @@ export default class InterpretingVisitor implements Visitor<void> {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.sub(right);
         } else {
-            throw new IncompatibleTypesError(left.type, right.type, operator)
+            throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
         }
     }
 
@@ -543,7 +545,7 @@ export default class InterpretingVisitor implements Visitor<void> {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.mult(right);
         } else {
-            throw new IncompatibleTypesError(left.type, right.type, operator)
+            throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
         }
     }
 
@@ -551,7 +553,7 @@ export default class InterpretingVisitor implements Visitor<void> {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.div(right);
         } else {
-            throw new IncompatibleTypesError(left.type, right.type, operator)
+            throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
         }
     }
 
@@ -559,7 +561,7 @@ export default class InterpretingVisitor implements Visitor<void> {
         if (left.type == Type.Integer && right.type == Type.Integer) {
             return left.intDiv(right);
         } else {
-            throw new IncompatibleTypesError(left.type, right.type, operator)
+            throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
         }
 
     }
@@ -568,7 +570,7 @@ export default class InterpretingVisitor implements Visitor<void> {
         if (left.type == Type.Integer && right.type == Type.Integer) {
             return left.mod(right);
         } else {
-            throw new IncompatibleTypesError(left.type, right.type, operator)
+            throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
         }
     }
 
@@ -576,10 +578,10 @@ export default class InterpretingVisitor implements Visitor<void> {
         left.accept(this);
         const leftValue = this.stack.pop();
         if (!leftValue) {
-            throw new EmptyStackError(operator)
+            throw new EmptyStackError(tokenToNodeLocation(operator))
         }
         if (leftValue.type != Type.Boolean) {
-            throw new UnexpectedTypeError([Type.Boolean], leftValue.type, operator)
+            throw new UnexpectedTypeError([Type.Boolean], leftValue.type, tokenToNodeLocation(operator))
         }
         if (!leftValue.value) {
             return new PseudoBoolean(false);
@@ -587,10 +589,10 @@ export default class InterpretingVisitor implements Visitor<void> {
         right.accept(this);
         const rightValue = this.stack.pop();
         if (!rightValue) {
-            throw new EmptyStackError(operator)
+            throw new EmptyStackError(tokenToNodeLocation(operator))
         }
         if (rightValue.type != Type.Boolean) {
-            throw new UnexpectedTypeError([Type.Boolean], rightValue.type, operator)
+            throw new UnexpectedTypeError([Type.Boolean], rightValue.type, tokenToNodeLocation(operator))
         }
         return leftValue.and(rightValue);
     }
@@ -599,10 +601,10 @@ export default class InterpretingVisitor implements Visitor<void> {
         left.accept(this);
         const leftValue = this.stack.pop();
         if (!leftValue) {
-            throw new EmptyStackError(operator)
+            throw new EmptyStackError(tokenToNodeLocation(operator))
         }
         if (leftValue.type != Type.Boolean) {
-            throw new UnexpectedTypeError([Type.Boolean], leftValue.type, operator)
+            throw new UnexpectedTypeError([Type.Boolean], leftValue.type, tokenToNodeLocation(operator))
         }
         if (leftValue.value) {
             return new PseudoBoolean(true);
@@ -610,10 +612,10 @@ export default class InterpretingVisitor implements Visitor<void> {
         right.accept(this);
         const rightValue = this.stack.pop();
         if (!rightValue) {
-            throw new EmptyStackError(operator)
+            throw new EmptyStackError(tokenToNodeLocation(operator))
         }
         if (rightValue.type != Type.Boolean) {
-            throw new UnexpectedTypeError([Type.Boolean], rightValue.type, operator)
+            throw new UnexpectedTypeError([Type.Boolean], rightValue.type, tokenToNodeLocation(operator))
         }
         return leftValue.or(rightValue)
     }
@@ -622,7 +624,7 @@ export default class InterpretingVisitor implements Visitor<void> {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.less(right);
         } else {
-            throw new IncompatibleTypesError(left.type, right.type, operator)
+            throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
         }
     }
 
@@ -630,7 +632,7 @@ export default class InterpretingVisitor implements Visitor<void> {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.greater(right);
         } else {
-            throw new IncompatibleTypesError(left.type, right.type, operator)
+            throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
         }
     }
 
@@ -638,7 +640,7 @@ export default class InterpretingVisitor implements Visitor<void> {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.lessEqual(right);
         } else {
-            throw new IncompatibleTypesError(left.type, right.type, operator)
+            throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
         }
     }
 
@@ -646,7 +648,7 @@ export default class InterpretingVisitor implements Visitor<void> {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.greaterEqual(right);
         } else {
-            throw new IncompatibleTypesError(left.type, right.type, operator)
+            throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
         }
     }
 
@@ -662,7 +664,7 @@ export default class InterpretingVisitor implements Visitor<void> {
         } else if (right.type == Type.Nil) {
             return right.equals(left)
         } else {
-            throw new IncompatibleTypesError(left.type, right.type, operator)
+            throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
         }
     }
 
@@ -678,7 +680,7 @@ export default class InterpretingVisitor implements Visitor<void> {
         } else if (right.type == Type.Nil) {
             return right.notEquals(left)
         } else {
-            throw new IncompatibleTypesError(left.type, right.type, operator)
+            throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
         }
     }
     
@@ -688,22 +690,24 @@ export default class InterpretingVisitor implements Visitor<void> {
                 return left.get(Number(right.value))
             } catch (e) {
                 if (e instanceof Error) {
-                    throw new PseudoRuntimeError(e.message, operator)
+                    const error = new PseudoRuntimeError(e.message, tokenToNodeLocation(operator))
+                    throw error
                 } else throw e;
             }
         }
-        throw new IncompatibleTypesError(left.type, right.type, operator)
+        throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
     }
 
-    private handleUserFunction(func: FunctionTree, args: ExprTree[], token: Token) {
+    private handleUserFunction(func: FunctionTree, args: ExprTree[], location: NodeLocation) {
         if (args.length != func.args.length) {
-            throw new PseudoTypeError(`wrong number of parameters, ${func.name} expects ${func.args.length} paramters, got ${args.length}`, token)
+            const message = `wrong number of parameters, ${func.name} expects ${func.args.length} paramters, got ${args.length}`
+            throw new PseudoTypeError(message, location)
         }
         const argValues = args.map(arg => {
             arg.accept(this)
             const value = this.stack.pop();
             if (value === undefined) {
-                throw new EmptyStackError(token);
+                throw new EmptyStackError(location);
             }
             return value;
         })
@@ -716,16 +720,17 @@ export default class InterpretingVisitor implements Visitor<void> {
         this.symbolTable = currentScope
     }
 
-    private handleBuiltInFunction(func: BuiltInFunction, args: ExprTree[], token: Token) {
+    private handleBuiltInFunction(func: BuiltInFunction, args: ExprTree[], location: NodeLocation) {
         if (args.length != func.argsCount) {
-            throw new PseudoTypeError(`wrong number of parameters, ${func.name} expects ${func.argsCount} paramters, got ${args.length}`, token)
+            const message = `wrong number of parameters, ${func.name} expects ${func.argsCount} paramters, got ${args.length}`;
+            throw new PseudoTypeError(message, location)
         }
         const argValues = [];
         for (const arg of args) {
             arg.accept(this);
             const argValue = this.stack.pop();
             if (argValue === undefined) {
-                throw new EmptyStackError(token);
+                throw new EmptyStackError(location);
             }
             argValues.push(argValue);
         }
@@ -734,11 +739,11 @@ export default class InterpretingVisitor implements Visitor<void> {
             this.stack.push(value);
         } catch (e) {
             if (e instanceof BuiltInTypeError) {
-                throw new PseudoTypeError(e.message, token)
+                throw new PseudoTypeError(e.message, location)
             } else if (e instanceof InternalError) {
-                throw new LocatedInternalError(e.message, token)
+                throw new LocatedInternalError(e.message, location)
             } else if (e instanceof Error){
-                throw new PseudoRuntimeError(e.message, token);
+                throw new PseudoRuntimeError(e.message, location);
             } else throw e;
         }
     }
