@@ -1,0 +1,269 @@
+//{}.x
+//[][0]
+//""[0]
+
+//char("")
+//char(1.5)
+//char([])
+//char({})
+//char(nil)
+//char(false)
+
+//codepoint(1)
+//codepoint(1.5)
+//codepoint([])
+//codepoint({})
+//codepoint(nil)
+//codepoint(false)
+
+//min(1, [])
+//min(1, {})
+//min(1, "")
+//min(1, nil)
+//min(1, false)
+
+//max(1, [])
+//max(1, {})
+//max(1, "")
+//max(1, nil)
+//max(1, false)
+
+//pow(1, [])
+//pow(1, {})
+//pow(1, "")
+//pow(1, nil)
+//pow(1, false)
+
+//sqrt([])
+//sqrt({})
+//sqrt("")
+//sqrt(nil)
+//sqrt(false)
+
+//ceil([])
+//ceil({})
+//ceil("")
+//ceil(nil)
+//ceil(false)
+
+//floor([])
+//floor({})
+//floor("")
+//floor(nil)
+//floor(false)
+
+//pop([])
+//dequeue([])
+
+//push(0)
+//push(0.5)
+//push(nil)
+//push(false)
+//push({})
+
+//pop(0)
+//pop(0.5)
+//pop(nil)
+//pop(false)
+//pop({})
+
+//dequeue(0)
+//dequeue(0.5)
+//dequeue(nil)
+//dequeue(false)
+//dequeue({})
+
+//len(0)
+//len(0.5)
+//len(nil)
+//len(false)
+//len({})
+
+//Array(0.5, nil)
+//Array(nil, nil)
+//Array(false, nil)
+//Array([], nil)
+//Array({}, nil)
+//Array("", nil)
+
+//sqrt()
+//sqrt(1,2)
+
+//function test(a) 
+//end
+//test()
+//test(1,2)
+
+//1[0]
+//1.5[0]
+//nil[0]
+//false[0]
+//{}[0]
+
+//true and 1
+//true and 1.5
+//true and []
+//true and {}
+//true and nil
+//true and ""
+
+//false or 1
+//false or 1.5
+//false or []
+//false or {}
+//false or nil
+//false or ""
+
+//1 = false
+//1 = []
+//1 = {}
+//1 = nil //ok
+//1 = ""
+
+//1 != false
+//1 != []
+//1 != {}
+//1 != nil /ok
+//1 != ""
+
+//1 >= false
+//1 >= []
+//1 >= {}
+//1 >= nil
+//1 >= ""
+
+//1 <= false
+//1 <= []
+//1 <= {}
+//1 <= nil
+//1 <= ""
+
+//1 > false
+//1 > []
+//1 > {}
+//1 > nil
+//1 > ""
+
+//1 < false
+//1 < []
+//1 < {}
+//1 < nil
+//1 < ""
+
+//1 mod false
+//1 mod []
+//1 mod {}
+//1 mod nil
+//1 mod ""
+//1 mod 0.5
+
+//1 div false
+//1 div []
+//1 div {}
+//1 div nil
+//1 div ""
+//1 div 0.5
+
+//1 / false
+//1 / []
+//1 / {}
+//1 / nil
+//1 / ""
+
+//1 * false
+//1 * []
+//1 * {}
+//1 * nil
+//1 * ""
+
+//1 - false
+//1 - []
+//1 - {}
+//1 - nil
+//1 - ""
+
+//1 + false
+//1 + []
+//1 + {}
+//1 + nil
+
+//notafunction()
+
+//for _ in false .. 0 do 
+//for _ in {} .. 0 do 
+//for _ in [] .. 0 do 
+//for _ in "" .. 0 do 
+//for _ in nil .. 0 do 
+//for _ in 1.5 .. 0 do 
+//for _ in 0 .. false do 
+//for _ in 0 .. {} do 
+//for _ in 0 .. [] do 
+//for _ in 0 .. "" do 
+//for _ in 0 .. nil do 
+//for _ in 0 .. 1.5 do 
+//end
+
+//if "" then
+//if {} then
+//if [] then
+//if nil then
+//if 0.5 then
+//if 0 then
+//end
+
+//repeat
+//until ""
+//until {}
+//until []
+//until nil
+//until 0.5
+//until 0
+
+//while "" do
+//while {} do
+//while [] do
+//while nil do
+//while 0.5 do
+//while 0 do
+//end
+
+//x := not 0
+//x := not 0.5
+//x := not nil
+//x := not ""
+//x := not []
+//x := not {}
+
+//-nil
+//-""
+//-[]
+//-{}
+
+//x
+
+//a := []
+//a := 1
+//a := ""
+//a := nil
+//a := 1.5
+//a := false
+//x := a.y
+
+//a := {}
+//x := a.y
+
+//a := {}
+//a.x := 1
+//a := []
+//a[0.5] := 1
+
+//a := []
+//a[nil]
+//a[{}]
+//a[[]]
+//a[""]
+//a[false]
+
+//a.x
+
+//a[0]
