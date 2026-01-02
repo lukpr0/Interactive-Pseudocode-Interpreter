@@ -108,7 +108,7 @@ export default class PseudoParser extends Parser {
                                                             "','", "';'", 
                                                             "'('", "')'", 
                                                             "'{'", "'}'", 
-                                                            "']'", "'['", 
+                                                            "'['", "']'", 
                                                             "'..'", "'.'", 
                                                             "'+'", "'-'", 
                                                             "'*'", "'/'", 
@@ -187,7 +187,7 @@ export default class PseudoParser extends Parser {
 					this.state = 49;
 					this._errHandler.sync(this);
 					_la = this._input.LA(1);
-					if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 310756592) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 260097) !== 0)) {
+					if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 176538864) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 260097) !== 0)) {
 						{
 						this.state = 48;
 						this.programstat();
@@ -206,7 +206,7 @@ export default class PseudoParser extends Parser {
 			this.state = 58;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 310756592) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 260097) !== 0)) {
+			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 176538864) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 260097) !== 0)) {
 				{
 				this.state = 57;
 				this.programstat();
@@ -249,7 +249,7 @@ export default class PseudoParser extends Parser {
 			case 16:
 			case 23:
 			case 25:
-			case 28:
+			case 27:
 			case 32:
 			case 43:
 			case 44:
@@ -404,7 +404,7 @@ export default class PseudoParser extends Parser {
 					this.state = 78;
 					this._errHandler.sync(this);
 					_la = this._input.LA(1);
-					if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 310494448) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 260097) !== 0)) {
+					if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 176276720) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 260097) !== 0)) {
 						{
 						this.state = 77;
 						this.stat();
@@ -423,7 +423,7 @@ export default class PseudoParser extends Parser {
 			this.state = 87;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 310494448) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 260097) !== 0)) {
+			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 176276720) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 260097) !== 0)) {
 				{
 				this.state = 86;
 				this.stat();
@@ -712,11 +712,11 @@ export default class PseudoParser extends Parser {
 							throw this.createFailedPredicateException("this.precpred(this._ctx, 10)");
 						}
 						this.state = 125;
-						this.match(PseudoParser.RBRACK);
+						this.match(PseudoParser.LBRACK);
 						this.state = 126;
 						this.expr(0);
 						this.state = 127;
-						this.match(PseudoParser.LBRACK);
+						this.match(PseudoParser.RBRACK);
 						}
 						break;
 					case 7:
@@ -819,7 +819,7 @@ export default class PseudoParser extends Parser {
 			this.state = 143;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 310378512) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 260097) !== 0)) {
+			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 176160784) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 260097) !== 0)) {
 				{
 				this.state = 142;
 				this.expr(0);
@@ -852,7 +852,7 @@ export default class PseudoParser extends Parser {
 			this.enterOuterAlt(localctx, 1);
 			{
 			this.state = 145;
-			this.match(PseudoParser.RBRACK);
+			this.match(PseudoParser.LBRACK);
 			this.state = 149;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
@@ -870,7 +870,7 @@ export default class PseudoParser extends Parser {
 			this.state = 187;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 310378512) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 260097) !== 0)) {
+			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 176160784) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 260097) !== 0)) {
 				{
 				this.state = 152;
 				this.expr(0);
@@ -966,7 +966,7 @@ export default class PseudoParser extends Parser {
 			}
 
 			this.state = 189;
-			this.match(PseudoParser.LBRACK);
+			this.match(PseudoParser.RBRACK);
 			}
 		}
 		catch (re) {
@@ -1166,7 +1166,7 @@ export default class PseudoParser extends Parser {
 			this.state = 245;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			while (_la===28 || _la===30) {
+			while (_la===27 || _la===30) {
 				{
 				{
 				this.state = 242;
@@ -1201,16 +1201,16 @@ export default class PseudoParser extends Parser {
 			this.state = 254;
 			this._errHandler.sync(this);
 			switch (this._input.LA(1)) {
-			case 28:
+			case 27:
 				localctx = new IndexAccessorContext(this, localctx);
 				this.enterOuterAlt(localctx, 1);
 				{
 				this.state = 248;
-				this.match(PseudoParser.RBRACK);
+				this.match(PseudoParser.LBRACK);
 				this.state = 249;
 				this.expr(0);
 				this.state = 250;
-				this.match(PseudoParser.LBRACK);
+				this.match(PseudoParser.RBRACK);
 				}
 				break;
 			case 30:
@@ -1640,7 +1640,7 @@ export default class PseudoParser extends Parser {
 			this.state = 343;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 310378512) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 260097) !== 0)) {
+			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 176160784) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 260097) !== 0)) {
 				{
 				this.state = 335;
 				this.expr(0);
@@ -1763,13 +1763,13 @@ export default class PseudoParser extends Parser {
 	113,10,5,0,0,113,114,7,2,0,0,114,133,3,8,4,6,115,116,10,4,0,0,116,117,7,
 	3,0,0,117,133,3,8,4,5,118,119,10,3,0,0,119,120,5,2,0,0,120,133,3,8,4,4,
 	121,122,10,2,0,0,122,123,5,3,0,0,123,133,3,8,4,3,124,125,10,10,0,0,125,
-	126,5,28,0,0,126,127,3,8,4,0,127,128,5,27,0,0,128,133,1,0,0,0,129,130,10,
+	126,5,27,0,0,126,127,3,8,4,0,127,128,5,28,0,0,128,133,1,0,0,0,129,130,10,
 	9,0,0,130,131,5,30,0,0,131,133,5,48,0,0,132,109,1,0,0,0,132,112,1,0,0,0,
 	132,115,1,0,0,0,132,118,1,0,0,0,132,121,1,0,0,0,132,124,1,0,0,0,132,129,
 	1,0,0,0,133,136,1,0,0,0,134,132,1,0,0,0,134,135,1,0,0,0,135,9,1,0,0,0,136,
 	134,1,0,0,0,137,138,5,15,0,0,138,11,1,0,0,0,139,140,5,16,0,0,140,13,1,0,
 	0,0,141,143,5,14,0,0,142,144,3,8,4,0,143,142,1,0,0,0,143,144,1,0,0,0,144,
-	15,1,0,0,0,145,149,5,28,0,0,146,148,5,1,0,0,147,146,1,0,0,0,148,151,1,0,
+	15,1,0,0,0,145,149,5,27,0,0,146,148,5,1,0,0,147,146,1,0,0,0,148,151,1,0,
 	0,0,149,147,1,0,0,0,149,150,1,0,0,0,150,187,1,0,0,0,151,149,1,0,0,0,152,
 	156,3,8,4,0,153,155,5,1,0,0,154,153,1,0,0,0,155,158,1,0,0,0,156,154,1,0,
 	0,0,156,157,1,0,0,0,157,175,1,0,0,0,158,156,1,0,0,0,159,163,5,21,0,0,160,
@@ -1780,7 +1780,7 @@ export default class PseudoParser extends Parser {
 	176,1,0,0,0,176,179,1,0,0,0,177,175,1,0,0,0,178,180,5,21,0,0,179,178,1,
 	0,0,0,179,180,1,0,0,0,180,184,1,0,0,0,181,183,5,1,0,0,182,181,1,0,0,0,183,
 	186,1,0,0,0,184,182,1,0,0,0,184,185,1,0,0,0,185,188,1,0,0,0,186,184,1,0,
-	0,0,187,152,1,0,0,0,187,188,1,0,0,0,188,189,1,0,0,0,189,190,5,27,0,0,190,
+	0,0,187,152,1,0,0,0,187,188,1,0,0,0,188,189,1,0,0,0,189,190,5,28,0,0,190,
 	17,1,0,0,0,191,195,5,25,0,0,192,194,5,1,0,0,193,192,1,0,0,0,194,197,1,0,
 	0,0,195,193,1,0,0,0,195,196,1,0,0,0,196,233,1,0,0,0,197,195,1,0,0,0,198,
 	202,3,20,10,0,199,201,5,1,0,0,200,199,1,0,0,0,201,204,1,0,0,0,202,200,1,
@@ -1796,7 +1796,7 @@ export default class PseudoParser extends Parser {
 	0,236,19,1,0,0,0,237,238,5,48,0,0,238,239,5,35,0,0,239,240,3,8,4,0,240,
 	21,1,0,0,0,241,245,5,48,0,0,242,244,3,24,12,0,243,242,1,0,0,0,244,247,1,
 	0,0,0,245,243,1,0,0,0,245,246,1,0,0,0,246,23,1,0,0,0,247,245,1,0,0,0,248,
-	249,5,28,0,0,249,250,3,8,4,0,250,251,5,27,0,0,251,255,1,0,0,0,252,253,5,
+	249,5,27,0,0,249,250,3,8,4,0,250,251,5,28,0,0,251,255,1,0,0,0,252,253,5,
 	30,0,0,253,255,5,48,0,0,254,248,1,0,0,0,254,252,1,0,0,0,255,25,1,0,0,0,
 	256,257,3,22,11,0,257,258,5,20,0,0,258,259,3,8,4,0,259,27,1,0,0,0,260,261,
 	5,7,0,0,261,262,3,8,4,0,262,263,5,9,0,0,263,264,5,1,0,0,264,265,3,6,3,0,
@@ -2194,11 +2194,11 @@ export class IndexAccessContext extends ExprContext {
 	public expr(i: number): ExprContext {
 		return this.getTypedRuleContext(ExprContext, i) as ExprContext;
 	}
-	public RBRACK(): TerminalNode {
-		return this.getToken(PseudoParser.RBRACK, 0);
-	}
 	public LBRACK(): TerminalNode {
 		return this.getToken(PseudoParser.LBRACK, 0);
+	}
+	public RBRACK(): TerminalNode {
+		return this.getToken(PseudoParser.RBRACK, 0);
 	}
 	// @Override
 	public accept<Result>(visitor: PseudoParserVisitor<Result>): Result {
@@ -2598,11 +2598,11 @@ export class ArrayexprContext extends ParserRuleContext {
 		super(parent, invokingState);
     	this.parser = parser;
 	}
-	public RBRACK(): TerminalNode {
-		return this.getToken(PseudoParser.RBRACK, 0);
-	}
 	public LBRACK(): TerminalNode {
 		return this.getToken(PseudoParser.LBRACK, 0);
+	}
+	public RBRACK(): TerminalNode {
+		return this.getToken(PseudoParser.RBRACK, 0);
 	}
 	public NEWLINE_list(): TerminalNode[] {
 	    	return this.getTokens(PseudoParser.NEWLINE);
@@ -2772,14 +2772,14 @@ export class IndexAccessorContext extends AccessorContext {
 		super(parser, ctx.parentCtx, ctx.invokingState);
 		super.copyFrom(ctx);
 	}
-	public RBRACK(): TerminalNode {
-		return this.getToken(PseudoParser.RBRACK, 0);
+	public LBRACK(): TerminalNode {
+		return this.getToken(PseudoParser.LBRACK, 0);
 	}
 	public expr(): ExprContext {
 		return this.getTypedRuleContext(ExprContext, 0) as ExprContext;
 	}
-	public LBRACK(): TerminalNode {
-		return this.getToken(PseudoParser.LBRACK, 0);
+	public RBRACK(): TerminalNode {
+		return this.getToken(PseudoParser.RBRACK, 0);
 	}
 	// @Override
 	public accept<Result>(visitor: PseudoParserVisitor<Result>): Result {
