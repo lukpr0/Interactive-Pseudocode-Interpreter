@@ -66,8 +66,9 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             const expr = ctx.expr()
             const child = this.visit(expr);
             const id = ctx.fullid().accept(this)
+            const token = ctx.ASSIGN().symbol;
             if (child instanceof ExprTree && id instanceof FullIdTree) {
-                const tree = new AssignTree(id, child);
+                const tree = new AssignTree(id, child, token);
                 return tree;
             }
             console.log(child instanceof ExprTree, id instanceof FullIdTree)
@@ -257,8 +258,9 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
         this.visitWhilestat = (ctx: WhilestatContext): Tree => {
             const cond = this.visit(ctx.expr());
             const list = this.visit(ctx.statlist());
+            const token = ctx.WHILE().symbol;
             if (list instanceof StatListTree) {
-                const whileTree = new WhileTree(cond, list);
+                const whileTree = new WhileTree(cond, list, token);
                 return whileTree;
             } else {
                 throw new Error("Unexpected subtree");
@@ -268,8 +270,9 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
         this.visitRepeatstat = (ctx: RepeatstatContext): Tree => {
             const cond = this.visit(ctx.expr());
             const list = this.visit(ctx.statlist());
+            const token = ctx.REPEAT().symbol;
             if (list instanceof StatListTree) {
-                const repeatTree = new RepeatUntilTree(cond, list);
+                const repeatTree = new RepeatUntilTree(cond, list, token);
                 return repeatTree;
             } else {
                 throw new Error("Unexpected subtree");
@@ -282,6 +285,7 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
 
             const condCount = ctx.ifhead_list().length;
             const listCount = ctx.statlist_list().length;
+            const token = ctx.ifhead_list()[0]!.IF().symbol;
 
             for (let i = 0; i < ctx.ifhead_list().length; i++) {
                 const condition = this.visit(ctx.ifhead_list()[i]!.expr());
@@ -301,7 +305,7 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
                 lists.push(list);
             }
 
-            return new IfTree(conditions, lists)
+            return new IfTree(conditions, lists, token)
         }
 
         this.visitAlgorithm = (ctx: AlgorithmContext): Tree => {
@@ -318,20 +322,21 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             this.inFunction = false;
             stats.functionRoot = true;
             stats.returnable = true;
-            const functionTree = new FunctionTree(name, ids, stats);
+            const functionTree = new FunctionTree(name, ids, stats, name);
             return functionTree;
         }
 
         this.visitForstat = (ctx: ForstatContext): Tree => {
             const iterator = this.visit(ctx.iterator());
             const list = this.visit(ctx.statlist());
+            const token = ctx.FOR().symbol;
             if (!(iterator instanceof IteratorTree)) {
                 throw new Error("Received no valid Iterator");
             }
             if (!(list instanceof StatListTree)) {
                 throw new Error("Unexpected subtree");
             }
-            const forTree = new ForTree(iterator, list);
+            const forTree = new ForTree(iterator, list, token);
             return forTree;
         }
 
@@ -339,8 +344,9 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             const id = ctx.IDENTIFIER().symbol;
             const from = this.visit(ctx.range().expr(0))
             const to = this.visit(ctx.range().expr(1))
+            const token = ctx.range().DOTDOT().symbol;
             const inclusive = ctx.range().EQUALS() != null;
-            const rangeTree = new RangeTree(from, to, inclusive)
+            const rangeTree = new RangeTree(from, to, inclusive, token)
             const iterator = new IteratorTree(id, rangeTree);
             return iterator;
         }
@@ -360,7 +366,7 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             for (const arg of ctx.expr_list()) {
                 args.push(this.visit(arg));
             }
-            const funccall = new FunctionCallTree(name, args);
+            const funccall = new FunctionCallTree(name, args, name);
             return funccall;
         }
 
@@ -370,11 +376,12 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
 
         this.visitArrayexpr = (ctx: ArrayexprContext): Tree => {
             const elements = [] 
+            const token = ctx.LBRACK().symbol;
             for (const element of ctx.expr_list()) {
                 const exprTree = this.visit(element);
                 elements.push(exprTree);
             }
-            const arrayTree = new ArrayTree(elements);
+            const arrayTree = new ArrayTree(elements, token);
             return arrayTree;
         }
 
@@ -382,7 +389,7 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             const id = ctx.IDENTIFIER().symbol;
             const accessors = ctx.accessor_list()
                 .map(accessor => this.visit(accessor));
-            const tree = new FullIdTree(id, accessors);
+            const tree = new FullIdTree(id, accessors, id);
             return tree;
         }
 
@@ -410,7 +417,8 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
                 }
                 return kvpTree
             });
-            const tree = new ObjectTree(kvps);
+            const token = ctx.LCURLY().symbol;
+            const tree = new ObjectTree(kvps, token);
             return tree;
         }
 
