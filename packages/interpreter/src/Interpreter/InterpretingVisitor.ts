@@ -9,6 +9,10 @@ import { BinaryOperationTree, UnaryOperationTree, FunctionCallTree, FunctionTree
 import { PseudoInteger, PseudoFloat, PseudoBoolean, PseudoArray, PseudoObject, PseudoNil, PseudoString } from "./Types/index.js";
 import { ArrayConstructor, DequeueFunction, LengthFunction, PopFunction, PushFunction, CeilFunction, FloorFunction, PowFunction, SquarerootFunction, PrintFunction, CharFunction, CodepointFunction, MaxFunction, MinFunction } from "./BuiltInFunctions/index.js";
 import { Slot, SymbolTable, Type, Range} from "./index.js"
+import { PseudoTypeError, EmptyStackError, VariableError, UnexpectedTypeError, FeatureNotImplementedError, IncompatibleTypesError, BuiltInTypeError, InternalError, LocatedInternalError, PseudoRuntimeError } from "./Errors/index.js";
+import { typeToString } from "./Type.js";
+import { tokenToNodeLocation } from "../AST/NodeLocations.js";
+import type NodeLocation from "../AST/NodeLocations.js";
 
 export default class InterpretingVisitor implements Visitor<void> {
     symbolTable: SymbolTable<Slot>;
@@ -89,26 +93,41 @@ export default class InterpretingVisitor implements Visitor<void> {
         assign.expr.accept(this)
         const value = this.stack.pop()
         if (value === undefined) {
-            throw new Error("value is unexpectedly undefined");
+            throw new EmptyStackError(assign.location);
         }
         if (assign.id.accessors.length == 0) {
             this.symbolTable.setVariable(assign.id.name.text, new Slot(value));
         } else {
             let slot = this.symbolTable.getVariable(assign.id.name.text);
             if (slot === undefined) {
-                throw new Error(`Variable ${assign.id.name.text} does not exist`)
+                throw new VariableError(assign.id.name, tokenToNodeLocation(assign.id.name));
             }
             for (const accessor of assign.id.accessors) {
                 if (accessor instanceof IndexAccessorTree && slot.value.type == Type.Array) {
                     accessor.index.accept(this);
                     const index = this.stack.pop()
-                    if (index === undefined || index.type != Type.Integer && index.type != Type.Float) {
-                        throw new Error("Value expected, found nothing");
+                    if (index === undefined) {
+                        throw new EmptyStackError(assign.location);
+                    }
+                    if (index.type != Type.Integer && index.type != Type.Float) {
+                        throw new UnexpectedTypeError([Type.Integer, Type.Float], index.type, assign.location)
                     }
                     const indexAsNum = typeof index.value == "number" ? index.value : Number(index.value)
-                    slot = slot.value.getSlot(indexAsNum);
+                    try {
+                        slot = slot.value.getSlot(indexAsNum);
+                    } catch (e) {
+                        if (e instanceof Error) {
+                            throw new PseudoRuntimeError(e.message, assign.location);
+                        } else throw e;
+                    }
                 } else if (accessor instanceof DotAccessorTree && slot.value.type == Type.Object) {
-                    slot = slot.value.get(accessor.name.text);
+                    try {
+                        slot = slot.value.get(accessor.name.text);
+                    } catch (e) {
+                        if (e instanceof Error) {
+                            throw new PseudoRuntimeError(e.message, assign.location);
+                        } else throw e;
+                    }
                 }
             }
             slot.value = value;
@@ -129,77 +148,84 @@ export default class InterpretingVisitor implements Visitor<void> {
             if (expr.right instanceof UnaryOperationTree && expr.right.operand instanceof Token && expr.right.operand.type == PseudoParser.IDENTIFIER) {
                 const left = this.stack.pop()
                 if (left === undefined) {
-                    throw new Error("left or right operand missing")
+                    throw new EmptyStackError(expr.location);
                 }
                 if (left.type == Type.Object) {
-                    this.stack.push(left.get(expr.right.operand.text).value)
+                    try {
+                        const object = left.get(expr.right.operand.text).value;
+                        this.stack.push(object);
+                    } catch (e) {
+                        if (e instanceof Error) {
+                            throw new PseudoRuntimeError(e.message, expr.location)
+                        } else throw e;
+                    }
                     return;
                 }
-                throw new Error(`can't use dot access on type ${left.type}`);
+                throw new PseudoTypeError(`Member access not possible on type ${typeToString(left.type)}`, expr.location)
             }
         }
         let result;
         if (this.isLazy(expr.operator)) {
             switch (expr.operator.type) {
                 case PseudoParser.AND:
-                    result = this.handleAnd(expr.left, expr.right);
+                    result = this.handleAnd(expr.left, expr.right, expr.operator);
                     break;
                 case PseudoParser.OR:
-                    result = this.handleOr(expr.left, expr.right);
+                    result = this.handleOr(expr.left, expr.right, expr.operator);
                     break;
                 default:
-                    throw new Error("no valid operator found")
+                    throw new FeatureNotImplementedError(expr.location)
             }
         } else {
-            expr.left.accept(this)
-            expr.right.accept(this)
-            const right = this.stack.pop()
-            const left = this.stack.pop()
+            expr.left.accept(this);
+            expr.right.accept(this);
+            const right = this.stack.pop();
+            const left = this.stack.pop();
             if (left === undefined || right === undefined) {
-                throw new Error("left or right operand missing")
+                throw new EmptyStackError(expr.location);
             }
             switch (expr.operator.type) {
                 case PseudoParser.PLUS:
-                    result = this.handlePlus(left, right);
+                    result = this.handlePlus(left, right, expr.operator);
                     break
                 case PseudoParser.MINUS:
-                    result = this.handleMinus(left, right);
+                    result = this.handleMinus(left, right, expr.operator);
                     break;
                 case PseudoParser.STAR:
-                    result = this.handleMultiply(left, right);
+                    result = this.handleMultiply(left, right, expr.operator);
                     break;
                 case PseudoParser.SLASH:
-                    result = this.handleDivide(left, right);
+                    result = this.handleDivide(left, right, expr.operator);
                     break;
                 case PseudoParser.DIV:
-                    result = this.handleIntDivide(left, right);
+                    result = this.handleIntDivide(left, right, expr.operator);
                     break;
                 case PseudoParser.MOD:
-                    result = this.handleModulo(left, right);
+                    result = this.handleModulo(left, right, expr.operator);
                     break;
                 case PseudoParser.LESSTHAN:
-                    result = this.handleLess(left, right)
+                    result = this.handleLess(left, right, expr.operator)
                     break;
                 case PseudoParser.GREATERTHAN:
-                    result = this.handleGreater(left, right)
+                    result = this.handleGreater(left, right, expr.operator)
                     break;
                 case PseudoParser.LESSEQUAL:
-                    result = this.handleLessEqual(left, right)
+                    result = this.handleLessEqual(left, right, expr.operator)
                     break;
                 case PseudoParser.GREATEREQUAL:
-                    result = this.handleGreaterEqual(left, right)
+                    result = this.handleGreaterEqual(left, right, expr.operator)
                     break;
                 case PseudoParser.EQUALS:
-                    result = this.handleEquals(left, right)
+                    result = this.handleEquals(left, right, expr.operator)
                     break;
                 case PseudoParser.NOTEQUAL:
-                    result = this.handleNotEqual(left, right)
+                    result = this.handleNotEqual(left, right, expr.operator)
                     break;
                 case PseudoParser.LBRACK:
-                    result = this.handleIndexAccess(left, right)
+                    result = this.handleIndexAccess(left, right, expr.operator)
                     break;
                 default:
-                    throw new Error("no valid operator found")
+                    throw new FeatureNotImplementedError(expr.location)
             }
         }
         this.stack.push(result)
@@ -211,7 +237,7 @@ export default class InterpretingVisitor implements Visitor<void> {
         } else if (expr.operand.type == PseudoParser.IDENTIFIER) {
             const slot = this.symbolTable.getVariable(expr.operand.text);
             if (slot === undefined) {
-                throw new Error(`Variable ${expr.operand.text} does not exist`)
+                throw new VariableError(expr.operand, tokenToNodeLocation(expr.operand))
             }
             this.stack.push(slot.value);
         } else if (expr.operand.type == PseudoParser.INT) {
@@ -235,13 +261,13 @@ export default class InterpretingVisitor implements Visitor<void> {
         if (expr.operator) {
             const fromStack = this.stack.pop();
             if (!fromStack) {
-                throw new Error("no operand found");
+                throw new EmptyStackError(tokenToNodeLocation(expr.operator));
             }
             if (expr.operator && expr.operator.type == PseudoParser.MINUS) {
                 if (fromStack.type == Type.Integer || fromStack.type == Type.Float) {
                     this.stack.push(fromStack.mult(new PseudoInteger(-1n)));
                 } else {
-                    throw new Error(`operator - incompatible with type ${fromStack.type}`)
+                    throw new UnexpectedTypeError([Type.Integer, Type.Float], fromStack.type, tokenToNodeLocation(expr.operator))
                 }
             } else if (expr.operator && expr.operator.type == PseudoParser.NOT) {
                 if (fromStack.type == Type.Boolean) {
@@ -258,8 +284,11 @@ export default class InterpretingVisitor implements Visitor<void> {
         this.symbolTable.addChild(new SymbolTable());
             expr.cond.accept(this);
             const fromStack = this.stack.pop();
+            if (fromStack === undefined) {
+                throw new EmptyStackError(expr.location);
+            }
             if (!(fromStack instanceof PseudoBoolean)) {
-                throw new Error("While-loop requires boolean expression");
+                throw new UnexpectedTypeError([Type.Boolean], fromStack.type, expr.location)
             }
             if (fromStack.value) {
                 expr.list.accept(this);
@@ -292,9 +321,14 @@ export default class InterpretingVisitor implements Visitor<void> {
             }
             expr.cond.accept(this);
             const fromStack = this.stack.pop();
-            if (!(fromStack instanceof PseudoBoolean)) {
-                throw new Error("Repeat-Until requires boolean expression")
+
+            if (fromStack === undefined) {
+                throw new EmptyStackError(expr.location);
             }
+            if (!(fromStack instanceof PseudoBoolean)) {
+                throw new UnexpectedTypeError([Type.Boolean], fromStack.type, expr.location)
+            }
+
             if (fromStack.value) {
                 this.symbolTable = parent;
                 break;
@@ -311,9 +345,13 @@ export default class InterpretingVisitor implements Visitor<void> {
             cond?.accept(this)
             const fromStack = this.stack.pop();
 
-            if (!(fromStack instanceof PseudoBoolean)) {
-                throw new Error("If-Statement requires boolean expression")
+            if (fromStack === undefined) {
+                throw new EmptyStackError(expr.location);
             }
+            if (!(fromStack instanceof PseudoBoolean)) {
+                throw new UnexpectedTypeError([Type.Boolean], fromStack.type, expr.location)
+            }
+
             if (fromStack.value) {
                 this.symbolTable.addChild(new SymbolTable());
                 branchExecuted = true;
@@ -331,10 +369,10 @@ export default class InterpretingVisitor implements Visitor<void> {
         expr.cond.accept(this)
         const iter = this.stack.pop()
         if (iter === undefined) {
-            throw new Error("No value found");
+            throw new EmptyStackError(expr.location);
         }
         if (iter.type != Type.Iterator) {
-            throw new Error("Unexpected value, expected iterator");
+            throw new UnexpectedTypeError([Type.Iterator], iter.type, expr.location)
         }
         const variableName = expr.cond.id.text;
         while (iter.hasNext()) {
@@ -363,14 +401,16 @@ export default class InterpretingVisitor implements Visitor<void> {
         const to = this.stack.pop()
         const from = this.stack.pop()
         if (to === undefined || from === undefined) {
-            throw new Error("left or right operand missing")
+            throw new EmptyStackError(expr.location);
         }
-        if (from.type == Type.Integer && to.type == Type.Integer) {
-            const range = new Range(from.value, to.value, expr.inclusive)
-            this.stack.push(range)
-        } else {
-            throw new Error(`incompatible types for range ${from.type} ${to.type}`)
+        if (from.type != Type.Integer) {
+            throw new UnexpectedTypeError([Type.Integer], from.type, expr.location);
         }
+        if (to.type != Type.Integer) {
+            throw new UnexpectedTypeError([Type.Integer], to.type, expr.location);
+        }
+        const range = new Range(from.value, to.value, expr.inclusive)
+        this.stack.push(range)
     }
 
     visitFunction(expr: FunctionTree): void {
@@ -381,16 +421,16 @@ export default class InterpretingVisitor implements Visitor<void> {
         const name = expr.name.text;
         const builtin = this.builtInFunctions.getVariable(name);
         if (builtin !== undefined) {
-            this.handleBuiltInFunction(builtin, expr.args)
+            this.handleBuiltInFunction(builtin, expr.args, expr.location)
             return;
         }
         const user = this.functionTable.getVariable(name);
         if (user !== undefined) {
-            this.handleUserFunction(user, expr.args);
+            this.handleUserFunction(user, expr.args, expr.location);
             this.returning = false;
             return;
         }
-        throw new Error(`line ${expr.name.line}:${expr.name.column} ${name} is not a function`);
+        throw new PseudoTypeError(`${name} is not a function`, expr.location)
     }
 
     visitArray(expr: ArrayTree): void {
@@ -399,7 +439,7 @@ export default class InterpretingVisitor implements Visitor<void> {
             element.accept(this);
             const value = this.stack.pop()
             if (value === undefined) {
-                throw new Error("Value expected, found nothing");
+                throw new EmptyStackError(expr.location);
             }
             array.push(value)
         }
@@ -410,20 +450,35 @@ export default class InterpretingVisitor implements Visitor<void> {
         const name = expr.name.text
         let slot = this.symbolTable.getVariable(name);
         if (slot === undefined) {
-            throw new Error(`Variable ${name} does not exist`)
+            throw new VariableError(expr.name, expr.location);
         }
         let value = slot.value;
         for (const accessor of expr.accessors) {
             if (accessor instanceof IndexAccessorTree && value.type == Type.Array) {
                 accessor.index.accept(this);
                 const index = this.stack.pop()
-                if (index === undefined || index.type != Type.Integer && index.type != Type.Float) {
-                    throw new Error("Value expected, found nothing");
+                if (index === undefined) {
+                    throw new EmptyStackError(expr.location);
+                }
+                if (index.type != Type.Integer && index.type != Type.Float) {
+                    throw new UnexpectedTypeError([Type.Integer, Type.Float], index.type, expr.location)
                 }
                 const indexAsNum = typeof index.value == "number" ? index.value : Number(index.value)
-                value = value.getSlot(indexAsNum).value;
+                try {
+                    value = value.getSlot(indexAsNum).value;
+                } catch (e) {
+                    if (e instanceof Error) {
+                        throw new PseudoRuntimeError(e.message, expr.location)
+                    } else throw e;
+                }
             } else if (accessor instanceof DotAccessorTree && value.type == Type.Object) {
-                value = value.get(accessor.name.text).value
+                try {
+                    value = value.get(accessor.name.text).value
+                } catch (e) {
+                    if (e instanceof Error) {
+                        throw new PseudoRuntimeError(e.message, expr.location);
+                    } else throw e;
+                }
             }
         }
         this.stack.push(value);
@@ -455,7 +510,7 @@ export default class InterpretingVisitor implements Visitor<void> {
             kvp.value.accept(this)
             const value = this.stack.pop()
             if (value === undefined) {
-                throw new Error("Value expected, found nothing");
+                throw new EmptyStackError(expr.location);
             }
             object.set(key, value);
         }
@@ -466,7 +521,7 @@ export default class InterpretingVisitor implements Visitor<void> {
         return [PseudoParser.AND, PseudoParser.OR].includes(token.type)
     }
 
-    private handlePlus(left: Value, right: Value): Value {
+    private handlePlus(left: Value, right: Value, operator: Token): Value {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.add(right);
         } else if (left.type == Type.String && (right.type == Type.String || right.type == Type.Integer || right.type == Type.Float || right.type == Type.Boolean || right.type == Type.Array || right.type == Type.Object)) {
@@ -474,66 +529,59 @@ export default class InterpretingVisitor implements Visitor<void> {
         } else if (right.type == Type.String && (left.type == Type.String || left.type == Type.Integer || left.type == Type.Float || left.type == Type.Boolean || left.type == Type.Array || left.type == Type.Object)) {
             return new PseudoString("").add(left).add(right)
         } {
-            const errorMessage = `incompatible types for operator +: ${left.type}, ${right.type}`;
-            throw new Error(errorMessage);
+            throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
         }
     }
 
-    private handleMinus(left: Value, right: Value): Value {
+    private handleMinus(left: Value, right: Value, operator: Token): Value {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.sub(right);
         } else {
-            const errorMessage = `incompatible types for operator -: ${left.type}, ${right.type}`;
-            throw new Error(errorMessage);
+            throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
         }
     }
 
-    private handleMultiply(left: Value, right: Value): Value {
+    private handleMultiply(left: Value, right: Value, operator: Token): Value {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.mult(right);
         } else {
-            const errorMessage = `incompatible types for operator *: ${left.type}, ${right.type}`;
-            throw new Error(errorMessage);
+            throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
         }
     }
 
-    private handleDivide(left: Value, right: Value): Value {
+    private handleDivide(left: Value, right: Value, operator: Token): Value {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.div(right);
         } else {
-            const errorMessage = `incompatible types for operator /: ${left.type}, ${right.type}`;
-            throw new Error(errorMessage);
+            throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
         }
     }
 
-    private handleIntDivide(left: Value, right: Value): Value {
+    private handleIntDivide(left: Value, right: Value, operator: Token): Value {
         if (left.type == Type.Integer && right.type == Type.Integer) {
             return left.intDiv(right);
         } else {
-            const errorMessage = `incompatible types for operator div: ${left.type}, ${right.type}`;
-            throw new Error(errorMessage);
+            throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
         }
 
     }
 
-    private handleModulo(left: Value, right: Value): Value {
+    private handleModulo(left: Value, right: Value, operator: Token): Value {
         if (left.type == Type.Integer && right.type == Type.Integer) {
             return left.mod(right);
         } else {
-            const errorMessage = `incompatible types for operator %: ${left.type}, ${right.type}`;
-            throw new Error(errorMessage);
+            throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
         }
     }
 
-    private handleAnd(left: ExprTree, right: ExprTree): Value {
+    private handleAnd(left: ExprTree, right: ExprTree, operator: Token): Value {
         left.accept(this);
         const leftValue = this.stack.pop();
         if (!leftValue) {
-            throw new Error("left operand missing");
+            throw new EmptyStackError(tokenToNodeLocation(operator))
         }
         if (leftValue.type != Type.Boolean) {
-            const errorMessage = `incompatible type for operator and: ${leftValue.type}`;
-            throw new Error(errorMessage);
+            throw new UnexpectedTypeError([Type.Boolean], leftValue.type, tokenToNodeLocation(operator))
         }
         if (!leftValue.value) {
             return new PseudoBoolean(false);
@@ -541,24 +589,22 @@ export default class InterpretingVisitor implements Visitor<void> {
         right.accept(this);
         const rightValue = this.stack.pop();
         if (!rightValue) {
-            throw new Error("left operand missing");
+            throw new EmptyStackError(tokenToNodeLocation(operator))
         }
         if (rightValue.type != Type.Boolean) {
-            const errorMessage = `incompatible type for operator and: ${rightValue.type}`;
-            throw new Error(errorMessage);
+            throw new UnexpectedTypeError([Type.Boolean], rightValue.type, tokenToNodeLocation(operator))
         }
         return leftValue.and(rightValue);
     }
 
-    private handleOr(left: ExprTree, right: ExprTree): Value {
+    private handleOr(left: ExprTree, right: ExprTree, operator: Token): Value {
         left.accept(this);
         const leftValue = this.stack.pop();
         if (!leftValue) {
-            throw new Error("left operand missing");
+            throw new EmptyStackError(tokenToNodeLocation(operator))
         }
         if (leftValue.type != Type.Boolean) {
-            const errorMessage = `incompatible type for operator or: ${leftValue.type}`;
-            throw new Error(errorMessage);
+            throw new UnexpectedTypeError([Type.Boolean], leftValue.type, tokenToNodeLocation(operator))
         }
         if (leftValue.value) {
             return new PseudoBoolean(true);
@@ -566,52 +612,47 @@ export default class InterpretingVisitor implements Visitor<void> {
         right.accept(this);
         const rightValue = this.stack.pop();
         if (!rightValue) {
-            throw new Error("left operand missing");
+            throw new EmptyStackError(tokenToNodeLocation(operator))
         }
         if (rightValue.type != Type.Boolean) {
-            const errorMessage = `incompatible type for operator or: ${rightValue.type}`;
-            throw new Error(errorMessage);
+            throw new UnexpectedTypeError([Type.Boolean], rightValue.type, tokenToNodeLocation(operator))
         }
         return leftValue.or(rightValue)
     }
     
-    private handleLess(left: Value, right: Value): Value {
+    private handleLess(left: Value, right: Value, operator: Token): Value {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.less(right);
         } else {
-            const errorMessage = `incompatible types for operator > : ${left.type}, ${right.type}`;
-            throw new Error(errorMessage);
+            throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
         }
     }
 
-    private handleGreater(left: Value, right: Value): Value {
+    private handleGreater(left: Value, right: Value, operator: Token): Value {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.greater(right);
         } else {
-            const errorMessage = `incompatible types for operator > : ${left.type}, ${right.type}`;
-            throw new Error(errorMessage);
+            throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
         }
     }
 
-    private handleLessEqual(left: Value, right: Value): Value {
+    private handleLessEqual(left: Value, right: Value, operator: Token): Value {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.lessEqual(right);
         } else {
-            const errorMessage = `incompatible types for operator <= : ${left.type}, ${right.type}`;
-            throw new Error(errorMessage);
+            throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
         }
     }
 
-    private handleGreaterEqual(left: Value, right: Value): Value {
+    private handleGreaterEqual(left: Value, right: Value, operator: Token): Value {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.greaterEqual(right);
         } else {
-            const errorMessage = `incompatible types for operator >= : ${left.type}, ${right.type}`;
-            throw new Error(errorMessage);
+            throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
         }
     }
 
-    private handleEquals(left: Value, right: Value): Value {
+    private handleEquals(left: Value, right: Value, operator: Token): Value {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.equals(right);
         } else if (left.type == Type.Boolean && right.type == Type.Boolean) {
@@ -623,12 +664,11 @@ export default class InterpretingVisitor implements Visitor<void> {
         } else if (right.type == Type.Nil) {
             return right.equals(left)
         } else {
-            const errorMessage = `incompatible types for operator = : ${left.type}, ${right.type}`;
-            throw new Error(errorMessage);
+            throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
         }
     }
 
-    private handleNotEqual(left: Value, right: Value): Value {
+    private handleNotEqual(left: Value, right: Value, operator: Token): Value {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.notEqual(right);
         } else if (left.type == Type.Boolean && right.type == Type.Boolean) {
@@ -640,28 +680,34 @@ export default class InterpretingVisitor implements Visitor<void> {
         } else if (right.type == Type.Nil) {
             return right.notEquals(left)
         } else {
-            const errorMessage = `incompatible types for operator != : ${left.type}, ${right.type}`;
-            throw new Error(errorMessage);
+            throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
         }
     }
     
-    private handleIndexAccess(left: Value, right: Value): Value {
+    private handleIndexAccess(left: Value, right: Value, operator: Token): Value {
         if ((left.type == Type.Array || left.type == Type.String) && right.type == Type.Integer) {
-            return left.get(Number(right.value))
+            try {
+                return left.get(Number(right.value))
+            } catch (e) {
+                if (e instanceof Error) {
+                    const error = new PseudoRuntimeError(e.message, tokenToNodeLocation(operator))
+                    throw error
+                } else throw e;
+            }
         }
-        const errorMessage = `incompatible types for operator != : ${left.type}, ${right.type}`;
-        throw new Error(errorMessage);
+        throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
     }
 
-    private handleUserFunction(func: FunctionTree, args: ExprTree[]) {
+    private handleUserFunction(func: FunctionTree, args: ExprTree[], location: NodeLocation) {
         if (args.length != func.args.length) {
-            throw new Error(`wrong number of parameters, ${func.name} expects ${func.args.length} paramters, got ${args.length}`)
+            const message = `wrong number of parameters, ${func.name} expects ${func.args.length} paramters, got ${args.length}`
+            throw new PseudoTypeError(message, location)
         }
         const argValues = args.map(arg => {
             arg.accept(this)
             const value = this.stack.pop();
             if (value === undefined) {
-                throw new Error("No value found");
+                throw new EmptyStackError(location);
             }
             return value;
         })
@@ -674,21 +720,32 @@ export default class InterpretingVisitor implements Visitor<void> {
         this.symbolTable = currentScope
     }
 
-    private handleBuiltInFunction(func: BuiltInFunction, args: ExprTree[]) {
+    private handleBuiltInFunction(func: BuiltInFunction, args: ExprTree[], location: NodeLocation) {
         if (args.length != func.argsCount) {
-            throw new Error(`wrong number of parameters, ${func.name} expects ${func.argsCount} paramters, got ${args.length}`)
+            const message = `wrong number of parameters, ${func.name} expects ${func.argsCount} paramters, got ${args.length}`;
+            throw new PseudoTypeError(message, location)
         }
         const argValues = [];
         for (const arg of args) {
             arg.accept(this);
             const argValue = this.stack.pop();
             if (argValue === undefined) {
-                throw new Error("No value found");
+                throw new EmptyStackError(location);
             }
             argValues.push(argValue);
         }
-        const value = func.eval(argValues);
-        this.stack.push(value);
+        try {
+            const value = func.eval(argValues);
+            this.stack.push(value);
+        } catch (e) {
+            if (e instanceof BuiltInTypeError) {
+                throw new PseudoTypeError(e.message, location)
+            } else if (e instanceof InternalError) {
+                throw new LocatedInternalError(e.message, location)
+            } else if (e instanceof Error){
+                throw new PseudoRuntimeError(e.message, location);
+            } else throw e;
+        }
     }
 
     private setVariables(argNames: Token[], args: Value[]) {
