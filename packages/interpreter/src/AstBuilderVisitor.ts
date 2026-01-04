@@ -443,12 +443,11 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
         
         this.visitReturnstat = (ctx: ReturnstatContext): Tree => {
             if (!ctx.expr()) {
-                return new ReturnTree(new UnaryOperationTree(null, new Token()))
+                return new ReturnTree(null)
             }
             const expr = this.visit(ctx.expr());
             const tree = new ReturnTree(expr);
             return tree;
-            //console.log("expr=", expr)
         }
 
         this.visitContinueStat = (ctx: ContinueStatContext): Tree => {
