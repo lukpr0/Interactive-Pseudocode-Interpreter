@@ -1,4 +1,5 @@
-import { ErrorListener, RecognitionException, Recognizer, Token } from "antlr4";
+import { ErrorListener } from "antlr4";
+import type { RecognitionException, Recognizer, Token } from "antlr4";
 import { PseudoSyntaxError } from "./pseudoSyntaxError";
 
 export class PseudoParserErrorListener extends ErrorListener<Token> {
