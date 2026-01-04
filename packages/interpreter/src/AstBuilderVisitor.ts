@@ -21,6 +21,7 @@ import KeyValueTree from './AST/KeyValueTree.js';
 import ReturnTree from './AST/ReturnTree.js';
 import BreakTree from './AST/BreakTree.js';
 import ContinueTree from './AST/ContinueTree.js';
+import { tokenToNodeLocation } from './AST/NodeLocations.js';
 
 export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
 
@@ -395,13 +396,13 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
 
         this.visitIndexAccessor = (ctx: IndexAccessorContext): Tree => {
             const index = this.visit(ctx.expr());
-            const tree = new IndexAccessorTree(index)
+            const tree = new IndexAccessorTree(index, ctx.LBRACK().symbol, tokenToNodeLocation(ctx.LBRACK().symbol))
             return tree;
         }
 
         this.visitDotAccessor = (ctx: DotAccessorContext): Tree => {
             const name = ctx.IDENTIFIER().symbol;
-            const tree = new DotAccessorTree(name);
+            const tree = new DotAccessorTree(name, ctx.DOT().symbol, tokenToNodeLocation(ctx.DOT().symbol));
             return tree;
         }
 
@@ -434,7 +435,7 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
         }
 
         this.visitBreakstat = (ctx: BreakstatContext): Tree => {
-            return new BreakTree();
+            return new BreakTree(ctx.BREAK().symbol);
         }
         
         this.visitReturnStat = (ctx: ReturnStatContext): Tree => {
@@ -443,12 +444,11 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
         
         this.visitReturnstat = (ctx: ReturnstatContext): Tree => {
             if (!ctx.expr()) {
-                return new ReturnTree(new UnaryOperationTree(null, new Token()))
+                return new ReturnTree(null, ctx.RETURN().symbol);
             }
             const expr = this.visit(ctx.expr());
-            const tree = new ReturnTree(expr);
+            const tree = new ReturnTree(expr, ctx.RETURN().symbol);
             return tree;
-            //console.log("expr=", expr)
         }
 
         this.visitContinueStat = (ctx: ContinueStatContext): Tree => {
@@ -456,7 +456,7 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
         }
 
         this.visitContinuestat = (ctx: ContinuestatContext): Tree => {
-            return new ContinueTree()
+            return new ContinueTree(ctx.CONTINUE().symbol);
         }
 
     }
