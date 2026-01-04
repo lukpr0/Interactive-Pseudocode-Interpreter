@@ -2,7 +2,6 @@ import { AstBuilderVisitor, FunctionTree, InterpretingVisitor, Slot, SymbolTable
 import { PseudoRuntimeError } from "@interactive-pseudo/interpreter";
 import { PseudoLexer, PseudoParser } from "@interactive-pseudo/parser";
 import { CharStream, CommonTokenStream } from "antlr4";
-import { RecognitionException, type Recognizer, type Token } from "antlr4";
 import { tokenToErrorInformation } from "./errorLocation";
 import { PseudoSyntaxError } from "./pseudoSyntaxError";
 import { PseudoLexerErrorListener, PseudoParserErrorListener } from "./ErrorHandler";
