@@ -272,6 +272,8 @@ export default class InterpretingVisitor implements Visitor<void> {
             } else if (expr.operator && expr.operator.type == PseudoParser.NOT) {
                 if (fromStack.type == Type.Boolean) {
                     this.stack.push(new PseudoBoolean(!fromStack.value))
+                } else {
+                    throw new UnexpectedTypeError([Type.Boolean], fromStack.type, tokenToNodeLocation(expr.operator))
                 }
             }
         }
