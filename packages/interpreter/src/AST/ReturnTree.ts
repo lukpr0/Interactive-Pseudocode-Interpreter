@@ -3,9 +3,9 @@ import type Tree from "./Tree.js";
 import type Visitor from "./Visitor.js";
 
 export default class ReturnTree implements Tree {
-    value: ExprTree
+    value: ExprTree | null
 
-    constructor(value: ExprTree) {
+    constructor(value: ExprTree | null) {
         this.value = value;
     }
     accept<T>(visitor: Visitor<T>): T {

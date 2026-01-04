@@ -21,6 +21,7 @@ export default class InterpretingVisitor implements Visitor<void> {
     stack: Value[]
 
     returning: boolean;
+    returnsValue: boolean;
     breaking: boolean;
     continuing: boolean;
 
@@ -29,6 +30,7 @@ export default class InterpretingVisitor implements Visitor<void> {
         this.functionTable = functionTable;
         this.stack = []
         this.returning = false;
+        this.returnsValue = false;
         this.breaking = false;
         this.continuing = false;
         this.builtInFunctions = new SymbolTable();
@@ -429,7 +431,11 @@ export default class InterpretingVisitor implements Visitor<void> {
         const user = this.functionTable.getVariable(name);
         if (user !== undefined) {
             this.handleUserFunction(user, expr.args, expr.location);
+            if (!this.returnsValue) {
+                this.stack.push(new PseudoNil())
+            }
             this.returning = false;
+            this.returnsValue = false
             return;
         }
         throw new PseudoTypeError(`${name} is not a function`, expr.location)
@@ -491,7 +497,11 @@ export default class InterpretingVisitor implements Visitor<void> {
     }
 
     visitReturn(expr: ReturnTree): void {
-        const returnValue = expr.value.accept(this)
+        console.log(expr.value)
+        if (expr.value != null) {
+            expr.value.accept(this)
+            this.returnsValue = true;
+        }
         this.returning = true;
     }
 
