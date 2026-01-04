@@ -99,6 +99,7 @@
                 break
             case 'error':
                 displayedError = `${error.name}: ${error.text}`;
+                break;
             case 'other':
                 displayedError = error.error;
                 break

@@ -2,40 +2,20 @@ import { AstBuilderVisitor, FunctionTree, InterpretingVisitor, Slot, SymbolTable
 import { PseudoRuntimeError } from "@interactive-pseudo/interpreter";
 import { PseudoLexer, PseudoParser } from "@interactive-pseudo/parser";
 import { CharStream, CommonTokenStream } from "antlr4";
-import { RecognitionException, type Recognizer, type Token } from "antlr4";
 import { tokenToErrorInformation } from "./errorLocation";
 import { PseudoSyntaxError } from "./pseudoSyntaxError";
+import { PseudoLexerErrorListener, PseudoParserErrorListener } from "./ErrorHandler";
 
 self.onmessage = (event) => {
     const code = event.data;
     const chars = new CharStream(code);
     const lexer = new PseudoLexer(chars);
     lexer.removeErrorListeners()
-    lexer.addErrorListener({
-        syntaxError: function (recognizer: Recognizer<number>, offendingSymbol: number, line: number, column: number, msg: string, e: RecognitionException | undefined): void {
-            const location = {
-                line,
-                column,
-                from: offendingSymbol,
-                to: offendingSymbol
-            }
-            throw new PseudoSyntaxError(`Unknown Token: ${msg} at ${line}:${column}`, location)
-        }
-    })
+    lexer.addErrorListener(new PseudoLexerErrorListener())
     const tokens = new CommonTokenStream(lexer);
     const parser = new PseudoParser(tokens);
     parser.removeErrorListeners()
-    parser.addErrorListener({
-        syntaxError: function (recognizer: Recognizer<Token>, offendingSymbol: Token, line: number, column: number, msg: string, e: RecognitionException | undefined): void {
-            const location = {
-                line,
-                column,
-                from: offendingSymbol.start,
-                to: offendingSymbol.stop
-            }
-            throw new PseudoSyntaxError(`Syntax error: ${msg} at ${line}:${column}`, location)
-        }
-    })
+    parser.addErrorListener(new PseudoParserErrorListener())
     runInterpreter(parser);
 }
 
