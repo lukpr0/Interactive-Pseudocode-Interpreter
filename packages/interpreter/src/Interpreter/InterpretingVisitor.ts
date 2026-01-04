@@ -105,7 +105,7 @@ export default class InterpretingVisitor implements Visitor<void> {
                 throw new VariableError(assign.id.name, tokenToNodeLocation(assign.id.name));
             }
             for (const accessor of assign.id.accessors) {
-                if (accessor instanceof IndexAccessorTree && slot.value.type == Type.Array) {
+                if (accessor instanceof IndexAccessorTree) {
                     accessor.index.accept(this);
                     const index = this.stack.pop()
                     if (index === undefined) {
@@ -113,6 +113,9 @@ export default class InterpretingVisitor implements Visitor<void> {
                     }
                     if (index.type != Type.Integer && index.type != Type.Float) {
                         throw new UnexpectedTypeError([Type.Integer, Type.Float], index.type, assign.location)
+                    }
+                    if (slot.value.type != Type.Array) {
+                        throw new IncompatibleTypesError(slot.value.type, index.type, accessor.token, accessor.location)
                     }
                     const indexAsNum = typeof index.value == "number" ? index.value : Number(index.value)
                     try {
@@ -122,7 +125,10 @@ export default class InterpretingVisitor implements Visitor<void> {
                             throw new PseudoRuntimeError(e.message, assign.location);
                         } else throw e;
                     }
-                } else if (accessor instanceof DotAccessorTree && slot.value.type == Type.Object) {
+                } else if (accessor instanceof DotAccessorTree) {
+                    if (slot.value.type != Type.Object) {
+                        throw new PseudoTypeError(`Member access not possible on type ${typeToString(slot.value.type)}`, accessor.location)
+                    }
                     try {
                         slot = slot.value.get(accessor.name.text);
                     } catch (e) {
