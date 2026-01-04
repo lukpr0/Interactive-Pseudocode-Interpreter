@@ -9,7 +9,7 @@ import { BinaryOperationTree, UnaryOperationTree, FunctionCallTree, FunctionTree
 import { PseudoInteger, PseudoFloat, PseudoBoolean, PseudoArray, PseudoObject, PseudoNil, PseudoString } from "./Types/index.js";
 import { ArrayConstructor, DequeueFunction, LengthFunction, PopFunction, PushFunction, CeilFunction, FloorFunction, PowFunction, SquarerootFunction, PrintFunction, CharFunction, CodepointFunction, MaxFunction, MinFunction } from "./BuiltInFunctions/index.js";
 import { Slot, SymbolTable, Type, Range} from "./index.js"
-import { PseudoTypeError, EmptyStackError, VariableError, UnexpectedTypeError, FeatureNotImplementedError, IncompatibleTypesError, BuiltInTypeError, InternalError, LocatedInternalError, PseudoRuntimeError } from "./Errors/index.js";
+import { PseudoTypeError, EmptyStackError, VariableError, UnexpectedTypeError, FeatureNotImplementedError, IncompatibleTypesError, BuiltInTypeError, InternalError, LocatedInternalError, PseudoRuntimeError, UnexpectedStatementError } from "./Errors/index.js";
 import { typeToString } from "./Type.js";
 import { tokenToNodeLocation } from "../AST/NodeLocations.js";
 import type NodeLocation from "../AST/NodeLocations.js";
@@ -20,7 +20,12 @@ export default class InterpretingVisitor implements Visitor<void> {
     builtInFunctions: SymbolTable<BuiltInFunction>
     stack: Value[]
 
+    canReturn: boolean;
+    canBreak: boolean;
+    canContinue: boolean;
+
     returning: boolean;
+    returnsValue: boolean;
     breaking: boolean;
     continuing: boolean;
 
@@ -28,7 +33,13 @@ export default class InterpretingVisitor implements Visitor<void> {
         this.symbolTable = symbolTable;
         this.functionTable = functionTable;
         this.stack = []
+
+        this.canBreak = false;
+        this.canContinue = false;
+        this.canReturn = false;
+
         this.returning = false;
+        this.returnsValue = false;
         this.breaking = false;
         this.continuing = false;
         this.builtInFunctions = new SymbolTable();
@@ -103,7 +114,7 @@ export default class InterpretingVisitor implements Visitor<void> {
                 throw new VariableError(assign.id.name, tokenToNodeLocation(assign.id.name));
             }
             for (const accessor of assign.id.accessors) {
-                if (accessor instanceof IndexAccessorTree && slot.value.type == Type.Array) {
+                if (accessor instanceof IndexAccessorTree) {
                     accessor.index.accept(this);
                     const index = this.stack.pop()
                     if (index === undefined) {
@@ -111,6 +122,9 @@ export default class InterpretingVisitor implements Visitor<void> {
                     }
                     if (index.type != Type.Integer && index.type != Type.Float) {
                         throw new UnexpectedTypeError([Type.Integer, Type.Float], index.type, assign.location)
+                    }
+                    if (slot.value.type != Type.Array) {
+                        throw new IncompatibleTypesError(slot.value.type, index.type, accessor.token, accessor.location)
                     }
                     const indexAsNum = typeof index.value == "number" ? index.value : Number(index.value)
                     try {
@@ -120,7 +134,10 @@ export default class InterpretingVisitor implements Visitor<void> {
                             throw new PseudoRuntimeError(e.message, assign.location);
                         } else throw e;
                     }
-                } else if (accessor instanceof DotAccessorTree && slot.value.type == Type.Object) {
+                } else if (accessor instanceof DotAccessorTree) {
+                    if (slot.value.type != Type.Object) {
+                        throw new PseudoTypeError(`Member access not possible on type ${typeToString(slot.value.type)}`, accessor.location)
+                    }
                     try {
                         slot = slot.value.get(accessor.name.text);
                     } catch (e) {
@@ -272,6 +289,8 @@ export default class InterpretingVisitor implements Visitor<void> {
             } else if (expr.operator && expr.operator.type == PseudoParser.NOT) {
                 if (fromStack.type == Type.Boolean) {
                     this.stack.push(new PseudoBoolean(!fromStack.value))
+                } else {
+                    throw new UnexpectedTypeError([Type.Boolean], fromStack.type, tokenToNodeLocation(expr.operator))
                 }
             }
         }
@@ -279,8 +298,11 @@ export default class InterpretingVisitor implements Visitor<void> {
     }
     
     visitWhile(expr: WhileTree): void {
+        const prevBreak = this.canBreak;
+        const prevContinue = this.canContinue;
+        this.canBreak = true;
+        this.canContinue = true;
         while(true) {
-        const parent = this.symbolTable;
         this.symbolTable.addChild(new SymbolTable());
             expr.cond.accept(this);
             const fromStack = this.stack.pop();
@@ -304,10 +326,16 @@ export default class InterpretingVisitor implements Visitor<void> {
                 break;
             }
             this.symbolTable.removeChild();
-        } 
+        }
+        this.canBreak = prevBreak;
+        this.canContinue = prevContinue;
     }
 
     visitRepeat(expr: RepeatUntilTree): void {
+        const prevBreak = this.canBreak;
+        const prevContinue = this.canContinue;
+        this.canBreak = true;
+        this.canContinue = true;
         while (true) {
             const parent = this.symbolTable;
             this.symbolTable.addChild(new SymbolTable());
@@ -335,6 +363,8 @@ export default class InterpretingVisitor implements Visitor<void> {
             }
             this.symbolTable.removeChild();
         }
+        this.canBreak = prevBreak;
+        this.canContinue = prevContinue;
     }
 
     visitIf(expr: IfTree): void {
@@ -366,6 +396,10 @@ export default class InterpretingVisitor implements Visitor<void> {
     }
 
     visitFor(expr: ForTree): void {
+        const prevBreak = this.canBreak;
+        const prevContinue = this.canContinue;
+        this.canBreak = true;
+        this.canContinue = true;
         expr.cond.accept(this)
         const iter = this.stack.pop()
         if (iter === undefined) {
@@ -389,6 +423,8 @@ export default class InterpretingVisitor implements Visitor<void> {
             }
             this.symbolTable.removeChild();
         }
+        this.canBreak = prevBreak;
+        this.canContinue = prevContinue;
     }
 
     visitIterator(expr: IteratorTree): void {
@@ -427,7 +463,11 @@ export default class InterpretingVisitor implements Visitor<void> {
         const user = this.functionTable.getVariable(name);
         if (user !== undefined) {
             this.handleUserFunction(user, expr.args, expr.location);
+            if (!this.returnsValue) {
+                this.stack.push(new PseudoNil())
+            }
             this.returning = false;
+            this.returnsValue = false
             return;
         }
         throw new PseudoTypeError(`${name} is not a function`, expr.location)
@@ -485,15 +525,27 @@ export default class InterpretingVisitor implements Visitor<void> {
     }
 
     visitBreak(expr: BreakTree): void {
+        if (!this.canBreak) {
+            throw new UnexpectedStatementError(expr.token, expr.location);
+        }
         this.breaking = true;
     }
 
     visitReturn(expr: ReturnTree): void {
-        const returnValue = expr.value.accept(this)
+        if (!this.canReturn) {
+            throw new UnexpectedStatementError(expr.token, expr.location);
+        }
+        if (expr.value != null) {
+            expr.value.accept(this)
+            this.returnsValue = true;
+        }
         this.returning = true;
     }
 
     visitContinue(expr: ContinueTree): void {
+        if (!this.canContinue) {
+            throw new UnexpectedStatementError(expr.token, expr.location);
+        }
         this.continuing = true;
     }
 
@@ -711,13 +763,18 @@ export default class InterpretingVisitor implements Visitor<void> {
             }
             return value;
         })
+        const prevReturn = this.canReturn;
+        this.canReturn = true;
+
         const currentScope = this.symbolTable
         const funcScope = new SymbolTable<Slot>();
         this.symbolTable = funcScope;
         this.setVariables(func.args, argValues)
+
         func.stats.accept(this)
 
         this.symbolTable = currentScope
+        this.canReturn = prevReturn;
     }
 
     private handleBuiltInFunction(func: BuiltInFunction, args: ExprTree[], location: NodeLocation) {

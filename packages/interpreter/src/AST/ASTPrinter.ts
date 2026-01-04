@@ -160,7 +160,11 @@ export default class ASTPrinter implements Visitor<string> {
     }
 
     visitReturn(expr: ReturnTree): string {
-        return `(return ${expr.value.accept(this)})`;
+        if (expr.value) {
+            return `(return ${expr.value.accept(this)})`;
+        } else {
+            return '(return)';
+        }
     }
 
     visitContinue(expr: ContinueTree): string {
