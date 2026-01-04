@@ -33,7 +33,7 @@
             <textarea readonly>{markup}</textarea>
         </div>
         {#if debug}
-        <span>Versions: Frontend: 1.1.0 Interpreter: 1.1.0 Parser: 1.1.0</span>
+        <span>Versions: Frontend: 1.2.0 Interpreter: 1.2.0 Parser: 1.2.0</span>
         {/if}
     </div>
 </div>
