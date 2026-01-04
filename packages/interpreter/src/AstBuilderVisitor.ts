@@ -21,6 +21,7 @@ import KeyValueTree from './AST/KeyValueTree.js';
 import ReturnTree from './AST/ReturnTree.js';
 import BreakTree from './AST/BreakTree.js';
 import ContinueTree from './AST/ContinueTree.js';
+import { tokenToNodeLocation } from './AST/NodeLocations.js';
 
 export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
 
@@ -395,13 +396,13 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
 
         this.visitIndexAccessor = (ctx: IndexAccessorContext): Tree => {
             const index = this.visit(ctx.expr());
-            const tree = new IndexAccessorTree(index)
+            const tree = new IndexAccessorTree(index, ctx.LBRACK().symbol, tokenToNodeLocation(ctx.LBRACK().symbol))
             return tree;
         }
 
         this.visitDotAccessor = (ctx: DotAccessorContext): Tree => {
             const name = ctx.IDENTIFIER().symbol;
-            const tree = new DotAccessorTree(name);
+            const tree = new DotAccessorTree(name, ctx.DOT().symbol, tokenToNodeLocation(ctx.DOT().symbol));
             return tree;
         }
 
