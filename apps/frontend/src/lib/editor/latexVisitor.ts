@@ -184,7 +184,11 @@ export class LatexVisitor extends MarkupGenerationVisitor {
         return `${expr.key.text.replaceAll('_', '\\_')}: ${expr.value.accept(this)}`
     }
     visitReturn(expr: ReturnTree): string {
-        return `\\State return $${expr.value.accept(this)}$`
+        if (expr.value) {
+            return `\\State return $${expr.value.accept(this)}$`
+        } else {
+            return `\\State return`
+        }
     }
     visitBreak(expr: BreakTree): string {
         return `\\State break`

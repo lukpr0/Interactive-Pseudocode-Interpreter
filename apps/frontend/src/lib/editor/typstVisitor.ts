@@ -220,7 +220,11 @@ export class TypstVisitor extends MarkupGenerationVisitor {
     }
 
     visitReturn(expr: ReturnTree): string {
-        return `Return[$${expr.value.accept(this)}$]`
+        if (expr.value) {
+            return `Return[$${expr.value.accept(this)}$]`
+        } else {
+            return `Return[]`
+        }
     }
 
     visitBreak(expr: BreakTree): string {

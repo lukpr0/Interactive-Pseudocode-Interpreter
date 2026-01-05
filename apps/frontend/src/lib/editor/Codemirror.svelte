@@ -1,3 +1,4 @@
+
 <div id="codemirror-container" bind:this={container}>
 
 </div>
@@ -9,7 +10,7 @@
     import { Compartment, EditorState } from "@codemirror/state";
     import { onMount } from "svelte";
     import { lintGutter, setDiagnostics } from "@codemirror/lint"
-    import type ErrorInformation from "./errorLocation";
+    import type ErrorInformation from "../shared/errorLocation";
 
     let { 
         onchange = () => {},
