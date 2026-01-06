@@ -1,4 +1,6 @@
-<span>Variables</span><input type="checkbox" bind:checked={showVariables}>
+<div>
+    <span>Variables</span><input type="checkbox" bind:checked={showVariables}>
+</div>
 <div id="table-wrapper">
 <table>
     <thead>
