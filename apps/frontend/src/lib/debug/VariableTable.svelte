@@ -1,4 +1,5 @@
 <span>Variables</span><input type="checkbox" bind:checked={showVariables}>
+<div id="table-wrapper">
 <table>
     <thead>
         <tr>
@@ -21,9 +22,18 @@
         {/if}
     </tbody>
 </table>
+</div>
 <script lang="ts">
     import type { Slot } from "@interactive-pseudo/interpreter";
 
     let { variables }: { variables: Map<string, Slot> } = $props();
     let showVariables = $state(true)
 </script>
+
+<style>
+    #table-wrapper {
+        flex: 1;
+        min-height: 0;
+        overflow: auto;
+    }
+</style>
