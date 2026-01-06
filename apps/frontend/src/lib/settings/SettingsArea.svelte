@@ -1,18 +1,23 @@
-<div id="options">
-    <Option name="interpreter-active" bind:checked={shared.interpreterActive}>interpreter-active</Option>
-    <Option name="vim-mode" bind:checked={shared.vimMode}>Enable vim mode</Option>
-    <input type="button" value="terminate" onclick={ terminateInterpreter }>
-    <input type="button" value="share" onclick={share}><input type="text" bind:value={shared.shareLink}>
-    <div>
+<div id="options" class="area border border-radius">
+    <div class="flex-item">
+        <Option name="interpreter-active" bind:checked={shared.interpreterActive}>interpreter-active</Option>
+        <Option name="vim-mode" bind:checked={shared.vimMode}>Enable vim mode</Option>
+        <input type="button" value="terminate" onclick={ terminateInterpreter }>
+        <input type="button" value="share" onclick={share}><input type="text" bind:value={shared.shareLink}>
+    </div>
+    <div class="flex-item">
         <span>generate markup</span>
         <Option name="generate-header" bind:checked={shared.headers}>Generate headers (package imports)?</Option>
         <input type="button" value="typst" onclick={generateTypst}>
         <input type="button" value="latex" onclick={generateLatex}>
         <textarea readonly>{shared.markup}</textarea>
     </div>
-    {#if shared.debug}
-    <span>Versions: Frontend: 1.2.0 Interpreter: 1.2.0 Parser: 1.2.0</span>
-    {/if}
+    <div class="flex-item">
+        <a href="https://github.com/lukpr0/Interactive-Pseudocode-Interpreter">report bugs</a>
+        {#if shared.debug}
+        <span>Versions: Frontend: 1.2.0 Interpreter: 1.2.0 Parser: 1.2.0</span>
+        {/if}
+    </div>
 </div>
 
 <script lang="ts">
@@ -54,5 +59,12 @@
 <style>
     #options {
         grid-column: span 4;
+        grid-row: span 2;
+        display: flex;
+    }
+
+    .flex-item {
+        min-height: 0;
+        flex: 1;
     }
 </style>

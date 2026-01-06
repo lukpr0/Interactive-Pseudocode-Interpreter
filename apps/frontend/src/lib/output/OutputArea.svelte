@@ -1,5 +1,5 @@
 
-<div id="outputs">
+<div id="outputs" class="area border border-radius">
     {#if shared.displayedError}
     <div id="errors">
         { shared.displayedError }

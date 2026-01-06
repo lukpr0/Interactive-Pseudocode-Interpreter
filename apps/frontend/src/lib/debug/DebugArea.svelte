@@ -1,6 +1,6 @@
 
 
-<div id="variable-table">
+<div id="variable-table" class="area border border-radius">
     <VariableTable variables={shared.variables}></VariableTable>
     {#if shared.debug}
     {printAst(shared.code)}
@@ -24,5 +24,10 @@
 <style>
     #variable-table {
         grid-column: span 4;
+        grid-row: span 6;
+        min-height: 0;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
     }
 </style>

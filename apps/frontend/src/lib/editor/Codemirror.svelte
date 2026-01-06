@@ -1,5 +1,5 @@
 
-<div id="codemirror-container" bind:this={container}>
+<div id="codemirror-container" bind:this={container} class="flex-item">
 
 </div>
 <script lang="ts">
@@ -12,7 +12,7 @@
     import { lintGutter, setDiagnostics } from "@codemirror/lint"
     import type ErrorInformation from "../shared/errorLocation";
 
-    let { 
+    let {
         onchange = () => {},
         value = $bindable(''),
         vimMode = $bindable(false),
@@ -70,3 +70,15 @@
     )
 
 </script>
+
+<style>
+    :global {
+        /*.cm-gutters, .cm-content {
+            min-height: 300px !important;
+        }*/
+        .cm-editor.cm-focused {
+            outline: none
+        }
+    }
+
+</style>
