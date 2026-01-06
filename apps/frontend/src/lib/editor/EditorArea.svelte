@@ -8,17 +8,20 @@
 {/snippet}
 
 {#snippet typst()}
-    Hello typst
+    <MarkupArea generator={(headers) => {return new TypstVisitor('  ', headers)}} />
 {/snippet}
 
 {#snippet latex()}
-    Hello LaTeX
+    <MarkupArea generator={(headers) => {return new LatexVisitor(headers)}} />
 {/snippet}
 
 <script lang="ts">
     import Codemirror from "./Codemirror.svelte";
     import { shared } from "$lib/shared/state.svelte";
     import TabGroup from "./TabGroup.svelte";
+    import MarkupArea from "./MarkupArea.svelte";
+    import { TypstVisitor } from "./typstVisitor";
+    import { LatexVisitor } from "./latexVisitor";
 
     let { changeCode } = $props();
 

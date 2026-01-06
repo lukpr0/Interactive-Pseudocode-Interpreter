@@ -5,10 +5,11 @@
     </button>
 {/each}
 </div>
-<div id="tab-content" class="flex flex-column border flex-item">
-    {@render items[active].component()}
+{#each items as item}
+<div id="tab-content" class="tab-content flex-column border flex-item" style:display={active == item.id ? 'flex' : 'none'}>
+    {@render item.component()}
 </div>
-
+{/each}
 
 <script lang="ts">
     import type { Snippet } from "svelte";
@@ -42,7 +43,7 @@
         padding: 7px 15px 3px;
     }
     
-    #tab-content {
+    .tab-content {
         overflow: auto;
     }
 

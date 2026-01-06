@@ -6,13 +6,6 @@
         <input type="button" value="share" onclick={share}><input type="text" bind:value={shared.shareLink}>
     </div>
     <div class="flex-item">
-        <span>generate markup</span>
-        <Option name="generate-header" bind:checked={shared.headers}>Generate headers (package imports)?</Option>
-        <input type="button" value="typst" onclick={generateTypst}>
-        <input type="button" value="latex" onclick={generateLatex}>
-        <textarea readonly>{shared.markup}</textarea>
-    </div>
-    <div class="flex-item">
         <a href="https://github.com/lukpr0/Interactive-Pseudocode-Interpreter">report bugs</a>
         {#if shared.debug}
         <span>Versions: Frontend: 1.2.0 Interpreter: 1.2.0 Parser: 1.2.0</span>
