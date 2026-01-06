@@ -3,7 +3,7 @@
 
 </div>
 <script lang="ts">
-    import { keymap } from "@codemirror/view";
+    import { highlightWhitespace, keymap } from "@codemirror/view";
     import { basicSetup, EditorView } from "codemirror";
     import { indentWithTab } from "@codemirror/commands";
     import { vim } from "@replit/codemirror-vim";
@@ -11,6 +11,8 @@
     import { onMount } from "svelte";
     import { lintGutter, setDiagnostics } from "@codemirror/lint"
     import type ErrorInformation from "../shared/errorLocation";
+    import { shared } from "$lib/shared/state.svelte";
+    import EditorArea from "./EditorArea.svelte";
 
     let {
         onchange = () => {},
@@ -28,12 +30,48 @@
     const vimCompartment = new Compartment()
     const vimPlugin = vimCompartment.of([])
 
+    const baseTheme = EditorView.theme({
+        "&": {
+            color: "var(--text)",
+            backgroundColor: "var(--bg)"
+        },
+        ".cm-content": {
+            caretColor: "var(--text-mute)"
+        },
+        "&.cm-focused .cm-cursor": {
+            borderLeftColor: "var(--text-mute)"
+        },
+        "&.cm-focused .cm-selectionBackground, ::selection": {
+            backgroundColor: "var(--primary)"
+        },
+        ".cm-gutters": {
+            backgroundColor: "var(--bg-light)",
+            color: "var(--text-mute)",
+            border: "none"
+        },
+        ".cm-highlightSpace": {
+            backgroundImage: "radial-gradient(circle at 50% 55%, var(--highlight) 20%, transparent 5%)"
+        }
+    })
+
+    const darkTheme = EditorView.theme({
+    }, {dark: true})
+    
+    const lightTheme = EditorView.theme({
+    }, {dark: false})
+    
+    const themeCompartment = new Compartment()
+    const themePlugin = themeCompartment.of([])
+
     const state = EditorState.create({
         doc: value,
         extensions: [
             basicSetup,
             vimPlugin,
+            baseTheme,
+            themePlugin,
             lintGutter(),
+            highlightWhitespace(),
             EditorView.updateListener.of(v => {
                 if (v.docChanged) {
                     value = v.state.doc.toString()
@@ -54,6 +92,12 @@
     $effect(
         () => view.dispatch({
             effects: [vimCompartment.reconfigure(vimMode ? vim() : [])]
+        })
+    )
+
+    $effect(
+        () => view.dispatch({
+            effects: [themeCompartment.reconfigure(shared.darkMode ? darkTheme : lightTheme)]
         })
     )
     
@@ -77,7 +121,14 @@
             min-height: 300px !important;
         }*/
         .cm-editor.cm-focused {
-            outline: none
+            outline: none;
+        }
+        .cm-gutters {
+            background-color: var(--bg-light);
+        }
+
+        .cm-focused .cm-selection-Background ::selection {
+            background-color: rgb(255, 101, 217) !important;
         }
     }
 

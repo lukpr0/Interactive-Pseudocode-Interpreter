@@ -31,9 +31,6 @@
 
 <style>
 
-    .active {
-        background-color: rgb(202, 202, 202);
-    }
 
     .tab {
         font-size: 1rem;
@@ -41,6 +38,11 @@
         border: 0;
         margin-right: 5px;
         padding: 7px 15px 3px;
+        background-color: var(--secondary);
+    }
+    
+    .active {
+        background-color: var(--primary);
     }
     
     .tab-content {

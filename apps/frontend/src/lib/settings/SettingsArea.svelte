@@ -2,11 +2,14 @@
     <div class="flex-item">
         <Option name="interpreter-active" bind:checked={shared.interpreterActive}>interpreter-active</Option>
         <Option name="vim-mode" bind:checked={shared.vimMode}>Enable vim mode</Option>
+        <Option name="dark-mode" bind:checked={shared.darkMode}>Dark mode</Option>
         <input type="button" value="terminate" onclick={ terminateInterpreter }>
-        <input type="button" value="share" onclick={share}><input type="text" bind:value={shared.shareLink}>
+        <div class="flex">
+            <input type="button" value="share" onclick={share}><input type="text" bind:value={shared.shareLink}>
+        </div>
     </div>
     <div class="flex-item">
-        <a href="https://github.com/lukpr0/Interactive-Pseudocode-Interpreter">report bugs</a>
+        <span><a href="https://github.com/lukpr0/Interactive-Pseudocode-Interpreter">report bugs</a></span>
         {#if shared.debug}
         <span>Versions: Frontend: 1.2.0 Interpreter: 1.2.0 Parser: 1.2.0</span>
         {/if}
@@ -15,26 +18,11 @@
 
 <script lang="ts">
     import { page } from "$app/state";
-    import { LatexVisitor } from "$lib/editor/latexVisitor";
-    import { TypstVisitor } from "$lib/editor/typstVisitor";
     import Option from "$lib/shared/Option.svelte";
     import { shared } from "$lib/shared/state.svelte";
     import { Codeli } from "./codeli";
-    import { parserChain } from "$lib/shared/ParserChain";
 
     let { terminateInterpreter } = $props()
-    
-    function generateLatex(_: Event) {
-        const ast = parserChain(shared.code)
-        const latexBuilder = new LatexVisitor(shared.headers)
-        shared.markup = ast.accept(latexBuilder)
-    }
-
-    function generateTypst(_: Event) {
-        const ast = parserChain(shared.code);
-        const latexBuilder = new TypstVisitor('  ', shared.headers);
-        shared.markup = ast.accept(latexBuilder);
-    }
 
     function share(_: Event) {
         const url = new URL(page.url.href.replace(page.url.search, ''))
@@ -56,8 +44,16 @@
         display: flex;
     }
 
-    .flex-item {
-        min-height: 0;
-        flex: 1;
+    .flex-item * {
+        margin-bottom: 5px;
     }
+
+    span a {
+        color: var(--secondary);
+        text-decoration: none;
+        &:visited {
+            color: var(--primary);
+        }
+    }
+
 </style>
