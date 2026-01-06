@@ -1,6 +1,6 @@
 <div id="" class="flex flex-item flex-column">
 <Option name="generate-header" bind:checked={checked}>Generate imports?</Option>
-<textarea class="flex-item" readonly>
+<textarea class="flex-item" readonly style:resize="none">
 {generateMarkup()}
 </textarea>
 </div>
