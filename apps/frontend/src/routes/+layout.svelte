@@ -1,6 +1,15 @@
 <script lang="ts">
     import favicon from '$lib/assets/favicon.svg';
+    import { shared } from '$lib/shared/state.svelte';
+    import '$lib/shared/main.css'
     let { children } = $props();
+    $effect(() => {
+        if (shared.darkMode) {
+            document.body.classList.add('darkmode')
+        } else {
+            document.body.classList.remove('darkmode')
+        }
+    })
 </script>
 
 <svelte:head>
@@ -12,37 +21,5 @@
 {@render children()}
 
 <style>
-    :global {
-
-        .area {
-            padding: 15px;
-            margin: 1em;
-        }
-
-        .border {
-            border: 1px solid gray;
-        }
-
-        .border-radius {
-            border-radius: 5px;
-        }
-
-        .flex {
-            display: flex;
-        }
-
-        .flex-column {
-            flex-direction: column;
-        }
-
-        .flex-row {
-            flex-direction: row;
-        }
-
-        .flex-item {
-            flex: 1;
-        }
-
-    }
 
 </style>

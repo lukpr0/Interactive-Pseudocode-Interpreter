@@ -12,7 +12,8 @@ export const shared: {
     variables: Map<string, Slot>,
     headers: boolean,
     markup: string,
-    logs: string[]
+    logs: string[],
+    darkMode: boolean,
 
 } = $state({
     code: "",
@@ -25,5 +26,6 @@ export const shared: {
     variables: new Map<string, Slot>(),
     headers: true,
     markup: "",
-    logs: []
+    logs: [],
+    darkMode: false
 })
