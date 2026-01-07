@@ -15,6 +15,10 @@
     <MarkupArea generator={(headers) => {return new LatexVisitor(headers)}} />
 {/snippet}
 
+{#snippet guide()}
+    <GuideArea />
+{/snippet}
+
 <script lang="ts">
     import Codemirror from "./Codemirror.svelte";
     import { shared } from "$lib/shared/state.svelte";
@@ -22,6 +26,7 @@
     import MarkupArea from "./MarkupArea.svelte";
     import { TypstVisitor } from "./typstVisitor";
     import { LatexVisitor } from "./latexVisitor";
+    import GuideArea from "./GuideArea.svelte";
 
     let { changeCode } = $props();
 
@@ -40,6 +45,11 @@
             id : 2,
             label: 'latex',
             component: latex
+        },
+        {
+            id : 3,
+            label: 'guide',
+            component: guide 
         },
     ]
 
