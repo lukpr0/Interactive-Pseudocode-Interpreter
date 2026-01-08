@@ -52,37 +52,37 @@
         <p>If statements can be made like this</p>
         <code>
             if condition then<br>
-                ...<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;...<br>
             end
         </code>
         <p>An alternative path can be given with an else</p>
         <code>
             if condition then<br>
-                ...<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;...<br>
             else<br>
-                ...<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;...<br>
             end
         </code>
         <p>An else can also be followed by another if</p>
         <code>
             if condition then<br>
-                ...<br>
-            else if other condition then<br>
-                ...<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;...<br>
+            else if otherCondition then<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;...<br>
             else<br>
-                ...<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;...<br>
             end
         </code>
         <p>There are while loops.</p>
         <code>
             while condition do<br>
-                ...<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;...<br>
             end
         </code>
         <p>There are repeat until loops, they stop, when condition turns true</p>
         <code>
             repeat<br>
-                ...<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;...<br>
             until condition
         </code>
         <p>
@@ -92,7 +92,7 @@
         </p>
         <code>
             for i in 0 .. 10 do<br>
-                ...<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;...<br>
             end
         </code>
             <p>
@@ -100,7 +100,7 @@
             </p>
         <code>
             for i in 0 ..= 10 do<br>
-                ...
+            &nbsp;&nbsp;&nbsp;&nbsp;...<br>
             end
         </code>
         <p>
@@ -110,10 +110,11 @@
         </p>
         <code>
             while true do<br>
-                break<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;break<br>
             end<br>
+            <br>
             while true do<br>
-                continue<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;continue<br>
             end
         </code>
 
@@ -123,7 +124,7 @@
         </p>
         <code>
             function myFunction(a, b)<br>
-                ...<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;...<br>
             end<br>
         </code>
         <p>
@@ -131,7 +132,7 @@
         </p>
         <code>
             function myFunction(a, b)<br>
-                return a + b<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;return a + b<br>
             end<br>
         </code>
         <p>
@@ -139,8 +140,10 @@
         </p>
         <code>
             function myFunction(a, b)<br>
-                return<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;return<br>
             end
+
+            x := myFunction(1, 2) // x = nil
         </code>
         <p>
             If no value is returned, a function will evaluate to nil
@@ -148,9 +151,83 @@
         <h2>Built in functions</h2>
             <p>There a some built in functions</p>
             <h3>Math</h3>
+                <p>floor</p>
+                <code>
+                    floor(x)
+                </code>
+                <p>computes the biggest integer number smaller than the input number</p>
+                <p>ceil</p>
+                <code>
+                    ceil(x)
+                </code>
+                <p>computes the smallest integer number bigger than the input number</p>
+                <p>max</p>
+                <code>
+                    max(x, y)
+                </code>
+                <p>returns the bigger of the two numbers x and x</p>
+                <p>min</p>
+                <code>
+                    min(x, y)
+                </code>
+                <p>returns the smaller of the two numbers x and x</p>
+                <h4>sqrt</h4>
+                <code>
+                    sqrt(x)
+                </code>
+                <p>computes the square-root of x</p>
+                <h4>pow</h4>
+                <code>
+                    pow(b, e)
+                </code>
+                <p>computes b exponentiated with e (b<sup>e</sup>)</p>
             <h3>Array</h3>
+                <h4>Array-constructor</h4>
+                <code>
+                    Array(n, e)
+                </code>
+                <p>
+                    Creates an array of length n populated with e.<br>
+                    Note: Arrays and Objects are reference-types and thus will be all the same.
+                </p>
+                <h4>len</h4>
+                <code>
+                    len(a)
+                </code>
+                <p>Returns the length of an array or string.</p>
+                <h4>push</h4>
+                <code>
+                    push(a, e)
+                </code>
+                <p>Adds an element e to the end of the array a</p>
+                <h4>pop</h4>
+                <code>
+                    pop(a)
+                </code>
+                <p>Removes the last element of array a and returns it.</p>
+                <h4>dequeue</h4>
+                <code>
+                    dequeue(a)
+                </code>
+                <p>Removes the first element of array a and returns it.</p>
             <h3>String</h3>
+                <h4>codepoint</h4>
+                <code>
+                    codepoint(s)
+                </code>
+                <p>Returns the Unicode-Codepoint of the first character of the given string s</p>
+                <h4>char</h4>
+                <code>
+                    char(c)
+                </code>
+                <p>Returns the character encoded by a given Unicode-Codepoint c</p>
             <h3>Print</h3>
+                <code>
+                    print(x)
+                </code>
+                <p>
+                    Outputs the given argument x
+                </p>
 </div>
 
 <style>
