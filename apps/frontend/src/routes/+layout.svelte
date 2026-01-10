@@ -10,6 +10,11 @@
             document.body.classList.remove('darkmode')
         }
     })
+    if (window.matchMedia) {
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            shared.darkMode = true;
+        }
+    }
 </script>
 
 <svelte:head>
