@@ -1,6 +1,6 @@
 <div id="options" class="area border border-radius">
     <div class="flex-item">
-        <Option name="interpreter-active" bind:checked={shared.interpreterActive}>interpreter-active</Option>
+        <Option name="interpreter-active" bind:checked={shared.interpreterActive}>activate interpreter</Option>
         <Option name="vim-mode" bind:checked={shared.vimMode}>Enable vim mode</Option>
         <Option name="dark-mode" bind:checked={shared.darkMode}>Dark mode</Option>
         <input type="button" value="terminate" onclick={ terminateInterpreter }>
