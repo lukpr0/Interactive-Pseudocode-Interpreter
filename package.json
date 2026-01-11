@@ -13,11 +13,11 @@
     "packages/*",
     "apps/*"
   ],
-  "dependencies": {
-  },
   "type": "module",
   "devDependencies": {
     "@types/node": "^24.8.1",
+    "turbo": "^2.7.3",
     "typescript": "^5.9.3"
-  }
+  },
+  "packageManager": "npm@11.6.2"
 }

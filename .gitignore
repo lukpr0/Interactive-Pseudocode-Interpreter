@@ -7,3 +7,4 @@ src/generated/*
 antlr-*.jar
 **/*.tsbuildinfo
 .vscode
+.turbo
