@@ -1,5 +1,5 @@
 <script lang="ts">
-    import favicon from '$lib/assets/favicon.svg';
+    import favicon from '$lib/assets/favicon.png';
     import { shared } from '$lib/shared/state.svelte';
     import '$lib/shared/main.css'
     let { children } = $props();
