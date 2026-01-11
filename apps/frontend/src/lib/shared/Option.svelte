@@ -4,11 +4,17 @@
     <label for={name}>{@render children()}</label>
 </div>
 
-<script>
+<script lang="ts">
+    import type { Snippet } from "svelte";
+
     let {
         children,
         name = "",
         checked = $bindable(false)
+    }: {
+        children: Snippet,
+        name: string,
+        checked: boolean
     } = $props()
 </script>
 
