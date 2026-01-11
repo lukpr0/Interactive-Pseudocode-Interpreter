@@ -5,7 +5,7 @@
   "main": "packages/interpreter/dist/index.js",
   "scripts": {
     "test": "turbo run test --parallel",
-    "build": "turbo run build --parallel",
+    "build": "turbo run build",
     "lint": "turbo run lint --parallel",
     "cli": "npm run app -w apps/cli"
   },
