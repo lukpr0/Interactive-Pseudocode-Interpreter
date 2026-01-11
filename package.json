@@ -6,6 +6,7 @@
   "scripts": {
     "test": "turbo run test --parallel",
     "build": "turbo run build --parallel",
+    "lint": "turbo run lint --parallel",
     "cli": "npm run app -w apps/cli"
   },
   "author": "Lukas Huber",
@@ -16,11 +17,15 @@
   ],
   "type": "module",
   "devDependencies": {
+    "@eslint/js": "^9.39.2",
     "@types/node": "^24.8.1",
     "@vitest/coverage-v8": "^4.0.16",
     "@vitest/ui": "^4.0.16",
+    "eslint": "^9.39.2",
+    "globals": "^17.0.0",
     "turbo": "^2.7.3",
     "typescript": "^5.9.3",
+    "typescript-eslint": "^8.52.0",
     "vitest": "^4.0.16"
   },
   "packageManager": "npm@11.6.2"

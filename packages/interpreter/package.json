@@ -9,7 +9,8 @@
   "scripts": {
     "test": "vitest run",
 		"check-types": "tsc --noEmit",
-    "build": "tsc"
+    "build": "tsc",
+    "lint": "eslint . --ext .ts"
   },
   "dependencies": {
     "@interactive-pseudo/parser": "*",
