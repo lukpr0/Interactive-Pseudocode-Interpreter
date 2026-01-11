@@ -11,7 +11,7 @@
     "build": "npx tsc -b"
   },
   "dependencies": {
-    "@interactive-pseudo/parser": "^1.2.0",
+    "@interactive-pseudo/parser": "*",
     "antlr4": "^4.13.2"
   },
   "devDependencies": {
