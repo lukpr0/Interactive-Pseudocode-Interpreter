@@ -12,7 +12,6 @@
     import { lintGutter, setDiagnostics } from "@codemirror/lint"
     import type ErrorInformation from "../shared/errorLocation";
     import { shared } from "$lib/shared/state.svelte";
-    import EditorArea from "./EditorArea.svelte";
 
     let {
         onchange = () => {},
