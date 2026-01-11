@@ -4,7 +4,8 @@
   "description": "",
   "main": "packages/interpreter/dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "turbo run test --parallel",
+    "build": "turbo run build --parallel",
     "cli": "npm run app -w apps/cli"
   },
   "author": "Lukas Huber",
@@ -16,8 +17,11 @@
   "type": "module",
   "devDependencies": {
     "@types/node": "^24.8.1",
+    "@vitest/coverage-v8": "^4.0.16",
+    "@vitest/ui": "^4.0.16",
     "turbo": "^2.7.3",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.16"
   },
   "packageManager": "npm@11.6.2"
 }
