@@ -11,7 +11,7 @@
     <div class="flex-item">
         <span><a href="https://github.com/lukpr0/Interactive-Pseudocode-Interpreter">report bugs</a></span>
         {#if shared.debug}
-        <span>Versions: Frontend: 1.2.0 Interpreter: 1.2.0 Parser: 1.2.0</span>
+        <span>Versions: Frontend: 1.3.0 Interpreter: 1.2.0 Parser: 1.2.0</span>
         {/if}
     </div>
 </div>
