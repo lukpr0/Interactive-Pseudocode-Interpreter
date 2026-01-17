@@ -37,6 +37,7 @@ expr
     | IDENTIFIER                        # IdLiteral
     | arrayexpr                         # ArrayExpr
     | objectexpr                        # ObjectExpr
+    | setexpr                           # SetExpr
     | expr '[' expr ']'                 # IndexAccess
     | expr '.' IDENTIFIER               # DotAccess
     | 'not' expr                        # Negation
@@ -66,6 +67,10 @@ arrayexpr
 
 objectexpr
     : '{' NEWLINE* (keyvaluepair NEWLINE* (',' NEWLINE* keyvaluepair NEWLINE*)* ','? NEWLINE* )? '}'
+    ;
+
+setexpr
+    : '{' NEWLINE* (expr NEWLINE* (',' NEWLINE* expr NEWLINE*)* ','? NEWLINE* )? '}'
     ;
 
 keyvaluepair

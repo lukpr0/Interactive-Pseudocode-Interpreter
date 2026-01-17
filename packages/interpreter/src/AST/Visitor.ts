@@ -18,6 +18,7 @@ import type KeyValueTree from "./KeyValueTree.js";
 import type ReturnTree from "./ReturnTree.js";
 import type BreakTree from "./BreakTree.js";
 import type ContinueTree from "./ContinueTree.js";
+import type SetTree from "./SetTree.js";
 
 export default interface Visitor<T> {
     visitProgram(program: ProgramTree): T;
@@ -35,6 +36,7 @@ export default interface Visitor<T> {
     visitFunction(expr: FunctionTree): T;
     visitFunctionCall(expr: FunctionCallTree): T;
     visitArray(expr: ArrayTree): T;
+    visitSet(expr: SetTree): T;
     visitFullId(expr: FullIdTree): T;
     visitIndex(expr: IndexAccessorTree): T;
     visitDotName(expr: DotAccessorTree): T;

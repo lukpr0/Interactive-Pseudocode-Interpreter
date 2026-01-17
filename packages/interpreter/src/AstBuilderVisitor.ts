@@ -1,5 +1,5 @@
 import type { Token } from 'antlr4';
-import { AdditiveContext, AlgorithmContext, ArrayexprContext, ArrayExprContext, AssignStatContext, AssignstatContext, BoolLiteralContext, BreakstatContext, BreakStatContext, ComparisonContext, ContinuestatContext, ContinueStatContext, DotAccessContext, DotAccessorContext, ExprContext, ExprStatContext, FloatLiteralContext, ForstatContext, ForStatContext, FullidContext, FunccallContext, FuncCallContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IndexAccessContext, IndexAccessorContext, IntLiteralContext, IteratorContext, KeyvaluepairContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, NilLiteralContext, ObjectexprContext, ObjectExprContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RepeatStatContext, RepeatstatContext, ReturnStatContext, ReturnstatContext, StatContext, StatlistContext, StringLiteralContext, UnaryMinusContext, WhileStatContext, WhilestatContext } from '@interactive-pseudo/parser';
+import { AdditiveContext, AlgorithmContext, ArrayexprContext, ArrayExprContext, AssignStatContext, AssignstatContext, BoolLiteralContext, BreakstatContext, BreakStatContext, ComparisonContext, ContinuestatContext, ContinueStatContext, DotAccessContext, DotAccessorContext, ExprContext, ExprStatContext, FloatLiteralContext, ForstatContext, ForStatContext, FullidContext, FunccallContext, FuncCallContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IndexAccessContext, IndexAccessorContext, IntLiteralContext, IteratorContext, KeyvaluepairContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, NilLiteralContext, ObjectexprContext, ObjectExprContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RepeatStatContext, RepeatstatContext, ReturnStatContext, ReturnstatContext, SetexprContext, SetExprContext, StatContext, StatlistContext, StringLiteralContext, UnaryMinusContext, WhileStatContext, WhilestatContext } from '@interactive-pseudo/parser';
 import type Tree from './AST/Tree.js';
 import ProgramTree from './AST/ProgramTree.js';
 import AssignTree from './AST/AssignTree.js';
@@ -457,6 +457,21 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
 
         this.visitContinuestat = (ctx: ContinuestatContext): Tree => {
             return new ContinueTree(ctx.CONTINUE().symbol);
+        }
+
+        this.visitSetExpr = (ctx: SetExprContext): Tree => {
+            return ctx.setexpr().accept(this);
+        }
+
+        this.visitSetexpr = (ctx: SetexprContext): Tree => {
+            const elements = [] 
+            const token = ctx.LCURLY().symbol;
+            for (const element of ctx.expr_list()) {
+                const exprTree = this.visit(element);
+                elements.push(exprTree);
+            }
+            const arrayTree = new ArrayTree(elements, token);
+            return arrayTree;
         }
 
     }
