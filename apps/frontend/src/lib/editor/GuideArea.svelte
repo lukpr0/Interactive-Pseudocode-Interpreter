@@ -18,7 +18,7 @@
                 123 // Integer <br>
                 3.14 // Float
             </code>
-            <p>Addition, subtraction, multiplication and division are availalbe with the operators +, -, * and /</p>
+            <p>Addition, subtraction, multiplication and division are available with the operators +, -, * and /</p>
             <code>
                 x := 2 * (9-7)<br>
                 y := 1 + (4+6)/5

@@ -20,7 +20,7 @@ export class FloorFunction extends BuiltInFunction {
 
 export class CeilFunction extends BuiltInFunction {
     constructor() {
-        super(1, 'floor')
+        super(1, 'ceil')
     }
 
     eval(args: Value[]): Value {
@@ -89,7 +89,7 @@ export class MaxFunction extends BuiltInFunction {
 
 export class MinFunction extends BuiltInFunction {
     constructor() {
-        super(2, 'max')
+        super(2, 'min')
     }
 
     eval(args: Value[]): Value {

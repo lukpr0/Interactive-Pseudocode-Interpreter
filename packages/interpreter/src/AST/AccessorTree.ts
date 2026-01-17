@@ -1,4 +1,4 @@
-import { CommonToken, Token } from "antlr4";
+import type { Token } from "antlr4";
 import type { ExprTree } from "./ExprTree.js";
 import type Tree from "./Tree.js";
 import type Visitor from "./Visitor.js";
