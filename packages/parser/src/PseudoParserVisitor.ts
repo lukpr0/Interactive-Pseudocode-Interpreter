@@ -29,6 +29,7 @@ import { AdditiveContext } from "./PseudoParser.js";
 import { StringLiteralContext } from "./PseudoParser.js";
 import { BoolLiteralContext } from "./PseudoParser.js";
 import { ObjectExprContext } from "./PseudoParser.js";
+import { SetExprContext } from "./PseudoParser.js";
 import { ComparisonContext } from "./PseudoParser.js";
 import { NilLiteralContext } from "./PseudoParser.js";
 import { LogicalAndContext } from "./PseudoParser.js";
@@ -39,6 +40,7 @@ import { ContinuestatContext } from "./PseudoParser.js";
 import { ReturnstatContext } from "./PseudoParser.js";
 import { ArrayexprContext } from "./PseudoParser.js";
 import { ObjectexprContext } from "./PseudoParser.js";
+import { SetexprContext } from "./PseudoParser.js";
 import { KeyvaluepairContext } from "./PseudoParser.js";
 import { FullidContext } from "./PseudoParser.js";
 import { IndexAccessorContext } from "./PseudoParser.js";
@@ -244,6 +246,13 @@ export default class PseudoParserVisitor<Result> extends ParseTreeVisitor<Result
 	 */
 	visitObjectExpr?: (ctx: ObjectExprContext) => Result;
 	/**
+	 * Visit a parse tree produced by the `SetExpr`
+	 * labeled alternative in `PseudoParser.expr`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitSetExpr?: (ctx: SetExprContext) => Result;
+	/**
 	 * Visit a parse tree produced by the `Comparison`
 	 * labeled alternative in `PseudoParser.expr`.
 	 * @param ctx the parse tree
@@ -308,6 +317,12 @@ export default class PseudoParserVisitor<Result> extends ParseTreeVisitor<Result
 	 * @return the visitor result
 	 */
 	visitObjectexpr?: (ctx: ObjectexprContext) => Result;
+	/**
+	 * Visit a parse tree produced by `PseudoParser.setexpr`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitSetexpr?: (ctx: SetexprContext) => Result;
 	/**
 	 * Visit a parse tree produced by `PseudoParser.keyvaluepair`.
 	 * @param ctx the parse tree
