@@ -76,7 +76,7 @@ export default class PseudoArray {
     }
 
     asKey(): string {
-        throw new Error("Method not implemented.")
+        return `[${this.value.map(v => v.value.asKey()).join(',')}]`
     }
 
 }
