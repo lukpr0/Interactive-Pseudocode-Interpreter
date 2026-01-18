@@ -1,53 +1,39 @@
 import { describe } from "node:test";
-import { PseudoFloat, PseudoInteger } from "../dist/Interpreter/Types";
 import { test, expect } from "vitest";
+import { type Value, PseudoInteger, PseudoFloat, PseudoBoolean, PseudoString, PseudoNil, PseudoArray } from "../src";
+
+
+function testKeyEquality(name: string, a: Value, b: Value) {
+    test(name, () => {
+        const aKey = a.asKey();
+        const bKey = b.asKey();
+        expect(aKey).toEqual(bKey);
+    })
+}
+
+function testKeyInequality(name: string, a: Value, b: Value) {
+    test(name, () => {
+        const aKey = a.asKey();
+        const bKey = b.asKey();
+        expect(aKey).not.toEqual(bKey);
+    })
+}
 
 describe('Test equality of keys', () => {
-    test('Test Integer equality', () => {
-        const a = new PseudoInteger(1n);
-        const b = new PseudoInteger(1n);
-        const aKey = a.asKey();
-        const bKey = b.asKey();
-        expect(aKey).toEqual(bKey)
-    });
+    const oneIntA = new PseudoInteger(1n);
+    const oneIntB = new PseudoInteger(1n);
+    const negOneIntA = new PseudoInteger(-1n);
+    const negOneIntB = new PseudoInteger(-1n);
+    const zeroIntA = new PseudoInteger(0n);
+    const zeroIntB = new PseudoInteger(0n);
+    const oneFloatA = new PseudoFloat(1);
+    const negOneFloatA = new PseudoFloat(-1);
+    const zeroFloatA = new PseudoFloat(0);
+    testKeyEquality('Test Integer equality', oneIntA, oneIntB);
     
-    test('Test Integer equality (negative)', () => {
-        const a = new PseudoInteger(-1n);
-        const b = new PseudoInteger(-1n);
-        const aKey = a.asKey();
-        const bKey = b.asKey();
-        expect(aKey).toEqual(bKey)
-    });
-    
-    test('Test Integer equality (zero)', () => {
-        const a = new PseudoInteger(0n);
-        const b = new PseudoInteger(0n);
-        const aKey = a.asKey();
-        const bKey = b.asKey();
-        expect(aKey).toEqual(bKey)
-    });
-    
-    test('Test Integer-Float inequality', () => {
-        const a = new PseudoInteger(1n);
-        const b = new PseudoFloat(1);
-        const aKey = a.asKey();
-        const bKey = b.asKey();
-        expect(aKey).not.toEqual(bKey)
-    });
-    
-    test('Test Integer-Float inequality (negative)', () => {
-        const a = new PseudoInteger(-1n);
-        const b = new PseudoFloat(-1);
-        const aKey = a.asKey();
-        const bKey = b.asKey();
-        expect(aKey).not.toEqual(bKey)
-    });
-    
-    test('Test Integer-Float inequality (zero)', () => {
-        const a = new PseudoInteger(0n);
-        const b = new PseudoFloat(0);
-        const aKey = a.asKey();
-        const bKey = b.asKey();
-        expect(aKey).not.toEqual(bKey)
-    });
+    testKeyEquality('Test Integer equality (negative)', negOneIntA, negOneIntB)
+    testKeyEquality('Test Integer equality (zero)', zeroIntA, zeroIntB)
+    testKeyInequality('Test Integer-Float inequality', oneIntA, oneFloatA)
+    testKeyInequality('Test Integer-Float inequality (negative)', negOneIntA, negOneFloatA)
+    testKeyInequality('Test Integer-Float inequality (zero)', zeroIntA, zeroFloatA)
 })
