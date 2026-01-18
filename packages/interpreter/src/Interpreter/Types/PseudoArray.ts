@@ -74,6 +74,11 @@ export default class PseudoArray {
             throw new Error(`No element in Array`)
         }
     }
+
+    asKey(): string {
+        throw new Error("Method not implemented.")
+    }
+
 }
 
 

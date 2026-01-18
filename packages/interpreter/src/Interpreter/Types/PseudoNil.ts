@@ -31,4 +31,10 @@ export default class PseudoNil {
             return new PseudoBoolean(false)
         }
     }
+
+    asKey(): string {
+        return JSON.stringify({
+            type: Type.Nil,
+        });
+    }
 }
