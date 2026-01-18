@@ -54,5 +54,12 @@ export default class PseudoFloat {
     notEqual(right: PseudoInteger | PseudoFloat) {
         return new PseudoBoolean(this.value != right.value);
     }
+    
+    asKey(): string {
+        return JSON.stringify({
+            type: Type.Float,
+            value: this.value
+        });
+    }
 
 }
