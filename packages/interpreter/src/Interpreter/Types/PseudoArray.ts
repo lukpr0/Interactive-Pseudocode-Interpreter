@@ -76,7 +76,10 @@ export default class PseudoArray {
     }
 
     asKey(): string {
-        return `[${this.value.map(v => v.value.asKey()).join(',')}]`
+        return JSON.stringify({
+            type: Type.Array,
+            value: this.value.map(v => v.value.asKey())
+        }) 
     }
 
 }
