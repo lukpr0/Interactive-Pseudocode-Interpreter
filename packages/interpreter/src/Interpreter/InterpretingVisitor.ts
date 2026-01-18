@@ -241,6 +241,9 @@ export default class InterpretingVisitor implements Visitor<void> {
                 case PseudoParser.LBRACK:
                     result = this.handleIndexAccess(left, right, expr.operator)
                     break;
+                case PseudoParser.IN:
+                    result = this.handleInQuery(left, right, expr.operator)
+                    break;
                 default:
                     throw new FeatureNotImplementedError(expr.location)
             }
@@ -496,7 +499,6 @@ export default class InterpretingVisitor implements Visitor<void> {
             }
             set.insert(value);
         }
-        console.log("abc", set)
         this.stack.push(set);
     }
 
@@ -762,6 +764,13 @@ export default class InterpretingVisitor implements Visitor<void> {
             }
         }
         throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
+    }
+    
+    private handleInQuery(left: Value, right: Value, operator: Token): Value {
+        if (right.type != Type.Set) {
+            throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
+        }
+        return right.contains(left)
     }
 
     private handleUserFunction(func: FunctionTree, args: ExprTree[], location: NodeLocation) {

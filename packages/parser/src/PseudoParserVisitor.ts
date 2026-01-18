@@ -21,6 +21,7 @@ import { IdLiteralContext } from "./PseudoParser.js";
 import { FloatLiteralContext } from "./PseudoParser.js";
 import { IndexAccessContext } from "./PseudoParser.js";
 import { UnaryMinusContext } from "./PseudoParser.js";
+import { InQueryContext } from "./PseudoParser.js";
 import { LogicalOrContext } from "./PseudoParser.js";
 import { FuncCallContext } from "./PseudoParser.js";
 import { ArrayExprContext } from "./PseudoParser.js";
@@ -189,6 +190,13 @@ export default class PseudoParserVisitor<Result> extends ParseTreeVisitor<Result
 	 * @return the visitor result
 	 */
 	visitUnaryMinus?: (ctx: UnaryMinusContext) => Result;
+	/**
+	 * Visit a parse tree produced by the `InQuery`
+	 * labeled alternative in `PseudoParser.expr`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitInQuery?: (ctx: InQueryContext) => Result;
 	/**
 	 * Visit a parse tree produced by the `LogicalOr`
 	 * labeled alternative in `PseudoParser.expr`.

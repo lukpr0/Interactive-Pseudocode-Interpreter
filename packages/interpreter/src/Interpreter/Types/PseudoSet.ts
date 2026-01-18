@@ -1,6 +1,7 @@
 import Slot from "../Slot"
 import Type from "../Type"
 import type { Value } from "../Value"
+import PseudoBoolean from "./PseudoBoolean"
 
 export default class PseudoSet {
     type: Type.Set = Type.Set
@@ -32,6 +33,11 @@ export default class PseudoSet {
 
     insert(value: Value) {
         this.value.set(value.asKey() , new Slot(value));
+    }
+
+    contains(value: Value): PseudoBoolean {
+        const contains = this.value.has(value.asKey());
+        return new PseudoBoolean(contains);
     }
 
     asKey(): string {

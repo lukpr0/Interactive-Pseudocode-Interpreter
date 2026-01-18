@@ -40,6 +40,7 @@ expr
     | setexpr                           # SetExpr
     | expr '[' expr ']'                 # IndexAccess
     | expr '.' IDENTIFIER               # DotAccess
+    | expr op='in' expr                 # InQuery
     | 'not' expr                        # Negation
     | '-' expr                          # UnaryMinus
     | expr op=('*' | '/' | 'div' | 'mod') expr  # Multiplicative

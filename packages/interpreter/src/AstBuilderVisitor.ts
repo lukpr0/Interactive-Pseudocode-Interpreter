@@ -1,5 +1,5 @@
 import type { Token } from 'antlr4';
-import { AdditiveContext, AlgorithmContext, ArrayexprContext, ArrayExprContext, AssignStatContext, AssignstatContext, BoolLiteralContext, BreakstatContext, BreakStatContext, ComparisonContext, ContinuestatContext, ContinueStatContext, DotAccessContext, DotAccessorContext, ExprContext, ExprStatContext, FloatLiteralContext, ForstatContext, ForStatContext, FullidContext, FunccallContext, FuncCallContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IndexAccessContext, IndexAccessorContext, IntLiteralContext, IteratorContext, KeyvaluepairContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, NilLiteralContext, ObjectexprContext, ObjectExprContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RepeatStatContext, RepeatstatContext, ReturnStatContext, ReturnstatContext, SetexprContext, SetExprContext, StatContext, StatlistContext, StringLiteralContext, UnaryMinusContext, WhileStatContext, WhilestatContext } from '@interactive-pseudo/parser';
+import { AdditiveContext, AlgorithmContext, ArrayexprContext, ArrayExprContext, AssignStatContext, AssignstatContext, BoolLiteralContext, BreakstatContext, BreakStatContext, ComparisonContext, ContinuestatContext, ContinueStatContext, DotAccessContext, DotAccessorContext, ExprContext, ExprStatContext, FloatLiteralContext, ForstatContext, ForStatContext, FullidContext, FunccallContext, FuncCallContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IndexAccessContext, IndexAccessorContext, InQueryContext, IntLiteralContext, IteratorContext, KeyvaluepairContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, NilLiteralContext, ObjectexprContext, ObjectExprContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RepeatStatContext, RepeatstatContext, ReturnStatContext, ReturnstatContext, SetexprContext, SetExprContext, StatContext, StatlistContext, StringLiteralContext, UnaryMinusContext, WhileStatContext, WhilestatContext } from '@interactive-pseudo/parser';
 import type Tree from './AST/Tree.js';
 import ProgramTree from './AST/ProgramTree.js';
 import AssignTree from './AST/AssignTree.js';
@@ -96,6 +96,15 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             const forstat = ctx.forstat();
             return this.visit(forstat);
         }
+
+        this.visitInQuery = (ctx: InQueryContext): Tree => {
+            if (!ctx.children) {
+                throw new Error("Expected operands, found nothing");
+            }
+            const op = ctx.IN()
+            return this.buildBinaryExpr(op.symbol, ctx)
+        }
+
 
         this.visitAdditive = (ctx: AdditiveContext): Tree => {
             if (!ctx.children) {
@@ -465,7 +474,6 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
         }
 
         this.visitSetexpr = (ctx: SetexprContext): Tree => {
-            console.log("parsing set expr")
             const elements = [] 
             const token = ctx.LCURLY().symbol;
             for (const element of ctx.expr_list()) {
@@ -473,13 +481,12 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
                 elements.push(exprTree);
             }
             const setTree = new SetTree(elements, token);
-            console.log(setTree)
             return setTree;
         }
 
     }
 
-    private buildBinaryExpr(op: Token, ctx: AdditiveContext | MultiplicativeContext | LogicalAndContext | LogicalOrContext | ComparisonContext | IndexAccessContext): Tree {
+    private buildBinaryExpr(op: Token, ctx: AdditiveContext | MultiplicativeContext | LogicalAndContext | LogicalOrContext | ComparisonContext | IndexAccessContext | InQueryContext): Tree {
         const left = ctx.expr_list()[0]
         if (!left) {
             throw new Error("Expected operand, found nothing");
