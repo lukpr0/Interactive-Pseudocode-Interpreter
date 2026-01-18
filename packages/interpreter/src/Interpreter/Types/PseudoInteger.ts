@@ -76,4 +76,11 @@ export default class PseudoInteger {
         return new PseudoBoolean(this.value != right.value);
     }
 
+    asKey(): string {
+        return JSON.stringify({
+            type: Type.Integer,
+            value: this.value.toString()
+        });
+    }
+
 }
