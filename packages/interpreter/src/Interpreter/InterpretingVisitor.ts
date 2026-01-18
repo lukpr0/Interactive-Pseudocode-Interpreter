@@ -6,7 +6,7 @@ import type BuiltInFunction from "./BuiltInFunctions/BuiltInFunction.js";
 import type PrintObserver from "./PrintObserver.js";
 
 import { BinaryOperationTree, UnaryOperationTree, FunctionCallTree, FunctionTree, ExprTree, DotAccessorTree, IndexAccessorTree } from "../AST/index.js"
-import { PseudoInteger, PseudoFloat, PseudoBoolean, PseudoArray, PseudoObject, PseudoNil, PseudoString } from "./Types/index.js";
+import { PseudoInteger, PseudoFloat, PseudoBoolean, PseudoArray, PseudoObject, PseudoNil, PseudoString, PseudoSet } from "./Types/index.js";
 import { ArrayConstructor, DequeueFunction, LengthFunction, PopFunction, PushFunction, CeilFunction, FloorFunction, PowFunction, SquarerootFunction, PrintFunction, CharFunction, CodepointFunction, MaxFunction, MinFunction } from "./BuiltInFunctions/index.js";
 import { Slot, SymbolTable, Type, Range} from "./index.js"
 import { PseudoTypeError, EmptyStackError, VariableError, UnexpectedTypeError, FeatureNotImplementedError, IncompatibleTypesError, BuiltInTypeError, InternalError, LocatedInternalError, PseudoRuntimeError, UnexpectedStatementError } from "./Errors/index.js";
@@ -62,9 +62,6 @@ export default class InterpretingVisitor implements Visitor<void> {
         this.builtInFunctions.setVariable('codepoint', new CodepointFunction());
         this.builtInFunctions.setVariable('char', new CharFunction());
 
-    }
-    visitSet(expr: SetTree): void {
-        throw new Error("Method not implemented.");
     }
 
     visitStatlist(expr: StatListTree): void {
@@ -487,6 +484,20 @@ export default class InterpretingVisitor implements Visitor<void> {
             array.push(value)
         }
         this.stack.push(array);
+    }
+    
+    visitSet(expr: SetTree): void {
+        const set = new PseudoSet();
+        for (const element of expr.elements) {
+            element.accept(this);
+            const value = this.stack.pop();
+            if (value === undefined) {
+                throw new EmptyStackError(expr.location);
+            }
+            set.insert(value);
+        }
+        console.log("abc", set)
+        this.stack.push(set);
     }
 
     visitFullId(expr: FullIdTree): void {

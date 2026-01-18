@@ -2,7 +2,7 @@ import Slot from "../Slot"
 import Type from "../Type"
 import type { Value } from "../Value"
 
-export default class PseudoArray {
+export default class PseudoSet {
     type: Type.Set = Type.Set
     value: Map<string, Slot> 
     constructor () {
@@ -16,6 +16,8 @@ export default class PseudoArray {
                     return "Array"
                 case Type.Object:
                     return "Object"
+                case Type.Set:
+                    return "Set"
                 default:
                     return slot.value.toString()
             }
@@ -25,11 +27,11 @@ export default class PseudoArray {
     }
 
     toDebugString(): string {
-        return `Array { value: ${this.value} }`
+        return `Set { value: ${this.value} }`
     }
 
     insert(value: Value) {
-        this.value.set('' , new Slot(value));
+        this.value.set(value.asKey() , new Slot(value));
     }
 
     asKey(): string {
