@@ -17,6 +17,6 @@ export default class SetTree extends ExprTree implements Tree, InfoTree {
     }
 
     accept<T>(visitor: Visitor<T>): T {
-        return visitor.visitArray(this);
+        return visitor.visitSet(this);
     }
 }

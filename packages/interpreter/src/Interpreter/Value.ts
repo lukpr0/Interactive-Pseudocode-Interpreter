@@ -1,4 +1,4 @@
-import type { PseudoFloat, PseudoInteger, PseudoBoolean, PseudoArray, PseudoObject, PseudoString, PseudoNil } from "./Types/index.js";
+import type { PseudoFloat, PseudoInteger, PseudoBoolean, PseudoArray, PseudoObject, PseudoString, PseudoNil, PseudoSet } from "./Types/index.js";
 import type Range from "./Range.js";
 
 export type Value 
@@ -10,4 +10,5 @@ export type Value
     | PseudoObject
     | PseudoString
     | PseudoNil
+    | PseudoSet
     ; 

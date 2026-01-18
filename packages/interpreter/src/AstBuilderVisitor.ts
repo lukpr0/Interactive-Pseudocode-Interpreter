@@ -22,6 +22,7 @@ import ReturnTree from './AST/ReturnTree.js';
 import BreakTree from './AST/BreakTree.js';
 import ContinueTree from './AST/ContinueTree.js';
 import { tokenToNodeLocation } from './AST/NodeLocations.js';
+import SetTree from './AST/SetTree.js';
 
 export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
 
@@ -464,14 +465,16 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
         }
 
         this.visitSetexpr = (ctx: SetexprContext): Tree => {
+            console.log("parsing set expr")
             const elements = [] 
             const token = ctx.LCURLY().symbol;
             for (const element of ctx.expr_list()) {
                 const exprTree = this.visit(element);
                 elements.push(exprTree);
             }
-            const arrayTree = new ArrayTree(elements, token);
-            return arrayTree;
+            const setTree = new SetTree(elements, token);
+            console.log(setTree)
+            return setTree;
         }
 
     }
