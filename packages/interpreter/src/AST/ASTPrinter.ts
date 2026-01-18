@@ -20,10 +20,16 @@ import type ObjectTree from "./ObjectTree.js";
 import type BreakTree from "./BreakTree.js";
 import type ReturnTree from "./ReturnTree.js";
 import type ContinueTree from "./ContinueTree.js";
+import type SetTree from "./SetTree.js";
 
 export default class ASTPrinter implements Visitor<string> {
 
     constructor() {}
+    visitSet(expr: SetTree): string {
+        return `(set ${expr.elements.map(element => {
+            return element.accept(this);
+        }).join(" ")})`;
+    }
 
     visitProgram(program: ProgramTree): string {
         return `(program ${program.children.map(child => {
