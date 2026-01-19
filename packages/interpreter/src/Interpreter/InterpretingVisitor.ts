@@ -244,6 +244,15 @@ export default class InterpretingVisitor implements Visitor<void> {
                 case PseudoParser.IN:
                     result = this.handleInQuery(left, right, expr.operator)
                     break;
+                case PseudoParser.UNION:
+                    result = this.handleSetUnion(left, right, expr.operator)
+                    break
+                case PseudoParser.INTERSECT:
+                    result = this.handleSetIntersection(left, right, expr.operator)
+                    break
+                case PseudoParser.BACKSLASH:
+                    result = this.handleSetDifference(left, right, expr.operator)
+                    break
                 default:
                     throw new FeatureNotImplementedError(expr.location)
             }
@@ -771,6 +780,27 @@ export default class InterpretingVisitor implements Visitor<void> {
             throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
         }
         return right.contains(left)
+    }
+    
+    private handleSetIntersection(left: Value, right: Value, operator: Token): Value {
+        if (left.type != Type.Set || right.type != Type.Set) {
+            throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
+        }
+        return left.intersect(right)
+    }
+    
+    private handleSetUnion(left: Value, right: Value, operator: Token): Value {
+        if (left.type != Type.Set || right.type != Type.Set) {
+            throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
+        }
+        return left.union(right)
+    }
+    
+    private handleSetDifference(left: Value, right: Value, operator: Token): Value {
+        if (left.type != Type.Set || right.type != Type.Set) {
+            throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
+        }
+        return left.difference(right)
     }
 
     private handleUserFunction(func: FunctionTree, args: ExprTree[], location: NodeLocation) {
