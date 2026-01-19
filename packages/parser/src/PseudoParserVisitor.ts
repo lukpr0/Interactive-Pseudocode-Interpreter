@@ -20,6 +20,7 @@ import { NegationContext } from "./PseudoParser.js";
 import { IdLiteralContext } from "./PseudoParser.js";
 import { FloatLiteralContext } from "./PseudoParser.js";
 import { IndexAccessContext } from "./PseudoParser.js";
+import { SetUnionContext } from "./PseudoParser.js";
 import { UnaryMinusContext } from "./PseudoParser.js";
 import { InQueryContext } from "./PseudoParser.js";
 import { LogicalOrContext } from "./PseudoParser.js";
@@ -33,8 +34,10 @@ import { ObjectExprContext } from "./PseudoParser.js";
 import { SetExprContext } from "./PseudoParser.js";
 import { ComparisonContext } from "./PseudoParser.js";
 import { NilLiteralContext } from "./PseudoParser.js";
+import { SetDifferenceContext } from "./PseudoParser.js";
 import { LogicalAndContext } from "./PseudoParser.js";
 import { IntLiteralContext } from "./PseudoParser.js";
+import { SetIntersectContext } from "./PseudoParser.js";
 import { ParenthesesContext } from "./PseudoParser.js";
 import { BreakstatContext } from "./PseudoParser.js";
 import { ContinuestatContext } from "./PseudoParser.js";
@@ -184,6 +187,13 @@ export default class PseudoParserVisitor<Result> extends ParseTreeVisitor<Result
 	 */
 	visitIndexAccess?: (ctx: IndexAccessContext) => Result;
 	/**
+	 * Visit a parse tree produced by the `SetUnion`
+	 * labeled alternative in `PseudoParser.expr`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitSetUnion?: (ctx: SetUnionContext) => Result;
+	/**
 	 * Visit a parse tree produced by the `UnaryMinus`
 	 * labeled alternative in `PseudoParser.expr`.
 	 * @param ctx the parse tree
@@ -275,6 +285,13 @@ export default class PseudoParserVisitor<Result> extends ParseTreeVisitor<Result
 	 */
 	visitNilLiteral?: (ctx: NilLiteralContext) => Result;
 	/**
+	 * Visit a parse tree produced by the `SetDifference`
+	 * labeled alternative in `PseudoParser.expr`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitSetDifference?: (ctx: SetDifferenceContext) => Result;
+	/**
 	 * Visit a parse tree produced by the `LogicalAnd`
 	 * labeled alternative in `PseudoParser.expr`.
 	 * @param ctx the parse tree
@@ -288,6 +305,13 @@ export default class PseudoParserVisitor<Result> extends ParseTreeVisitor<Result
 	 * @return the visitor result
 	 */
 	visitIntLiteral?: (ctx: IntLiteralContext) => Result;
+	/**
+	 * Visit a parse tree produced by the `SetIntersect`
+	 * labeled alternative in `PseudoParser.expr`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitSetIntersect?: (ctx: SetIntersectContext) => Result;
 	/**
 	 * Visit a parse tree produced by the `Parentheses`
 	 * labeled alternative in `PseudoParser.expr`.
