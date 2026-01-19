@@ -1,5 +1,5 @@
 import type { Token } from 'antlr4';
-import { AdditiveContext, AlgorithmContext, ArrayexprContext, ArrayExprContext, AssignStatContext, AssignstatContext, BoolLiteralContext, BreakstatContext, BreakStatContext, ComparisonContext, ContinuestatContext, ContinueStatContext, DotAccessContext, DotAccessorContext, ExprContext, ExprStatContext, FloatLiteralContext, ForstatContext, ForStatContext, FullidContext, FunccallContext, FuncCallContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IndexAccessContext, IndexAccessorContext, InQueryContext, IntLiteralContext, IteratorContext, KeyvaluepairContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, NilLiteralContext, ObjectexprContext, ObjectExprContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RepeatStatContext, RepeatstatContext, ReturnStatContext, ReturnstatContext, SetexprContext, SetExprContext, StatContext, StatlistContext, StringLiteralContext, UnaryMinusContext, WhileStatContext, WhilestatContext } from '@interactive-pseudo/parser';
+import { AdditiveContext, AlgorithmContext, ArrayexprContext, ArrayExprContext, AssignStatContext, AssignstatContext, BoolLiteralContext, BreakstatContext, BreakStatContext, ComparisonContext, ContinuestatContext, ContinueStatContext, DotAccessContext, DotAccessorContext, ExprContext, ExprStatContext, FloatLiteralContext, ForstatContext, ForStatContext, FullidContext, FunccallContext, FuncCallContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IndexAccessContext, IndexAccessorContext, InQueryContext, IntLiteralContext, IteratorContext, KeyvaluepairContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, NilLiteralContext, ObjectexprContext, ObjectExprContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RepeatStatContext, RepeatstatContext, ReturnStatContext, ReturnstatContext, SetDifferenceContext, SetexprContext, SetExprContext, SetIntersectContext, SetUnionContext, StatContext, StatlistContext, StringLiteralContext, UnaryMinusContext, WhileStatContext, WhilestatContext } from '@interactive-pseudo/parser';
 import type Tree from './AST/Tree.js';
 import ProgramTree from './AST/ProgramTree.js';
 import AssignTree from './AST/AssignTree.js';
@@ -23,6 +23,19 @@ import BreakTree from './AST/BreakTree.js';
 import ContinueTree from './AST/ContinueTree.js';
 import { tokenToNodeLocation } from './AST/NodeLocations.js';
 import SetTree from './AST/SetTree.js';
+
+type BinaryContext 
+    = AdditiveContext 
+    | MultiplicativeContext 
+    | LogicalAndContext 
+    | LogicalOrContext 
+    | ComparisonContext 
+    | IndexAccessContext 
+    | InQueryContext
+    | SetUnionContext
+    | SetIntersectContext
+    | SetDifferenceContext
+    ;
 
 export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
 
@@ -105,6 +118,29 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             return this.buildBinaryExpr(op.symbol, ctx)
         }
 
+        this.visitSetUnion = (ctx: SetUnionContext): Tree => {
+            if (!ctx.children) {
+                throw new Error("Expected operands, found nothing");
+            }
+            const op = ctx.UNION()
+            return this.buildBinaryExpr(op.symbol, ctx)
+        }
+        
+        this.visitSetIntersect = (ctx: SetIntersectContext): Tree => {
+            if (!ctx.children) {
+                throw new Error("Expected operands, found nothing");
+            }
+            const op = ctx.INTERSECT()
+            return this.buildBinaryExpr(op.symbol, ctx)
+        }
+        
+        this.visitSetDifference = (ctx: SetDifferenceContext): Tree => {
+            if (!ctx.children) {
+                throw new Error("Expected operands, found nothing");
+            }
+            const op = ctx.BACKSLASH()
+            return this.buildBinaryExpr(op.symbol, ctx)
+        }
 
         this.visitAdditive = (ctx: AdditiveContext): Tree => {
             if (!ctx.children) {
@@ -486,7 +522,7 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
 
     }
 
-    private buildBinaryExpr(op: Token, ctx: AdditiveContext | MultiplicativeContext | LogicalAndContext | LogicalOrContext | ComparisonContext | IndexAccessContext | InQueryContext): Tree {
+    private buildBinaryExpr(op: Token, ctx: BinaryContext): Tree {
         const left = ctx.expr_list()[0]
         if (!left) {
             throw new Error("Expected operand, found nothing");

@@ -28,7 +28,7 @@ export default class PseudoSet {
     }
 
     toDebugString(): string {
-        return `Set { value: ${this.value} }`
+        return `Set { value: ${this.value.keys().toArray().join(', ')} }`
     }
 
     insert(value: Value) {
@@ -38,6 +38,37 @@ export default class PseudoSet {
     contains(value: Value): PseudoBoolean {
         const contains = this.value.has(value.asKey());
         return new PseudoBoolean(contains);
+    }
+
+    intersect(other: PseudoSet): PseudoSet {
+        const intersection = new PseudoSet();
+        for (let [key, slot] of this.value.entries()) {
+            if (other.contains(slot.value).value) {
+                intersection.insert(slot.value)
+            }
+        }
+        return intersection;
+    }
+    
+    union(other: PseudoSet): PseudoSet {
+        const union = new PseudoSet();
+        for (let [key, slot] of this.value.entries()) {
+            union.insert(slot.value)
+        }
+        for (let [key, slot] of other.value.entries()) {
+            union.insert(slot.value)
+        }
+        return union;
+    }
+    
+    difference(other: PseudoSet): PseudoSet {
+        const difference = new PseudoSet();
+        for (let [key, slot] of this.value.entries()) {
+            if (!other.contains(slot.value).value) {
+                difference.insert(slot.value)
+            }
+        }
+        return difference;
     }
 
     asKey(): string {
