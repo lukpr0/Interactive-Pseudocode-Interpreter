@@ -43,6 +43,9 @@ expr
     | expr op='in' expr                 # InQuery
     | 'not' expr                        # Negation
     | '-' expr                          # UnaryMinus
+    | expr op='intersect' expr          # SetIntersect
+    | expr op='union' expr              # SetUnion
+    | expr op='\\' expr                 # SetDifference
     | expr op=('*' | '/' | 'div' | 'mod') expr  # Multiplicative
     | expr op=('+' | '-') expr          # Additive
     | expr op=('>' | '<' | '<=' | '>=' | '=' | '!=') expr # Comparison
