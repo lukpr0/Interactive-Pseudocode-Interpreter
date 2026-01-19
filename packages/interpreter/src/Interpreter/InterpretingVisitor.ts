@@ -1,6 +1,6 @@
 import { Token } from "antlr4";
 import { PseudoParser } from "@interactive-pseudo/parser";
-import type { WhileTree, StatListTree, RepeatUntilTree, IfTree, ForTree, IteratorTree, RangeTree, KeyValueTree, ObjectTree, BreakTree, ReturnTree, ContinueTree, AssignTree, ProgramTree, Visitor, ArrayTree, FullIdTree, SetTree } from "../AST/index.js";
+import { type WhileTree, type StatListTree, type RepeatUntilTree, type IfTree, type ForTree, type IteratorTree, RangeTree, type KeyValueTree, type ObjectTree, type BreakTree, type ReturnTree, type ContinueTree, type AssignTree, type ProgramTree, type Visitor, type ArrayTree, type FullIdTree, type SetTree } from "../AST/index.js";
 import type { Value } from "./Value.js";
 import type BuiltInFunction from "./BuiltInFunctions/BuiltInFunction.js";
 import type PrintObserver from "./PrintObserver.js";
@@ -13,6 +13,8 @@ import { PseudoTypeError, EmptyStackError, VariableError, UnexpectedTypeError, F
 import { typeToString } from "./Type.js";
 import { tokenToNodeLocation } from "../AST/NodeLocations.js";
 import type NodeLocation from "../AST/NodeLocations.js";
+import ArrayIterator from "./ArrayIterator.js";
+import SetIterator from "./SetIterator.js";
 
 export default class InterpretingVisitor implements Visitor<void> {
     symbolTable: SymbolTable<Slot>;
@@ -440,7 +442,22 @@ export default class InterpretingVisitor implements Visitor<void> {
     }
 
     visitIterator(expr: IteratorTree): void {
-        expr.iterator.accept(this);
+        if (expr.iterator instanceof RangeTree) {
+            expr.iterator.accept(this);
+        } else if (expr.iterator instanceof ExprTree) {
+            expr.iterator.accept(this);
+            const value = this.stack.pop()
+            if (value === undefined) {
+                throw new EmptyStackError(expr.location);
+            }
+            if (value.type == Type.Array) {
+                const iterator = new ArrayIterator(value);
+                this.stack.push(iterator);
+            } else if (value.type == Type.Set) {
+                const iterator = new SetIterator(value);
+                this.stack.push(iterator);
+            }
+        }
     }
 
     visitRange(expr: RangeTree): void {

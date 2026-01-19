@@ -115,7 +115,8 @@ forstat
     ;
 
 iterator
-    : IDENTIFIER 'in' range
+    : IDENTIFIER 'in' range     # RangeIterator
+    | IDENTIFIER 'in' expr      # ExprIterator
     ;
 
 range
