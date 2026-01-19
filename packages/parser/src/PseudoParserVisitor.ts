@@ -55,7 +55,8 @@ import { RepeatstatContext } from "./PseudoParser.js";
 import { IfstatContext } from "./PseudoParser.js";
 import { IfheadContext } from "./PseudoParser.js";
 import { ForstatContext } from "./PseudoParser.js";
-import { IteratorContext } from "./PseudoParser.js";
+import { RangeIteratorContext } from "./PseudoParser.js";
+import { ExprIteratorContext } from "./PseudoParser.js";
 import { RangeContext } from "./PseudoParser.js";
 import { AlgorithmContext } from "./PseudoParser.js";
 import { ArglistContext } from "./PseudoParser.js";
@@ -418,11 +419,19 @@ export default class PseudoParserVisitor<Result> extends ParseTreeVisitor<Result
 	 */
 	visitForstat?: (ctx: ForstatContext) => Result;
 	/**
-	 * Visit a parse tree produced by `PseudoParser.iterator`.
+	 * Visit a parse tree produced by the `RangeIterator`
+	 * labeled alternative in `PseudoParser.iterator`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	visitIterator?: (ctx: IteratorContext) => Result;
+	visitRangeIterator?: (ctx: RangeIteratorContext) => Result;
+	/**
+	 * Visit a parse tree produced by the `ExprIterator`
+	 * labeled alternative in `PseudoParser.iterator`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitExprIterator?: (ctx: ExprIteratorContext) => Result;
 	/**
 	 * Visit a parse tree produced by `PseudoParser.range`.
 	 * @param ctx the parse tree
