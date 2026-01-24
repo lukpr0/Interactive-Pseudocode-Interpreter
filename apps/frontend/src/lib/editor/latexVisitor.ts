@@ -1,4 +1,4 @@
-import { BinaryOperationTree, ExprTree, type ArrayTree, type AssignTree, type BreakTree, type ContinueTree, type DotAccessorTree, type ForTree, type FullIdTree, type FunctionCallTree, type FunctionTree, type IfTree, type IndexAccessorTree, type IteratorTree, type KeyValueTree, type ObjectTree, type ProgramTree, type RangeTree, type RepeatUntilTree, type ReturnTree, type StatListTree, UnaryOperationTree, type Visitor, type WhileTree } from "@interactive-pseudo/interpreter";
+import { BinaryOperationTree, ExprTree, type ArrayTree, type AssignTree, type BreakTree, type ContinueTree, type DotAccessorTree, type ForTree, type FullIdTree, type FunctionCallTree, type FunctionTree, type IfTree, type IndexAccessorTree, type IteratorTree, type KeyValueTree, type ObjectTree, type ProgramTree, type RangeTree, type RepeatUntilTree, type ReturnTree, type StatListTree, UnaryOperationTree, type Visitor, type WhileTree, SetTree } from "@interactive-pseudo/interpreter";
 import { PseudoLexer } from '@interactive-pseudo/parser'
 import { MarkupGenerationVisitor } from "./markupGenerationVisitor.js";
 
@@ -60,6 +60,14 @@ export class LatexVisitor extends MarkupGenerationVisitor {
                 return '\\land'
             case PseudoLexer.OR:
                 return '\\lor'
+            case PseudoLexer.IN:
+                return '\\in'
+            case PseudoLexer.INTERSECT:
+                return '\\cap'
+            case PseudoLexer.UNION:
+                return '\\cup'
+            case PseudoLexer.BACKSLASH:
+                return '\\setminus'
             default:
                 return '??'
         }
@@ -195,6 +203,11 @@ export class LatexVisitor extends MarkupGenerationVisitor {
     }
     visitContinue(expr: ContinueTree): string {
         return `\\State continue`
+    }
+
+    visitSet(expr: SetTree): string {
+        const values = expr.elements.map(element => `${element.accept(this)}`).join(", ")
+        return `\{${values}\}`
     }
 
 }

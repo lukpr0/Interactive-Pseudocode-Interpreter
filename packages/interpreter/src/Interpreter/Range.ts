@@ -39,4 +39,9 @@ export default class Range implements Iterable<PseudoInteger> {
         return `Range { ${this.from} .. ${this.to} }`
     }
 
+
+    asKey(): string {
+        throw new Error("Method not implemented.")
+    }
+
 }
