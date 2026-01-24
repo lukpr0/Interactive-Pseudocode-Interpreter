@@ -82,7 +82,7 @@
         <code>
             nil
         </code>
-        <h3>Lists and Objects</h3>
+        <h3>Lists</h3>
             <p>There are lists</p>
             <code>
                 list := [1, 2, 3] <br>
@@ -93,6 +93,7 @@
                 x := list[2] <br>
                 list[1] := 3
             </code>
+        <h3>Objects</h3>
             <p>There are also objects</p>
             <code>
                 point := &#123; <br>
@@ -104,6 +105,32 @@
             <code>
                 point.x := 4 <br>
                 y := point.y
+            </code>
+        <h3>Sets</h3>
+            <p>Sets can be created like this</p>
+            <code>
+                X := &#123; 1, 2, 3 &#125;
+            </code>
+            <p>Sets can hold any datatype. Even arrays, objects and sets. These shouldn't be mutated after being inserted into a set.</p>
+            <p>The usual set operators &#x2229;, &#x222A; and &#x2216; can be used.</p>
+            <p>The union (&#x222A;) of two sets can be computed using the keyword <i>union</i>.</p>
+            <code>
+                X := &#123; 1, 2, 3 &#125; union &#123; 3, 4 &#125;
+                <br>// X = &#123; 1, 2, 3, 4 &#125;
+            </code>
+            <p>The intersection (&#x2229;) of two sets can be computed using the keyword <i>intersect</i>.</p>
+            <code>
+                X := &#123; 1, 2, 3 &#125; intersect &#123; 3, 4 &#125
+                <br>// X = &#123; 3 &#125;;
+            </code>
+            <p>The difference (&#x2216;) of two sets can be computed using the \ Symbol.</p>
+            <code>
+                X := &#123; 1, 2, 3 &#125; \ &#123; 3, 4 &#125
+                <br>// X = &#123; 1, 2 &#125;;
+            </code>
+            <p>Sets can be queried for their elements using the keyword <i>in</i></p>
+            <code>
+                x := 2 in &#123; 1, 2, 3 &#125; //x = true
             </code>
     <h2>Control structures</h2>
         <h3>If</h3>
@@ -148,7 +175,7 @@
         <h3>For</h3>
             <p>
                 And then there are for-loops<br>
-                They need a name for the loop-variable and a range.<br>
+                They need a name for the loop-variable and a range or an expression that evaluates to a array or set.<br>
                 The upper limit can be either exclusive, like so:
             </p>
             <code>
@@ -161,6 +188,18 @@
                 </p>
             <code>
                 for i in 0 ..= 10 do<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;...<br>
+                end
+            </code>
+            <p>Arrays and sets can be iterated over like this</p>
+            <code>
+                for i in [1, 2, 3] do<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;...<br>
+                end
+            </code>
+            <p>or</p>
+            <code>
+                for i in &#123; 1, 2, 3 &#125; do<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;...<br>
                 end
             </code>
