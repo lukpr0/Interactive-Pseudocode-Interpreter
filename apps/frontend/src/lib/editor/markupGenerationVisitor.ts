@@ -1,4 +1,4 @@
-import { BinaryOperationTree, type ArrayTree, type AssignTree, type BreakTree, type ContinueTree, type DotAccessorTree, type ExprTree, type ForTree, type FullIdTree, type FunctionCallTree, type FunctionTree, type IfTree, type IndexAccessorTree, type IteratorTree, type KeyValueTree, type ObjectTree, type ProgramTree, type RangeTree, type RepeatUntilTree, type ReturnTree, type StatListTree, type UnaryOperationTree, type Visitor, type WhileTree } from "@interactive-pseudo/interpreter";
+import { BinaryOperationTree, SetTree, type ArrayTree, type AssignTree, type BreakTree, type ContinueTree, type DotAccessorTree, type ExprTree, type ForTree, type FullIdTree, type FunctionCallTree, type FunctionTree, type IfTree, type IndexAccessorTree, type IteratorTree, type KeyValueTree, type ObjectTree, type ProgramTree, type RangeTree, type RepeatUntilTree, type ReturnTree, type StatListTree, type UnaryOperationTree, type Visitor, type WhileTree } from "@interactive-pseudo/interpreter";
 import { PseudoLexer } from "@interactive-pseudo/parser";
 
 export abstract class MarkupGenerationVisitor implements Visitor<string> {
@@ -32,6 +32,7 @@ export abstract class MarkupGenerationVisitor implements Visitor<string> {
     abstract visitReturn(expr: ReturnTree): string; 
     abstract visitBreak(expr: BreakTree): string; 
     abstract visitContinue(expr: ContinueTree): string; 
+    abstract visitSet(expr: SetTree): string;
     
     protected lowerPrecedence(parent: number, child: number): boolean {
         const accessors = [PseudoLexer.LBRACK, PseudoLexer.DOT]
