@@ -31,4 +31,10 @@ export default class PseudoBoolean {
         return new PseudoBoolean(this.value == right.value)
     }
 
+    asKey(): string {
+        return JSON.stringify({
+            type: Type.Boolean,
+            value: this.value
+        });
+    }
 }

@@ -43,8 +43,4 @@
     "moduleResolution": "node",
     "skipLibCheck": true,
   },
-  "references": [
-    { "path": "../../packages/parser" },
-    { "path": "../../packages/interpreter" }
-  ]
 }

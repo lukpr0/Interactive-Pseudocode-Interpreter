@@ -40,4 +40,10 @@ export default class PseudoString {
         return new PseudoBoolean(this.value != right.value);
     }
 
+    asKey(): string {
+        return JSON.stringify({
+            type: Type.String,
+            value: this.value
+        });
+    }
 }

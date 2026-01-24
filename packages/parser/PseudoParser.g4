@@ -37,10 +37,15 @@ expr
     | IDENTIFIER                        # IdLiteral
     | arrayexpr                         # ArrayExpr
     | objectexpr                        # ObjectExpr
+    | setexpr                           # SetExpr
     | expr '[' expr ']'                 # IndexAccess
     | expr '.' IDENTIFIER               # DotAccess
+    | expr op='in' expr                 # InQuery
     | 'not' expr                        # Negation
     | '-' expr                          # UnaryMinus
+    | expr op='intersect' expr          # SetIntersect
+    | expr op='union' expr              # SetUnion
+    | expr op='\\' expr                 # SetDifference
     | expr op=('*' | '/' | 'div' | 'mod') expr  # Multiplicative
     | expr op=('+' | '-') expr          # Additive
     | expr op=('>' | '<' | '<=' | '>=' | '=' | '!=') expr # Comparison
@@ -66,6 +71,10 @@ arrayexpr
 
 objectexpr
     : '{' NEWLINE* (keyvaluepair NEWLINE* (',' NEWLINE* keyvaluepair NEWLINE*)* ','? NEWLINE* )? '}'
+    ;
+
+setexpr
+    : '{' NEWLINE* (expr NEWLINE* (',' NEWLINE* expr NEWLINE*)* ','? NEWLINE* )? '}'
     ;
 
 keyvaluepair
@@ -106,7 +115,8 @@ forstat
     ;
 
 iterator
-    : IDENTIFIER 'in' range
+    : IDENTIFIER 'in' range     # RangeIterator
+    | IDENTIFIER 'in' expr      # ExprIterator
     ;
 
 range

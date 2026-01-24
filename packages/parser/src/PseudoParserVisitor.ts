@@ -20,7 +20,9 @@ import { NegationContext } from "./PseudoParser.js";
 import { IdLiteralContext } from "./PseudoParser.js";
 import { FloatLiteralContext } from "./PseudoParser.js";
 import { IndexAccessContext } from "./PseudoParser.js";
+import { SetUnionContext } from "./PseudoParser.js";
 import { UnaryMinusContext } from "./PseudoParser.js";
+import { InQueryContext } from "./PseudoParser.js";
 import { LogicalOrContext } from "./PseudoParser.js";
 import { FuncCallContext } from "./PseudoParser.js";
 import { ArrayExprContext } from "./PseudoParser.js";
@@ -29,16 +31,20 @@ import { AdditiveContext } from "./PseudoParser.js";
 import { StringLiteralContext } from "./PseudoParser.js";
 import { BoolLiteralContext } from "./PseudoParser.js";
 import { ObjectExprContext } from "./PseudoParser.js";
+import { SetExprContext } from "./PseudoParser.js";
 import { ComparisonContext } from "./PseudoParser.js";
 import { NilLiteralContext } from "./PseudoParser.js";
+import { SetDifferenceContext } from "./PseudoParser.js";
 import { LogicalAndContext } from "./PseudoParser.js";
 import { IntLiteralContext } from "./PseudoParser.js";
+import { SetIntersectContext } from "./PseudoParser.js";
 import { ParenthesesContext } from "./PseudoParser.js";
 import { BreakstatContext } from "./PseudoParser.js";
 import { ContinuestatContext } from "./PseudoParser.js";
 import { ReturnstatContext } from "./PseudoParser.js";
 import { ArrayexprContext } from "./PseudoParser.js";
 import { ObjectexprContext } from "./PseudoParser.js";
+import { SetexprContext } from "./PseudoParser.js";
 import { KeyvaluepairContext } from "./PseudoParser.js";
 import { FullidContext } from "./PseudoParser.js";
 import { IndexAccessorContext } from "./PseudoParser.js";
@@ -49,7 +55,8 @@ import { RepeatstatContext } from "./PseudoParser.js";
 import { IfstatContext } from "./PseudoParser.js";
 import { IfheadContext } from "./PseudoParser.js";
 import { ForstatContext } from "./PseudoParser.js";
-import { IteratorContext } from "./PseudoParser.js";
+import { RangeIteratorContext } from "./PseudoParser.js";
+import { ExprIteratorContext } from "./PseudoParser.js";
 import { RangeContext } from "./PseudoParser.js";
 import { AlgorithmContext } from "./PseudoParser.js";
 import { ArglistContext } from "./PseudoParser.js";
@@ -181,12 +188,26 @@ export default class PseudoParserVisitor<Result> extends ParseTreeVisitor<Result
 	 */
 	visitIndexAccess?: (ctx: IndexAccessContext) => Result;
 	/**
+	 * Visit a parse tree produced by the `SetUnion`
+	 * labeled alternative in `PseudoParser.expr`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitSetUnion?: (ctx: SetUnionContext) => Result;
+	/**
 	 * Visit a parse tree produced by the `UnaryMinus`
 	 * labeled alternative in `PseudoParser.expr`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	visitUnaryMinus?: (ctx: UnaryMinusContext) => Result;
+	/**
+	 * Visit a parse tree produced by the `InQuery`
+	 * labeled alternative in `PseudoParser.expr`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitInQuery?: (ctx: InQueryContext) => Result;
 	/**
 	 * Visit a parse tree produced by the `LogicalOr`
 	 * labeled alternative in `PseudoParser.expr`.
@@ -244,6 +265,13 @@ export default class PseudoParserVisitor<Result> extends ParseTreeVisitor<Result
 	 */
 	visitObjectExpr?: (ctx: ObjectExprContext) => Result;
 	/**
+	 * Visit a parse tree produced by the `SetExpr`
+	 * labeled alternative in `PseudoParser.expr`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitSetExpr?: (ctx: SetExprContext) => Result;
+	/**
 	 * Visit a parse tree produced by the `Comparison`
 	 * labeled alternative in `PseudoParser.expr`.
 	 * @param ctx the parse tree
@@ -258,6 +286,13 @@ export default class PseudoParserVisitor<Result> extends ParseTreeVisitor<Result
 	 */
 	visitNilLiteral?: (ctx: NilLiteralContext) => Result;
 	/**
+	 * Visit a parse tree produced by the `SetDifference`
+	 * labeled alternative in `PseudoParser.expr`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitSetDifference?: (ctx: SetDifferenceContext) => Result;
+	/**
 	 * Visit a parse tree produced by the `LogicalAnd`
 	 * labeled alternative in `PseudoParser.expr`.
 	 * @param ctx the parse tree
@@ -271,6 +306,13 @@ export default class PseudoParserVisitor<Result> extends ParseTreeVisitor<Result
 	 * @return the visitor result
 	 */
 	visitIntLiteral?: (ctx: IntLiteralContext) => Result;
+	/**
+	 * Visit a parse tree produced by the `SetIntersect`
+	 * labeled alternative in `PseudoParser.expr`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitSetIntersect?: (ctx: SetIntersectContext) => Result;
 	/**
 	 * Visit a parse tree produced by the `Parentheses`
 	 * labeled alternative in `PseudoParser.expr`.
@@ -308,6 +350,12 @@ export default class PseudoParserVisitor<Result> extends ParseTreeVisitor<Result
 	 * @return the visitor result
 	 */
 	visitObjectexpr?: (ctx: ObjectexprContext) => Result;
+	/**
+	 * Visit a parse tree produced by `PseudoParser.setexpr`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitSetexpr?: (ctx: SetexprContext) => Result;
 	/**
 	 * Visit a parse tree produced by `PseudoParser.keyvaluepair`.
 	 * @param ctx the parse tree
@@ -371,11 +419,19 @@ export default class PseudoParserVisitor<Result> extends ParseTreeVisitor<Result
 	 */
 	visitForstat?: (ctx: ForstatContext) => Result;
 	/**
-	 * Visit a parse tree produced by `PseudoParser.iterator`.
+	 * Visit a parse tree produced by the `RangeIterator`
+	 * labeled alternative in `PseudoParser.iterator`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	visitIterator?: (ctx: IteratorContext) => Result;
+	visitRangeIterator?: (ctx: RangeIteratorContext) => Result;
+	/**
+	 * Visit a parse tree produced by the `ExprIterator`
+	 * labeled alternative in `PseudoParser.iterator`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitExprIterator?: (ctx: ExprIteratorContext) => Result;
 	/**
 	 * Visit a parse tree produced by `PseudoParser.range`.
 	 * @param ctx the parse tree
