@@ -1,18 +1,20 @@
 import { Token } from "antlr4";
 import { PseudoParser } from "@interactive-pseudo/parser";
-import type { WhileTree, StatListTree, RepeatUntilTree, IfTree, ForTree, IteratorTree, RangeTree, KeyValueTree, ObjectTree, BreakTree, ReturnTree, ContinueTree, AssignTree, ProgramTree, Visitor, ArrayTree, FullIdTree } from "../AST/index.js";
+import { type WhileTree, type StatListTree, type RepeatUntilTree, type IfTree, type ForTree, type IteratorTree, RangeTree, type KeyValueTree, type ObjectTree, type BreakTree, type ReturnTree, type ContinueTree, type AssignTree, type ProgramTree, type Visitor, type ArrayTree, type FullIdTree, type SetTree } from "../AST/index.js";
 import type { Value } from "./Value.js";
 import type BuiltInFunction from "./BuiltInFunctions/BuiltInFunction.js";
 import type PrintObserver from "./PrintObserver.js";
 
 import { BinaryOperationTree, UnaryOperationTree, FunctionCallTree, FunctionTree, ExprTree, DotAccessorTree, IndexAccessorTree } from "../AST/index.js"
-import { PseudoInteger, PseudoFloat, PseudoBoolean, PseudoArray, PseudoObject, PseudoNil, PseudoString } from "./Types/index.js";
+import { PseudoInteger, PseudoFloat, PseudoBoolean, PseudoArray, PseudoObject, PseudoNil, PseudoString, PseudoSet } from "./Types/index.js";
 import { ArrayConstructor, DequeueFunction, LengthFunction, PopFunction, PushFunction, CeilFunction, FloorFunction, PowFunction, SquarerootFunction, PrintFunction, CharFunction, CodepointFunction, MaxFunction, MinFunction } from "./BuiltInFunctions/index.js";
 import { Slot, SymbolTable, Type, Range} from "./index.js"
 import { PseudoTypeError, EmptyStackError, VariableError, UnexpectedTypeError, FeatureNotImplementedError, IncompatibleTypesError, BuiltInTypeError, InternalError, LocatedInternalError, PseudoRuntimeError, UnexpectedStatementError } from "./Errors/index.js";
 import { typeToString } from "./Type.js";
 import { tokenToNodeLocation } from "../AST/NodeLocations.js";
 import type NodeLocation from "../AST/NodeLocations.js";
+import ArrayIterator from "./ArrayIterator.js";
+import SetIterator from "./SetIterator.js";
 
 export default class InterpretingVisitor implements Visitor<void> {
     symbolTable: SymbolTable<Slot>;
@@ -241,6 +243,18 @@ export default class InterpretingVisitor implements Visitor<void> {
                 case PseudoParser.LBRACK:
                     result = this.handleIndexAccess(left, right, expr.operator)
                     break;
+                case PseudoParser.IN:
+                    result = this.handleInQuery(left, right, expr.operator)
+                    break;
+                case PseudoParser.UNION:
+                    result = this.handleSetUnion(left, right, expr.operator)
+                    break
+                case PseudoParser.INTERSECT:
+                    result = this.handleSetIntersection(left, right, expr.operator)
+                    break
+                case PseudoParser.BACKSLASH:
+                    result = this.handleSetDifference(left, right, expr.operator)
+                    break
                 default:
                     throw new FeatureNotImplementedError(expr.location)
             }
@@ -428,7 +442,22 @@ export default class InterpretingVisitor implements Visitor<void> {
     }
 
     visitIterator(expr: IteratorTree): void {
-        expr.iterator.accept(this);
+        if (expr.iterator instanceof RangeTree) {
+            expr.iterator.accept(this);
+        } else if (expr.iterator instanceof ExprTree) {
+            expr.iterator.accept(this);
+            const value = this.stack.pop()
+            if (value === undefined) {
+                throw new EmptyStackError(expr.location);
+            }
+            if (value.type == Type.Array) {
+                const iterator = new ArrayIterator(value);
+                this.stack.push(iterator);
+            } else if (value.type == Type.Set) {
+                const iterator = new SetIterator(value);
+                this.stack.push(iterator);
+            }
+        }
     }
 
     visitRange(expr: RangeTree): void {
@@ -484,6 +513,19 @@ export default class InterpretingVisitor implements Visitor<void> {
             array.push(value)
         }
         this.stack.push(array);
+    }
+    
+    visitSet(expr: SetTree): void {
+        const set = new PseudoSet();
+        for (const element of expr.elements) {
+            element.accept(this);
+            const value = this.stack.pop();
+            if (value === undefined) {
+                throw new EmptyStackError(expr.location);
+            }
+            set.insert(value);
+        }
+        this.stack.push(set);
     }
 
     visitFullId(expr: FullIdTree): void {
@@ -748,6 +790,34 @@ export default class InterpretingVisitor implements Visitor<void> {
             }
         }
         throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
+    }
+    
+    private handleInQuery(left: Value, right: Value, operator: Token): Value {
+        if (right.type != Type.Set) {
+            throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
+        }
+        return right.contains(left)
+    }
+    
+    private handleSetIntersection(left: Value, right: Value, operator: Token): Value {
+        if (left.type != Type.Set || right.type != Type.Set) {
+            throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
+        }
+        return left.intersect(right)
+    }
+    
+    private handleSetUnion(left: Value, right: Value, operator: Token): Value {
+        if (left.type != Type.Set || right.type != Type.Set) {
+            throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
+        }
+        return left.union(right)
+    }
+    
+    private handleSetDifference(left: Value, right: Value, operator: Token): Value {
+        if (left.type != Type.Set || right.type != Type.Set) {
+            throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
+        }
+        return left.difference(right)
     }
 
     private handleUserFunction(func: FunctionTree, args: ExprTree[], location: NodeLocation) {

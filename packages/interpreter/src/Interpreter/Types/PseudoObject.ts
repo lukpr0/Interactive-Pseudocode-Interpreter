@@ -35,5 +35,9 @@ export default class PseudoObject {
     hasKey(index: string): boolean {
         return this.values.has(index);
     }
+    
+    asKey(): string {
+        throw new Error("Method not implemented.")
+    }
 
 }

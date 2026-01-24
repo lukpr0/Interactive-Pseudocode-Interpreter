@@ -1,5 +1,5 @@
-import { Token } from 'antlr4';
-import { AdditiveContext, AlgorithmContext, ArglistContext, ArrayexprContext, ArrayExprContext, AssignStatContext, AssignstatContext, BoolLiteralContext, BreakstatContext, BreakStatContext, ComparisonContext, ContinuestatContext, ContinueStatContext, DotAccessContext, DotAccessorContext, ExprContext, ExprStatContext, FloatLiteralContext, ForstatContext, ForStatContext, FullidContext, FunccallContext, FuncCallContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IndexAccessContext, IndexAccessorContext, IntLiteralContext, IteratorContext, KeyvaluepairContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, NilLiteralContext, ObjectexprContext, ObjectExprContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RepeatStatContext, RepeatstatContext, ReturnStatContext, ReturnstatContext, StatContext, StatlistContext, StringLiteralContext, UnaryMinusContext, WhileStatContext, WhilestatContext } from '@interactive-pseudo/parser';
+import type { Token } from 'antlr4';
+import { AdditiveContext, AlgorithmContext, ArrayexprContext, ArrayExprContext, AssignStatContext, AssignstatContext, BoolLiteralContext, BreakstatContext, BreakStatContext, ComparisonContext, ContinuestatContext, ContinueStatContext, DotAccessContext, DotAccessorContext, ExprContext, ExprIteratorContext, ExprStatContext, FloatLiteralContext, ForstatContext, ForStatContext, FullidContext, FunccallContext, FuncCallContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IndexAccessContext, IndexAccessorContext, InQueryContext, IntLiteralContext, IteratorContext, KeyvaluepairContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, NilLiteralContext, ObjectexprContext, ObjectExprContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RangeIteratorContext, RepeatStatContext, RepeatstatContext, ReturnStatContext, ReturnstatContext, SetDifferenceContext, SetexprContext, SetExprContext, SetIntersectContext, SetUnionContext, StatContext, StatlistContext, StringLiteralContext, UnaryMinusContext, WhileStatContext, WhilestatContext } from '@interactive-pseudo/parser';
 import type Tree from './AST/Tree.js';
 import ProgramTree from './AST/ProgramTree.js';
 import AssignTree from './AST/AssignTree.js';
@@ -22,6 +22,20 @@ import ReturnTree from './AST/ReturnTree.js';
 import BreakTree from './AST/BreakTree.js';
 import ContinueTree from './AST/ContinueTree.js';
 import { tokenToNodeLocation } from './AST/NodeLocations.js';
+import SetTree from './AST/SetTree.js';
+
+type BinaryContext 
+    = AdditiveContext 
+    | MultiplicativeContext 
+    | LogicalAndContext 
+    | LogicalOrContext 
+    | ComparisonContext 
+    | IndexAccessContext 
+    | InQueryContext
+    | SetUnionContext
+    | SetIntersectContext
+    | SetDifferenceContext
+    ;
 
 export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
 
@@ -94,6 +108,38 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
         this.visitForStat = (ctx: ForStatContext): Tree => {
             const forstat = ctx.forstat();
             return this.visit(forstat);
+        }
+
+        this.visitInQuery = (ctx: InQueryContext): Tree => {
+            if (!ctx.children) {
+                throw new Error("Expected operands, found nothing");
+            }
+            const op = ctx.IN()
+            return this.buildBinaryExpr(op.symbol, ctx)
+        }
+
+        this.visitSetUnion = (ctx: SetUnionContext): Tree => {
+            if (!ctx.children) {
+                throw new Error("Expected operands, found nothing");
+            }
+            const op = ctx.UNION()
+            return this.buildBinaryExpr(op.symbol, ctx)
+        }
+        
+        this.visitSetIntersect = (ctx: SetIntersectContext): Tree => {
+            if (!ctx.children) {
+                throw new Error("Expected operands, found nothing");
+            }
+            const op = ctx.INTERSECT()
+            return this.buildBinaryExpr(op.symbol, ctx)
+        }
+        
+        this.visitSetDifference = (ctx: SetDifferenceContext): Tree => {
+            if (!ctx.children) {
+                throw new Error("Expected operands, found nothing");
+            }
+            const op = ctx.BACKSLASH()
+            return this.buildBinaryExpr(op.symbol, ctx)
         }
 
         this.visitAdditive = (ctx: AdditiveContext): Tree => {
@@ -341,14 +387,21 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             return forTree;
         }
 
-        this.visitIterator = (ctx: IteratorContext): Tree => {
+        this.visitRangeIterator = (ctx: RangeIteratorContext): Tree => {
             const id = ctx.IDENTIFIER().symbol;
             const from = this.visit(ctx.range().expr(0))
             const to = this.visit(ctx.range().expr(1))
             const token = ctx.range().DOTDOT().symbol;
             const inclusive = ctx.range().EQUALS() != null;
             const rangeTree = new RangeTree(from, to, inclusive, token)
-            const iterator = new IteratorTree(id, rangeTree);
+            const iterator = new IteratorTree(id, rangeTree, ctx.IN().symbol);
+            return iterator;
+        }
+
+        this.visitExprIterator = (ctx: ExprIteratorContext): Tree => {
+            const id = ctx.IDENTIFIER().symbol;
+            const expr = this.visit(ctx.expr());
+            const iterator = new IteratorTree(id, expr, ctx.IN().symbol);
             return iterator;
         }
 
@@ -459,9 +512,24 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             return new ContinueTree(ctx.CONTINUE().symbol);
         }
 
+        this.visitSetExpr = (ctx: SetExprContext): Tree => {
+            return ctx.setexpr().accept(this);
+        }
+
+        this.visitSetexpr = (ctx: SetexprContext): Tree => {
+            const elements = [] 
+            const token = ctx.LCURLY().symbol;
+            for (const element of ctx.expr_list()) {
+                const exprTree = this.visit(element);
+                elements.push(exprTree);
+            }
+            const setTree = new SetTree(elements, token);
+            return setTree;
+        }
+
     }
 
-    private buildBinaryExpr(op: Token, ctx: AdditiveContext | MultiplicativeContext | LogicalAndContext | LogicalOrContext | ComparisonContext | IndexAccessContext): Tree {
+    private buildBinaryExpr(op: Token, ctx: BinaryContext): Tree {
         const left = ctx.expr_list()[0]
         if (!left) {
             throw new Error("Expected operand, found nothing");

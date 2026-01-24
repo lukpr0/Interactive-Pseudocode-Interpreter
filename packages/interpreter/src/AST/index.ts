@@ -1,6 +1,7 @@
 export * from './AccessorTree.js'
 export * from './ExprTree.js'
 export { default as ArrayTree } from './ArrayTree.js'
+export { default as SetTree } from './SetTree.js'
 export { default as AssignTree } from './AssignTree.js'
 export { default as ASTPrinter } from './ASTPrinter.js'
 export { default as BreakTree } from './BreakTree.js'

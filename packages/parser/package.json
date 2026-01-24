@@ -1,15 +1,16 @@
 {
   "name": "@interactive-pseudo/parser",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "",
   "license": "ISC",
   "author": "",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo \"Error: no test specified\"",
+		"check-types": "tsc --noEmit",
     "antlr": "java -jar ../../antlr-4.13.2-complete.jar -Dlanguage=TypeScript -visitor -no-listener -o ./src/ PseudoLexer.g4 PseudoParser.g4",
-    "build": "npm run antlr && npx tsc -b"
+    "build": "npm run antlr && tsc"
   },
   "dependencies": {
     "antlr4": "^4.13.2"

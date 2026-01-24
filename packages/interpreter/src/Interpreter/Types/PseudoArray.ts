@@ -74,6 +74,14 @@ export default class PseudoArray {
             throw new Error(`No element in Array`)
         }
     }
+
+    asKey(): string {
+        return JSON.stringify({
+            type: Type.Array,
+            value: this.value.map(v => v.value.asKey())
+        }) 
+    }
+
 }
 
 
