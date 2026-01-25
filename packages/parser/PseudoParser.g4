@@ -81,7 +81,11 @@ keyvaluepair
     : IDENTIFIER ':' expr
     ;
 
-fullid
+lexpr
+    : lexpr_part (',' lexpr_part)*
+    ;
+
+lexpr_part
     : IDENTIFIER accessor*
     ;
 
@@ -91,7 +95,7 @@ accessor
     ;
 
 assignstat
-    : fullid ':=' expr
+    : lexpr ':=' expr
     ;
 
 whilestat
