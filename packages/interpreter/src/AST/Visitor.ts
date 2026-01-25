@@ -12,7 +12,6 @@ import type FunctionTree from "./FunctionTree.js";
 import type FunctionCallTree from "./FunctionCallTree.js";
 import type ArrayTree from "./ArrayTree.js";
 import type { DotAccessorTree, IndexAccessorTree } from "./AccessorTree.js";
-import type FullIdTree from "./LexprTree.js";
 import type ObjectTree from "./ObjectTree.js";
 import type KeyValueTree from "./KeyValueTree.js";
 import type ReturnTree from "./ReturnTree.js";
@@ -21,6 +20,7 @@ import type ContinueTree from "./ContinueTree.js";
 import type SetTree from "./SetTree.js";
 import type LexprTree from "./LexprTree.js";
 import type LexprPartTree from "./LexprPartTree.js";
+import type TupleTree from "./TupleTree.js";
 
 export default interface Visitor<T> {
     visitProgram(program: ProgramTree): T;
@@ -38,6 +38,7 @@ export default interface Visitor<T> {
     visitFunction(expr: FunctionTree): T;
     visitFunctionCall(expr: FunctionCallTree): T;
     visitArray(expr: ArrayTree): T;
+    visitTuple(expr: TupleTree): T;
     visitSet(expr: SetTree): T;
     visitLexpr(expr: LexprTree): T;
     visitLexprPart(expr: LexprPartTree): T;

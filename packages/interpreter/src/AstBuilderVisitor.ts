@@ -1,5 +1,5 @@
 import type { Token } from 'antlr4';
-import { AdditiveContext, AlgorithmContext, ArrayexprContext, ArrayExprContext, AssignStatContext, AssignstatContext, BoolLiteralContext, BreakstatContext, BreakStatContext, ComparisonContext, ContinuestatContext, ContinueStatContext, DotAccessContext, DotAccessorContext, ExprContext, ExprIteratorContext, ExprStatContext, FloatLiteralContext, ForstatContext, ForStatContext, LexprContext, FunccallContext, FuncCallContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IndexAccessContext, IndexAccessorContext, InQueryContext, IntLiteralContext, IteratorContext, KeyvaluepairContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, NilLiteralContext, ObjectexprContext, ObjectExprContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RangeIteratorContext, RepeatStatContext, RepeatstatContext, ReturnStatContext, ReturnstatContext, SetDifferenceContext, SetexprContext, SetExprContext, SetIntersectContext, SetUnionContext, StatContext, StatlistContext, StringLiteralContext, UnaryMinusContext, WhileStatContext, WhilestatContext, Lexpr_partContext } from '@interactive-pseudo/parser';
+import { AdditiveContext, AlgorithmContext, ArrayexprContext, ArrayExprContext, AssignStatContext, AssignstatContext, BoolLiteralContext, BreakstatContext, BreakStatContext, ComparisonContext, ContinuestatContext, ContinueStatContext, DotAccessContext, DotAccessorContext, ExprContext, ExprIteratorContext, ExprStatContext, FloatLiteralContext, ForstatContext, ForStatContext, LexprContext, FunccallContext, FuncCallContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IndexAccessContext, IndexAccessorContext, InQueryContext, IntLiteralContext, IteratorContext, KeyvaluepairContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, NilLiteralContext, ObjectexprContext, ObjectExprContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RangeIteratorContext, RepeatStatContext, RepeatstatContext, ReturnStatContext, ReturnstatContext, SetDifferenceContext, SetexprContext, SetExprContext, SetIntersectContext, SetUnionContext, StatContext, StatlistContext, StringLiteralContext, UnaryMinusContext, WhileStatContext, WhilestatContext, Lexpr_partContext, TupleExprContext, TupleexprContext } from '@interactive-pseudo/parser';
 import type Tree from './AST/Tree.js';
 import ProgramTree from './AST/ProgramTree.js';
 import AssignTree from './AST/AssignTree.js';
@@ -25,6 +25,7 @@ import { tokenToNodeLocation } from './AST/NodeLocations.js';
 import SetTree from './AST/SetTree.js';
 import LexprPartTree from './AST/LexprPartTree.js';
 import LexprTree from './AST/LexprTree.js';
+import TupleTree from './AST/TupleTree.js';
 
 type BinaryContext 
     = AdditiveContext 
@@ -439,6 +440,21 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             }
             const arrayTree = new ArrayTree(elements, token);
             return arrayTree;
+        }
+
+        this.visitTupleExpr = (ctx: TupleExprContext): Tree => {
+            return ctx.tupleexpr().accept(this);
+        }
+
+        this.visitTupleexpr = (ctx: TupleexprContext): Tree => {
+            const elements = [];
+            const token = ctx.LPAREN().symbol;
+            for (const element of ctx.expr_list()) {
+                const exprTree = this.visit(element);
+                elements.push(exprTree);
+            }
+            const tupleTree = new TupleTree(elements, token);
+            return tupleTree;
         }
 
         this.visitLexpr = (ctx: LexprContext): Tree => {

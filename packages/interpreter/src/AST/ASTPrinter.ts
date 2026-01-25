@@ -13,7 +13,6 @@ import type IteratorTree from "./IteratorTree.js";
 import type FunctionTree from "./FunctionTree.js";
 import type FunctionCallTree from "./FunctionCallTree.js";
 import type ArrayTree from "./ArrayTree.js";
-import type FullIdTree from "./LexprTree.js";
 import type { DotAccessorTree, IndexAccessorTree } from "./AccessorTree.js";
 import type KeyValueTree from "./KeyValueTree.js";
 import type ObjectTree from "./ObjectTree.js";
@@ -23,6 +22,7 @@ import type ContinueTree from "./ContinueTree.js";
 import type SetTree from "./SetTree.js";
 import type LexprPartTree from "./LexprPartTree.js";
 import type LexprTree from "./LexprTree.js";
+import type TupleTree from "./TupleTree.js";
 
 export default class ASTPrinter implements Visitor<string> {
 
@@ -139,6 +139,11 @@ export default class ASTPrinter implements Visitor<string> {
     visitArray(expr: ArrayTree): string {
         const elements = expr.elements.map(element => element.accept(this)).join(" ");
         return `(array ${elements})`
+    }
+
+    visitTuple(expr: TupleTree): string {
+        const elements = expr.elements.map(element => element.accept(this)).join(" ");
+        return `(tuple ${elements})`
     }
 
     visitLexpr(expr: LexprTree): string {
