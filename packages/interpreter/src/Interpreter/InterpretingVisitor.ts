@@ -1,6 +1,6 @@
 import { Token } from "antlr4";
 import { PseudoParser } from "@interactive-pseudo/parser";
-import { type WhileTree, type StatListTree, type RepeatUntilTree, type IfTree, type ForTree, type IteratorTree, RangeTree, type KeyValueTree, type ObjectTree, type BreakTree, type ReturnTree, type ContinueTree, type AssignTree, type ProgramTree, type Visitor, type ArrayTree, type FullIdTree, type SetTree } from "../AST/index.js";
+import { type WhileTree, type StatListTree, type RepeatUntilTree, type IfTree, type ForTree, type IteratorTree, RangeTree, type KeyValueTree, type ObjectTree, type BreakTree, type ReturnTree, type ContinueTree, type AssignTree, type ProgramTree, type Visitor, type ArrayTree, type LexprTree, type SetTree, LexprPartTree } from "../AST/index.js";
 import type { Value } from "./Value.js";
 import type BuiltInFunction from "./BuiltInFunctions/BuiltInFunction.js";
 import type PrintObserver from "./PrintObserver.js";
@@ -108,48 +108,53 @@ export default class InterpretingVisitor implements Visitor<void> {
         if (value === undefined) {
             throw new EmptyStackError(assign.location);
         }
-        if (assign.id.accessors.length == 0) {
-            this.symbolTable.setVariable(assign.id.name.text, new Slot(value));
-        } else {
-            let slot = this.symbolTable.getVariable(assign.id.name.text);
-            if (slot === undefined) {
-                throw new VariableError(assign.id.name, tokenToNodeLocation(assign.id.name));
+        for (const id of assign.id.parts) {
+            if (!(id instanceof LexprPartTree)) {
+                throw new Error()
             }
-            for (const accessor of assign.id.accessors) {
-                if (accessor instanceof IndexAccessorTree) {
-                    accessor.index.accept(this);
-                    const index = this.stack.pop()
-                    if (index === undefined) {
-                        throw new EmptyStackError(assign.location);
-                    }
-                    if (index.type != Type.Integer && index.type != Type.Float) {
-                        throw new UnexpectedTypeError([Type.Integer, Type.Float], index.type, assign.location)
-                    }
-                    if (slot.value.type != Type.Array) {
-                        throw new IncompatibleTypesError(slot.value.type, index.type, accessor.token, accessor.location)
-                    }
-                    const indexAsNum = typeof index.value == "number" ? index.value : Number(index.value)
-                    try {
-                        slot = slot.value.getSlot(indexAsNum);
-                    } catch (e) {
-                        if (e instanceof Error) {
-                            throw new PseudoRuntimeError(e.message, assign.location);
-                        } else throw e;
-                    }
-                } else if (accessor instanceof DotAccessorTree) {
-                    if (slot.value.type != Type.Object) {
-                        throw new PseudoTypeError(`Member access not possible on type ${typeToString(slot.value.type)}`, accessor.location)
-                    }
-                    try {
-                        slot = slot.value.get(accessor.name.text);
-                    } catch (e) {
-                        if (e instanceof Error) {
-                            throw new PseudoRuntimeError(e.message, assign.location);
-                        } else throw e;
+            if (id.accessors.length == 0) {
+                this.symbolTable.setVariable(id.name.text, new Slot(value));
+            } else {
+                let slot = this.symbolTable.getVariable(id.name.text);
+                if (slot === undefined) {
+                    throw new VariableError(id.name, tokenToNodeLocation(id.name));
+                }
+                for (const accessor of id.accessors) {
+                    if (accessor instanceof IndexAccessorTree) {
+                        accessor.index.accept(this);
+                        const index = this.stack.pop()
+                        if (index === undefined) {
+                            throw new EmptyStackError(assign.location);
+                        }
+                        if (index.type != Type.Integer && index.type != Type.Float) {
+                            throw new UnexpectedTypeError([Type.Integer, Type.Float], index.type, assign.location)
+                        }
+                        if (slot.value.type != Type.Array) {
+                            throw new IncompatibleTypesError(slot.value.type, index.type, accessor.token, accessor.location)
+                        }
+                        const indexAsNum = typeof index.value == "number" ? index.value : Number(index.value)
+                        try {
+                            slot = slot.value.getSlot(indexAsNum);
+                        } catch (e) {
+                            if (e instanceof Error) {
+                                throw new PseudoRuntimeError(e.message, assign.location);
+                            } else throw e;
+                        }
+                    } else if (accessor instanceof DotAccessorTree) {
+                        if (slot.value.type != Type.Object) {
+                            throw new PseudoTypeError(`Member access not possible on type ${typeToString(slot.value.type)}`, accessor.location)
+                        }
+                        try {
+                            slot = slot.value.get(accessor.name.text);
+                        } catch (e) {
+                            if (e instanceof Error) {
+                                throw new PseudoRuntimeError(e.message, assign.location);
+                            } else throw e;
+                        }
                     }
                 }
+                slot.value = value;
             }
-            slot.value = value;
         }
     }
 
@@ -528,7 +533,11 @@ export default class InterpretingVisitor implements Visitor<void> {
         this.stack.push(set);
     }
 
-    visitFullId(expr: FullIdTree): void {
+    visitLexpr(expr: LexprTree): void {
+        throw new Error("not implemented");
+    }
+
+    visitLexprPart(expr: LexprPartTree): void {
         const name = expr.name.text
         let slot = this.symbolTable.getVariable(name);
         if (slot === undefined) {

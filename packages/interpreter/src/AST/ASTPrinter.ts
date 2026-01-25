@@ -13,7 +13,7 @@ import type IteratorTree from "./IteratorTree.js";
 import type FunctionTree from "./FunctionTree.js";
 import type FunctionCallTree from "./FunctionCallTree.js";
 import type ArrayTree from "./ArrayTree.js";
-import type FullIdTree from "./FullIdTree.js";
+import type FullIdTree from "./LexprTree.js";
 import type { DotAccessorTree, IndexAccessorTree } from "./AccessorTree.js";
 import type KeyValueTree from "./KeyValueTree.js";
 import type ObjectTree from "./ObjectTree.js";
@@ -21,6 +21,8 @@ import type BreakTree from "./BreakTree.js";
 import type ReturnTree from "./ReturnTree.js";
 import type ContinueTree from "./ContinueTree.js";
 import type SetTree from "./SetTree.js";
+import type LexprPartTree from "./LexprPartTree.js";
+import type LexprTree from "./LexprTree.js";
 
 export default class ASTPrinter implements Visitor<string> {
 
@@ -139,9 +141,14 @@ export default class ASTPrinter implements Visitor<string> {
         return `(array ${elements})`
     }
 
-    visitFullId(expr: FullIdTree): string {
+    visitLexpr(expr: LexprTree): string {
+        const parts = expr.parts.map(accessor => accessor.accept(this)).join(" ")
+        return `(fullid ${parts})`
+    }
+
+    visitLexprPart(expr: LexprPartTree): string {
         const accessors = expr.accessors.map(accessor => accessor.accept(this)).join(" ")
-        return `(fullid ${expr.name.text} ${accessors})`
+        return `${expr.name.text} ${accessors}`
     }
 
     visitIndex(expr: IndexAccessorTree): string {

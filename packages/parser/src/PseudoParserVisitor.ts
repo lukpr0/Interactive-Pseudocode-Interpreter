@@ -46,7 +46,8 @@ import { ArrayexprContext } from "./PseudoParser.js";
 import { ObjectexprContext } from "./PseudoParser.js";
 import { SetexprContext } from "./PseudoParser.js";
 import { KeyvaluepairContext } from "./PseudoParser.js";
-import { FullidContext } from "./PseudoParser.js";
+import { LexprContext } from "./PseudoParser.js";
+import { Lexpr_partContext } from "./PseudoParser.js";
 import { IndexAccessorContext } from "./PseudoParser.js";
 import { DotAccessorContext } from "./PseudoParser.js";
 import { AssignstatContext } from "./PseudoParser.js";
@@ -363,11 +364,17 @@ export default class PseudoParserVisitor<Result> extends ParseTreeVisitor<Result
 	 */
 	visitKeyvaluepair?: (ctx: KeyvaluepairContext) => Result;
 	/**
-	 * Visit a parse tree produced by `PseudoParser.fullid`.
+	 * Visit a parse tree produced by `PseudoParser.lexpr`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	visitFullid?: (ctx: FullidContext) => Result;
+	visitLexpr?: (ctx: LexprContext) => Result;
+	/**
+	 * Visit a parse tree produced by `PseudoParser.lexpr_part`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitLexpr_part?: (ctx: Lexpr_partContext) => Result;
 	/**
 	 * Visit a parse tree produced by the `IndexAccessor`
 	 * labeled alternative in `PseudoParser.accessor`.
