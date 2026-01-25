@@ -1,12 +1,12 @@
 import { Token } from "antlr4";
 import { PseudoParser } from "@interactive-pseudo/parser";
-import { type WhileTree, type StatListTree, type RepeatUntilTree, type IfTree, type ForTree, type IteratorTree, RangeTree, type KeyValueTree, type ObjectTree, type BreakTree, type ReturnTree, type ContinueTree, type AssignTree, type ProgramTree, type Visitor, type ArrayTree, type LexprTree, type SetTree, LexprPartTree } from "../AST/index.js";
+import { type WhileTree, type StatListTree, type RepeatUntilTree, type IfTree, type ForTree, type IteratorTree, RangeTree, type KeyValueTree, type ObjectTree, type BreakTree, type ReturnTree, type ContinueTree, type AssignTree, type ProgramTree, type Visitor, type ArrayTree, type LexprTree, type SetTree, LexprPartTree, TupleTree } from "../AST/index.js";
 import type { Value } from "./Value.js";
 import type BuiltInFunction from "./BuiltInFunctions/BuiltInFunction.js";
 import type PrintObserver from "./PrintObserver.js";
 
 import { BinaryOperationTree, UnaryOperationTree, FunctionCallTree, FunctionTree, ExprTree, DotAccessorTree, IndexAccessorTree } from "../AST/index.js"
-import { PseudoInteger, PseudoFloat, PseudoBoolean, PseudoArray, PseudoObject, PseudoNil, PseudoString, PseudoSet } from "./Types/index.js";
+import { PseudoInteger, PseudoFloat, PseudoBoolean, PseudoArray, PseudoObject, PseudoNil, PseudoString, PseudoSet, PseudoTuple } from "./Types/index.js";
 import { ArrayConstructor, DequeueFunction, LengthFunction, PopFunction, PushFunction, CeilFunction, FloorFunction, PowFunction, SquarerootFunction, PrintFunction, CharFunction, CodepointFunction, MaxFunction, MinFunction } from "./BuiltInFunctions/index.js";
 import { Slot, SymbolTable, Type, Range} from "./index.js"
 import { PseudoTypeError, EmptyStackError, VariableError, UnexpectedTypeError, FeatureNotImplementedError, IncompatibleTypesError, BuiltInTypeError, InternalError, LocatedInternalError, PseudoRuntimeError, UnexpectedStatementError } from "./Errors/index.js";
@@ -108,9 +108,26 @@ export default class InterpretingVisitor implements Visitor<void> {
         if (value === undefined) {
             throw new EmptyStackError(assign.location);
         }
-        for (const id of assign.id.parts) {
+        const values = [];
+        if (value.type == Type.Tuple && value.value.length == assign.id.parts.length) {
+            for (const element of value.value) {
+                values.push(element.value);
+            }
+        } else if (value.type == Type.Tuple && value.value.length != assign.id.parts.length && assign.id.parts.length > 1) {
+            throw new PseudoRuntimeError("Not enough values to unpack", assign.location);
+        } else if (value.type != Type.Tuple && assign.id.parts.length > 1) {
+            throw new PseudoTypeError("Value can't be unpacked", assign.location);
+        } else {
+            values.push(value)
+        }
+        for (let i = 0; i < values.length; i++) {
+            const id = assign.id.parts[i];
+            const value = values[i];
             if (!(id instanceof LexprPartTree)) {
                 throw new Error()
+            }
+            if (value === undefined) {
+                throw new Error();
             }
             if (id.accessors.length == 0) {
                 this.symbolTable.setVariable(id.name.text, new Slot(value));
@@ -518,6 +535,19 @@ export default class InterpretingVisitor implements Visitor<void> {
             array.push(value)
         }
         this.stack.push(array);
+    }
+
+    visitTuple(expr: TupleTree): void {
+        const tuple = new PseudoTuple();
+        for (const element of expr.elements) {
+            element.accept(this);
+            const value = this.stack.pop();
+            if (value === undefined) {
+                throw new EmptyStackError(expr.location);
+            }
+            tuple.value.push(new Slot(value));
+        }
+        this.stack.push(tuple);
     }
     
     visitSet(expr: SetTree): void {

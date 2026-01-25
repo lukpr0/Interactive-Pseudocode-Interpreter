@@ -33,11 +33,13 @@ expr
     | STRING                            # StringLiteral
     | value=('true' | 'false')          # BoolLiteral
     | NIL                               # NilLiteral
-    | funccall                          # FuncCall
     | IDENTIFIER                        # IdLiteral
+    | funccall                          # FuncCall
+    | '(' expr ')'                      # Parentheses
     | arrayexpr                         # ArrayExpr
     | objectexpr                        # ObjectExpr
     | setexpr                           # SetExpr
+    | tupleexpr                         # TupleExpr
     | expr '[' expr ']'                 # IndexAccess
     | expr '.' IDENTIFIER               # DotAccess
     | expr op='in' expr                 # InQuery
@@ -51,7 +53,6 @@ expr
     | expr op=('>' | '<' | '<=' | '>=' | '=' | '!=') expr # Comparison
     | expr op='and' expr                # LogicalAnd
     | expr op='or' expr                 # LogicalOr
-    | '(' expr ')'                      # Parentheses
     ;
 
 breakstat
@@ -75,6 +76,10 @@ objectexpr
 
 setexpr
     : '{' NEWLINE* (expr NEWLINE* (',' NEWLINE* expr NEWLINE*)* ','? NEWLINE* )? '}'
+    ;
+
+tupleexpr
+    : '(' NEWLINE* (expr NEWLINE* (',' NEWLINE* expr NEWLINE*)* ','? NEWLINE* )? ')'
     ;
 
 keyvaluepair
