@@ -108,71 +108,81 @@ export default class InterpretingVisitor implements Visitor<void> {
         if (value === undefined) {
             throw new EmptyStackError(assign.location);
         }
+        const values = this.prepareAssign(value, assign.id.parts.length, assign.location);
+        for (let i = 0; i < values.length; i++) {
+            const id = assign.id.parts[i]!;
+            const value = values[i]!;
+            this.assignValueToPart(id, value, assign.location)
+        }
+    }
+
+    private prepareAssign(value: Value, ids: number, location: NodeLocation): Value[] {
         const values = [];
-        if (value.type == Type.Tuple && value.value.length == assign.id.parts.length) {
+        if (value.type == Type.Tuple && value.value.length == ids) {
             for (const element of value.value) {
                 values.push(element.value);
             }
-        } else if (value.type == Type.Tuple && value.value.length != assign.id.parts.length && assign.id.parts.length > 1) {
-            throw new PseudoRuntimeError("Not enough values to unpack", assign.location);
-        } else if (value.type != Type.Tuple && assign.id.parts.length > 1) {
-            throw new PseudoTypeError("Value can't be unpacked", assign.location);
+        } else if (value.type == Type.Tuple && value.value.length != ids && ids > 1) {
+            throw new PseudoRuntimeError("Not enough values to unpack", location);
+        } else if (value.type != Type.Tuple && ids > 1) {
+            throw new PseudoTypeError("Value can't be unpacked", location);
         } else {
-            values.push(value)
+            values.push(value);
         }
-        for (let i = 0; i < values.length; i++) {
-            const id = assign.id.parts[i];
-            const value = values[i];
-            if (!(id instanceof LexprPartTree)) {
-                throw new Error()
+        return values;
+    }
+
+    private assignValueToPart(part: LexprPartTree, value: Value, location: NodeLocation) {
+        if (!(part instanceof LexprPartTree)) {
+            throw new Error()
+        }
+        if (value === undefined) {
+            throw new Error();
+        }
+        if (part.accessors.length == 0) {
+            this.symbolTable.setVariable(part.name.text, new Slot(value));
+        } else {
+            let slot = this.symbolTable.getVariable(part.name.text);
+            if (slot === undefined) {
+                throw new VariableError(part.name, tokenToNodeLocation(part.name));
             }
-            if (value === undefined) {
-                throw new Error();
-            }
-            if (id.accessors.length == 0) {
-                this.symbolTable.setVariable(id.name.text, new Slot(value));
-            } else {
-                let slot = this.symbolTable.getVariable(id.name.text);
-                if (slot === undefined) {
-                    throw new VariableError(id.name, tokenToNodeLocation(id.name));
-                }
-                for (const accessor of id.accessors) {
-                    if (accessor instanceof IndexAccessorTree) {
-                        accessor.index.accept(this);
-                        const index = this.stack.pop()
-                        if (index === undefined) {
-                            throw new EmptyStackError(assign.location);
-                        }
-                        if (index.type != Type.Integer && index.type != Type.Float) {
-                            throw new UnexpectedTypeError([Type.Integer, Type.Float], index.type, assign.location)
-                        }
-                        if (slot.value.type != Type.Array) {
-                            throw new IncompatibleTypesError(slot.value.type, index.type, accessor.token, accessor.location)
-                        }
-                        const indexAsNum = typeof index.value == "number" ? index.value : Number(index.value)
-                        try {
-                            slot = slot.value.getSlot(indexAsNum);
-                        } catch (e) {
-                            if (e instanceof Error) {
-                                throw new PseudoRuntimeError(e.message, assign.location);
-                            } else throw e;
-                        }
-                    } else if (accessor instanceof DotAccessorTree) {
-                        if (slot.value.type != Type.Object) {
-                            throw new PseudoTypeError(`Member access not possible on type ${typeToString(slot.value.type)}`, accessor.location)
-                        }
-                        try {
-                            slot = slot.value.get(accessor.name.text);
-                        } catch (e) {
-                            if (e instanceof Error) {
-                                throw new PseudoRuntimeError(e.message, assign.location);
-                            } else throw e;
-                        }
+            for (const accessor of part.accessors) {
+                if (accessor instanceof IndexAccessorTree) {
+                    accessor.index.accept(this);
+                    const index = this.stack.pop()
+                    if (index === undefined) {
+                        throw new EmptyStackError(location);
+                    }
+                    if (index.type != Type.Integer && index.type != Type.Float) {
+                        throw new UnexpectedTypeError([Type.Integer, Type.Float], index.type, location)
+                    }
+                    if (slot.value.type != Type.Array) {
+                        throw new IncompatibleTypesError(slot.value.type, index.type, accessor.token, accessor.location)
+                    }
+                    const indexAsNum = typeof index.value == "number" ? index.value : Number(index.value)
+                    try {
+                        slot = slot.value.getSlot(indexAsNum);
+                    } catch (e) {
+                        if (e instanceof Error) {
+                            throw new PseudoRuntimeError(e.message, location);
+                        } else throw e;
+                    }
+                } else if (accessor instanceof DotAccessorTree) {
+                    if (slot.value.type != Type.Object) {
+                        throw new PseudoTypeError(`Member access not possible on type ${typeToString(slot.value.type)}`, accessor.location)
+                    }
+                    try {
+                        slot = slot.value.get(accessor.name.text);
+                    } catch (e) {
+                        if (e instanceof Error) {
+                            throw new PseudoRuntimeError(e.message, location);
+                        } else throw e;
                     }
                 }
-                slot.value = value;
             }
+            slot.value = value;
         }
+
     }
 
     visitExpr(expr: ExprTree): void {
@@ -444,11 +454,18 @@ export default class InterpretingVisitor implements Visitor<void> {
         if (iter.type != Type.Iterator) {
             throw new UnexpectedTypeError([Type.Iterator], iter.type, expr.location)
         }
-        const variableName = expr.cond.id.text;
+        //const variableName = expr.cond.id.text;
         while (iter.hasNext()) {
             this.symbolTable.addChild(new SymbolTable());
             const value = iter.next();
-            this.symbolTable.setVariable(variableName, new Slot(value));
+            const values = this.prepareAssign(value, expr.cond.id.parts.length, expr.location)
+            for (let i = 0; i < values.length; i++) {
+                const id = expr.cond.id.parts[i]!;
+                const value = values[i]!;
+                this.assignValueToPart(id, value, expr.location)
+            }
+            //this.symbolTable.setVariable(variableName, new Slot(value));
+
             expr.list.accept(this);
             if (this.breaking) {
                 this.breaking = false;

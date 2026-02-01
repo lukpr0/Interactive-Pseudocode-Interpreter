@@ -37,8 +37,8 @@ expr
     | funccall                          # FuncCall
     | '(' expr ')'                      # Parentheses
     | arrayexpr                         # ArrayExpr
-    | objectexpr                        # ObjectExpr
     | setexpr                           # SetExpr
+    | objectexpr                        # ObjectExpr
     | tupleexpr                         # TupleExpr
     | expr '[' expr ']'                 # IndexAccess
     | expr '.' IDENTIFIER               # DotAccess
@@ -124,8 +124,8 @@ forstat
     ;
 
 iterator
-    : IDENTIFIER 'in' range     # RangeIterator
-    | IDENTIFIER 'in' expr      # ExprIterator
+    : lexpr 'in' range     # RangeIterator
+    | lexpr 'in' expr      # ExprIterator
     ;
 
 range

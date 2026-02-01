@@ -391,19 +391,25 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
         }
 
         this.visitRangeIterator = (ctx: RangeIteratorContext): Tree => {
-            const id = ctx.IDENTIFIER().symbol;
+            const id = ctx.lexpr().accept(this);
             const from = this.visit(ctx.range().expr(0))
             const to = this.visit(ctx.range().expr(1))
             const token = ctx.range().DOTDOT().symbol;
             const inclusive = ctx.range().EQUALS() != null;
             const rangeTree = new RangeTree(from, to, inclusive, token)
+            if (!(id instanceof LexprTree)) {
+                throw new Error("unexpected tree type")
+            }
             const iterator = new IteratorTree(id, rangeTree, ctx.IN().symbol);
             return iterator;
         }
 
         this.visitExprIterator = (ctx: ExprIteratorContext): Tree => {
-            const id = ctx.IDENTIFIER().symbol;
+            const id = ctx.lexpr().accept(this);
             const expr = this.visit(ctx.expr());
+            if (!(id instanceof LexprTree)) {
+                throw new Error("unexpected tree type")
+            }
             const iterator = new IteratorTree(id, expr, ctx.IN().symbol);
             return iterator;
         }
