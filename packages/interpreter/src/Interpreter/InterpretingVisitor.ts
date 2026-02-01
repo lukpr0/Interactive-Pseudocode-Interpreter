@@ -495,6 +495,8 @@ export default class InterpretingVisitor implements Visitor<void> {
             } else if (value.type == Type.Set) {
                 const iterator = new SetIterator(value);
                 this.stack.push(iterator);
+            } else {
+                throw new UnexpectedTypeError([Type.Array, Type.Set], value.type, expr.location)
             }
         }
     }
