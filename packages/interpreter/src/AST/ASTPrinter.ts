@@ -115,8 +115,9 @@ export default class ASTPrinter implements Visitor<string> {
 
     visitIterator(expr: IteratorTree): string {
         const id = expr.id;
-        const iterated = expr.iterator.accept(this)
-        return `(iter ${id.text} ${iterated})`
+        const iterated = expr.iterator.accept(this);
+        const lexpr = expr.id.accept(this)
+        return `(iter ${lexpr} ${iterated})`
     }
 
     visitRange(expr: RangeTree): string {

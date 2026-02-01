@@ -6,14 +6,15 @@ import type { ExprTree } from "./ExprTree.js";
 import type InfoTree from "./InfoTree.js";
 import type NodeLocation from "./NodeLocations.js";
 import { tokenToNodeLocation } from "./NodeLocations.js";
+import type LexprTree from "./LexprTree.js";
 
 export default class IteratorTree implements Tree, InfoTree {
 
-    id: Token
+    id: LexprTree 
     iterator: RangeTree | ExprTree
     location: NodeLocation;
 
-    constructor(id: Token, iterator: RangeTree | ExprTree, location: Token) {
+    constructor(id: LexprTree, iterator: RangeTree | ExprTree, location: Token) {
         this.id = id;
         this.iterator = iterator;
         this.location = tokenToNodeLocation(location);
