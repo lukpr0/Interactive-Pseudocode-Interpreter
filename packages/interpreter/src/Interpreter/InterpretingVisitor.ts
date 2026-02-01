@@ -123,7 +123,11 @@ export default class InterpretingVisitor implements Visitor<void> {
                 values.push(element.value);
             }
         } else if (value.type == Type.Tuple && value.value.length != ids && ids > 1) {
-            throw new PseudoRuntimeError("Not enough values to unpack", location);
+            if (value.value.length > ids) {
+                throw new PseudoRuntimeError("Too many values to unpack", location);
+            } else {
+                throw new PseudoRuntimeError("Not enough values to unpack", location);
+            }
         } else if (value.type != Type.Tuple && ids > 1) {
             throw new PseudoTypeError("Value can't be unpacked", location);
         } else {
