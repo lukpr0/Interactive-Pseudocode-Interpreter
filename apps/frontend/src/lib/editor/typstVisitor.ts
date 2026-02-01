@@ -1,4 +1,4 @@
-import { BinaryOperationTree, ExprTree, type ArrayTree, type AssignTree, type BreakTree, type ContinueTree, type DotAccessorTree, type ForTree, type FullIdTree, type FunctionCallTree, type FunctionTree, type IfTree, type IndexAccessorTree, type IteratorTree, type KeyValueTree, type ObjectTree, type ProgramTree, type RangeTree, type RepeatUntilTree, type ReturnTree, type StatListTree, UnaryOperationTree, type Visitor, type WhileTree, SetTree } from "@interactive-pseudo/interpreter";
+import { BinaryOperationTree, ExprTree, type ArrayTree, type AssignTree, type BreakTree, type ContinueTree, type DotAccessorTree, type ForTree, type FunctionCallTree, type FunctionTree, type IfTree, type IndexAccessorTree, type IteratorTree, type KeyValueTree, type ObjectTree, type ProgramTree, type RangeTree, type RepeatUntilTree, type ReturnTree, type StatListTree, UnaryOperationTree, type Visitor, type WhileTree, SetTree, LexprPartTree, LexprTree, TupleTree } from "@interactive-pseudo/interpreter";
 import { PseudoLexer } from '@interactive-pseudo/parser'
 import { MarkupGenerationVisitor } from "./markupGenerationVisitor.js";
 
@@ -173,7 +173,8 @@ export class TypstVisitor extends MarkupGenerationVisitor {
     }
 
     visitIterator(expr: IteratorTree): string {
-        return `[${expr.id.text} $in ${expr.iterator.accept(this)}$]`
+        const id = expr.id.accept(this);
+        return `[${id} $in ${expr.iterator.accept(this)}$]`
     }
 
     visitRange(expr: RangeTree): string {
@@ -203,12 +204,6 @@ export class TypstVisitor extends MarkupGenerationVisitor {
     visitArray(expr: ArrayTree): string {
         const values = expr.elements.map(element => `#[$${element.accept(this)}$]`).join(", ")
         return `[${values}]`
-    }
-
-    visitFullId(expr: FullIdTree): string {
-        const name = `text("${expr.name.text}")`
-        const accessors = expr.accessors.map(accessor => accessor.accept(this)).join("")
-        return `${name}${accessors}`
     }
 
     visitIndex(expr: IndexAccessorTree): string {
@@ -248,5 +243,24 @@ export class TypstVisitor extends MarkupGenerationVisitor {
         return `{${values}}`
     }
 
+    visitLexpr(expr: LexprTree): string {
+        if (expr.parts.length == 1) {
+            return expr.parts[0]!.accept(this);
+        } else {
+            const lexprs = expr.parts.map(l => l.accept(this)).join(", ");
+            return lexprs
+        }
+    }
+
+    visitLexprPart(expr: LexprPartTree): string {
+        const name = `text("${expr.name.text}")`
+        const accessors = expr.accessors.map(accessor => accessor.accept(this)).join("")
+        return `${name}${accessors}`
+    }
+
+    visitTuple(expr: TupleTree): string {
+        const values = expr.elements.map(v => v.accept(this)).join(", ")
+        return `(${values})`
+    }
 
 }
