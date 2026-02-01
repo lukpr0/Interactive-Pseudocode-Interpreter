@@ -116,7 +116,7 @@ export class TypstVisitor extends MarkupGenerationVisitor {
             ? expr.operand.accept(this) 
             : expr.operand.type == PseudoLexer.INT || expr.operand.type == PseudoLexer.FLOAT || expr.operand.text.length <= 1
             ? expr.operand.text 
-            : `text("${expr.operand.text.replaceAll('"', '\\"')}")`
+            : `"${expr.operand.text.replaceAll('"', '\\"')}"`
         if (expr.operator) {
             return `${expr.operator.text} ${operand}`
         } else {
@@ -186,7 +186,7 @@ export class TypstVisitor extends MarkupGenerationVisitor {
         this.tabs++;
         const name = `"${expr.name.text.replaceAll('"', '\\"')}"`
         result += this.newlineTabs() + `${name},`
-        const args = expr.args.map(arg => arg.text.length > 1 ? `text("${arg.text.replaceAll('"', '\\"')}")` : `$${arg.text}$`).join(", ")
+        const args = expr.args.map(arg => arg.text.length > 1 ? `"${arg.text.replaceAll('"', '\\"')}"` : `$${arg.text}$`).join(", ")
         result += this.newlineTabs() + `(${args}),`
         const body = expr.stats.accept(this)
         result += body
@@ -219,7 +219,7 @@ export class TypstVisitor extends MarkupGenerationVisitor {
         return `{${elements}}`
     }
     visitKeyValue(expr: KeyValueTree): string {
-        return `text("${expr.key.text.replaceAll('"', '\\"')}"): ${expr.value.accept(this)}`
+        return `"${expr.key.text.replaceAll('"', '\\"')}": ${expr.value.accept(this)}`
     }
 
     visitReturn(expr: ReturnTree): string {
@@ -253,7 +253,7 @@ export class TypstVisitor extends MarkupGenerationVisitor {
     }
 
     visitLexprPart(expr: LexprPartTree): string {
-        const name = `text("${expr.name.text}")`
+        const name = `"${expr.name.text}"`
         const accessors = expr.accessors.map(accessor => accessor.accept(this)).join("")
         return `${name}${accessors}`
     }
