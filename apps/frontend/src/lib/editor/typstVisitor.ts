@@ -4,13 +4,11 @@ import { MarkupGenerationVisitor } from "./markupGenerationVisitor.js";
 
 export class TypstVisitor extends MarkupGenerationVisitor {
 
-    functions: Set<string>
     tabs: number
     tab: string
 
     constructor(tab: string, headers: boolean) {
         super(headers)
-        this.functions = new Set();
         this.tabs = 0
         this.tab = tab
     }
@@ -33,9 +31,8 @@ export class TypstVisitor extends MarkupGenerationVisitor {
         result += this.newlineTabs() + `{`
         this.tabs++;
         result += this.newlineTabs() + `import algorithmic: *`
-        const stats = program.children.map(stat => stat instanceof ExprTree ? `Line(${stat.accept(this)})` : stat.accept(this)).join(this.newlineTabs())
-        const functions = this.functions.entries().map(([_, value]) => `let ${value} = Fn.with("${value.replaceAll('"', '\\"')}")`).toArray().join(this.newlineTabs())
-        result += `${this.newlineTabs()}${functions}${this.newlineTabs()}${stats}`
+        const stats = program.children.map(stat => stat instanceof ExprTree ? `Line($${stat.accept(this)}$)` : stat.accept(this)).join(this.newlineTabs())
+        result += `${this.newlineTabs()}${this.newlineTabs()}${stats}`
         this.tabs--;
         result += this.newlineTabs() + `}`
         this.tabs--;
@@ -125,8 +122,11 @@ export class TypstVisitor extends MarkupGenerationVisitor {
     }
 
     visitStatlist(expr: StatListTree): string {
+        if (expr.stats.length == 0) {
+            return `${this.newlineTabs()}Line($$)`
+        }
         this.tabs++;
-        let stats = expr.stats.map(stat => stat instanceof ExprTree ? `Line(${stat.accept(this)})` : stat.accept(this))
+        let stats = expr.stats.map(stat => stat instanceof ExprTree ? `Line($${stat.accept(this)}$)` : stat.accept(this))
         let result = `{${this.newlineTabs()}${stats.join(this.newlineTabs())}`
         this.tabs--;
         result += `${this.newlineTabs()}}`
@@ -174,7 +174,7 @@ export class TypstVisitor extends MarkupGenerationVisitor {
 
     visitIterator(expr: IteratorTree): string {
         const id = expr.id.accept(this);
-        return `[${id} $in ${expr.iterator.accept(this)}$]`
+        return `[$${id} in ${expr.iterator.accept(this)}$]`
     }
 
     visitRange(expr: RangeTree): string {
@@ -196,9 +196,8 @@ export class TypstVisitor extends MarkupGenerationVisitor {
     }
 
     visitFunctionCall(expr: FunctionCallTree): string {
-        this.functions.add(expr.name.text)
         const args = expr.args.map(arg => `#[$${arg.accept(this)}$]`).join(", ")
-        return ` $#${expr.name.text}[${args}].join()$ `
+        return `#FnInline[${expr.name.text}][${args}]`
     }
 
     visitArray(expr: ArrayTree): string {
@@ -253,7 +252,9 @@ export class TypstVisitor extends MarkupGenerationVisitor {
     }
 
     visitLexprPart(expr: LexprPartTree): string {
-        const name = `"${expr.name.text}"`
+        const name = expr.name.text.length <= 1
+            ? expr.name.text 
+            : `"${expr.name.text.replaceAll('"', '\\"')}"`
         const accessors = expr.accessors.map(accessor => accessor.accept(this)).join("")
         return `${name}${accessors}`
     }
