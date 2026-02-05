@@ -1,16 +1,14 @@
-import { BinaryOperationTree, ExprTree, type ArrayTree, type AssignTree, type BreakTree, type ContinueTree, type DotAccessorTree, type ForTree, type FullIdTree, type FunctionCallTree, type FunctionTree, type IfTree, type IndexAccessorTree, type IteratorTree, type KeyValueTree, type ObjectTree, type ProgramTree, type RangeTree, type RepeatUntilTree, type ReturnTree, type StatListTree, UnaryOperationTree, type Visitor, type WhileTree, SetTree } from "@interactive-pseudo/interpreter";
+import { BinaryOperationTree, ExprTree, type ArrayTree, type AssignTree, type BreakTree, type ContinueTree, type DotAccessorTree, type ForTree, type FunctionCallTree, type FunctionTree, type IfTree, type IndexAccessorTree, type IteratorTree, type KeyValueTree, type ObjectTree, type ProgramTree, type RangeTree, type RepeatUntilTree, type ReturnTree, type StatListTree, UnaryOperationTree, type Visitor, type WhileTree, SetTree, LexprPartTree, LexprTree, TupleTree } from "@interactive-pseudo/interpreter";
 import { PseudoLexer } from '@interactive-pseudo/parser'
 import { MarkupGenerationVisitor } from "./markupGenerationVisitor.js";
 
 export class TypstVisitor extends MarkupGenerationVisitor {
 
-    functions: Set<string>
     tabs: number
     tab: string
 
     constructor(tab: string, headers: boolean) {
         super(headers)
-        this.functions = new Set();
         this.tabs = 0
         this.tab = tab
     }
@@ -33,9 +31,8 @@ export class TypstVisitor extends MarkupGenerationVisitor {
         result += this.newlineTabs() + `{`
         this.tabs++;
         result += this.newlineTabs() + `import algorithmic: *`
-        const stats = program.children.map(stat => stat instanceof ExprTree ? `Line(${stat.accept(this)})` : stat.accept(this)).join(this.newlineTabs())
-        const functions = this.functions.entries().map(([_, value]) => `let ${value} = Fn.with("${value.replaceAll('"', '\\"')}")`).toArray().join(this.newlineTabs())
-        result += `${this.newlineTabs()}${functions}${this.newlineTabs()}${stats}`
+        const stats = program.children.map(stat => stat instanceof ExprTree ? `Line($${stat.accept(this)}$)` : stat.accept(this)).join(this.newlineTabs())
+        result += `${this.newlineTabs()}${this.newlineTabs()}${stats}`
         this.tabs--;
         result += this.newlineTabs() + `}`
         this.tabs--;
@@ -116,7 +113,7 @@ export class TypstVisitor extends MarkupGenerationVisitor {
             ? expr.operand.accept(this) 
             : expr.operand.type == PseudoLexer.INT || expr.operand.type == PseudoLexer.FLOAT || expr.operand.text.length <= 1
             ? expr.operand.text 
-            : `text("${expr.operand.text.replaceAll('"', '\\"')}")`
+            : `"${expr.operand.text.replaceAll('"', '\\"')}"`
         if (expr.operator) {
             return `${expr.operator.text} ${operand}`
         } else {
@@ -125,8 +122,11 @@ export class TypstVisitor extends MarkupGenerationVisitor {
     }
 
     visitStatlist(expr: StatListTree): string {
+        if (expr.stats.length == 0) {
+            return `${this.newlineTabs()}Line($$)`
+        }
         this.tabs++;
-        let stats = expr.stats.map(stat => stat instanceof ExprTree ? `Line(${stat.accept(this)})` : stat.accept(this))
+        let stats = expr.stats.map(stat => stat instanceof ExprTree ? `Line($${stat.accept(this)}$)` : stat.accept(this))
         let result = `{${this.newlineTabs()}${stats.join(this.newlineTabs())}`
         this.tabs--;
         result += `${this.newlineTabs()}}`
@@ -173,7 +173,8 @@ export class TypstVisitor extends MarkupGenerationVisitor {
     }
 
     visitIterator(expr: IteratorTree): string {
-        return `[${expr.id.text} $in ${expr.iterator.accept(this)}$]`
+        const id = expr.id.accept(this);
+        return `[$${id} in ${expr.iterator.accept(this)}$]`
     }
 
     visitRange(expr: RangeTree): string {
@@ -185,7 +186,7 @@ export class TypstVisitor extends MarkupGenerationVisitor {
         this.tabs++;
         const name = `"${expr.name.text.replaceAll('"', '\\"')}"`
         result += this.newlineTabs() + `${name},`
-        const args = expr.args.map(arg => arg.text.length > 1 ? `text("${arg.text.replaceAll('"', '\\"')}")` : `$${arg.text}$`).join(", ")
+        const args = expr.args.map(arg => arg.text.length > 1 ? `"${arg.text.replaceAll('"', '\\"')}"` : `$${arg.text}$`).join(", ")
         result += this.newlineTabs() + `(${args}),`
         const body = expr.stats.accept(this)
         result += body
@@ -195,20 +196,13 @@ export class TypstVisitor extends MarkupGenerationVisitor {
     }
 
     visitFunctionCall(expr: FunctionCallTree): string {
-        this.functions.add(expr.name.text)
         const args = expr.args.map(arg => `#[$${arg.accept(this)}$]`).join(", ")
-        return ` $#${expr.name.text}[${args}].join()$ `
+        return `#FnInline[${expr.name.text}][${args}]`
     }
 
     visitArray(expr: ArrayTree): string {
         const values = expr.elements.map(element => `#[$${element.accept(this)}$]`).join(", ")
         return `[${values}]`
-    }
-
-    visitFullId(expr: FullIdTree): string {
-        const name = `text("${expr.name.text}")`
-        const accessors = expr.accessors.map(accessor => accessor.accept(this)).join("")
-        return `${name}${accessors}`
     }
 
     visitIndex(expr: IndexAccessorTree): string {
@@ -224,7 +218,7 @@ export class TypstVisitor extends MarkupGenerationVisitor {
         return `{${elements}}`
     }
     visitKeyValue(expr: KeyValueTree): string {
-        return `text("${expr.key.text.replaceAll('"', '\\"')}"): ${expr.value.accept(this)}`
+        return `"${expr.key.text.replaceAll('"', '\\"')}": ${expr.value.accept(this)}`
     }
 
     visitReturn(expr: ReturnTree): string {
@@ -248,5 +242,26 @@ export class TypstVisitor extends MarkupGenerationVisitor {
         return `{${values}}`
     }
 
+    visitLexpr(expr: LexprTree): string {
+        if (expr.parts.length == 1) {
+            return expr.parts[0]!.accept(this);
+        } else {
+            const lexprs = expr.parts.map(l => l.accept(this)).join(", ");
+            return lexprs
+        }
+    }
+
+    visitLexprPart(expr: LexprPartTree): string {
+        const name = expr.name.text.length <= 1
+            ? expr.name.text 
+            : `"${expr.name.text.replaceAll('"', '\\"')}"`
+        const accessors = expr.accessors.map(accessor => accessor.accept(this)).join("")
+        return `${name}${accessors}`
+    }
+
+    visitTuple(expr: TupleTree): string {
+        const values = expr.elements.map(v => v.accept(this)).join(", ")
+        return `(${values})`
+    }
 
 }

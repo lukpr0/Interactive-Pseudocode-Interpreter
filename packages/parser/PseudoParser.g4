@@ -33,11 +33,13 @@ expr
     | STRING                            # StringLiteral
     | value=('true' | 'false')          # BoolLiteral
     | NIL                               # NilLiteral
-    | funccall                          # FuncCall
     | IDENTIFIER                        # IdLiteral
+    | funccall                          # FuncCall
+    | '(' expr ')'                      # Parentheses
     | arrayexpr                         # ArrayExpr
-    | objectexpr                        # ObjectExpr
     | setexpr                           # SetExpr
+    | objectexpr                        # ObjectExpr
+    | tupleexpr                         # TupleExpr
     | expr '[' expr ']'                 # IndexAccess
     | expr '.' IDENTIFIER               # DotAccess
     | expr op='in' expr                 # InQuery
@@ -51,7 +53,6 @@ expr
     | expr op=('>' | '<' | '<=' | '>=' | '=' | '!=') expr # Comparison
     | expr op='and' expr                # LogicalAnd
     | expr op='or' expr                 # LogicalOr
-    | '(' expr ')'                      # Parentheses
     ;
 
 breakstat
@@ -77,11 +78,19 @@ setexpr
     : '{' NEWLINE* (expr NEWLINE* (',' NEWLINE* expr NEWLINE*)* ','? NEWLINE* )? '}'
     ;
 
+tupleexpr
+    : '(' NEWLINE* (expr NEWLINE* (',' NEWLINE* expr NEWLINE*)* ','? NEWLINE* )? ')'
+    ;
+
 keyvaluepair
     : IDENTIFIER ':' expr
     ;
 
-fullid
+lexpr
+    : lexpr_part (',' lexpr_part)*
+    ;
+
+lexpr_part
     : IDENTIFIER accessor*
     ;
 
@@ -91,7 +100,7 @@ accessor
     ;
 
 assignstat
-    : fullid ':=' expr
+    : lexpr ':=' expr
     ;
 
 whilestat
@@ -115,8 +124,8 @@ forstat
     ;
 
 iterator
-    : IDENTIFIER 'in' range     # RangeIterator
-    | IDENTIFIER 'in' expr      # ExprIterator
+    : lexpr 'in' range     # RangeIterator
+    | lexpr 'in' expr      # ExprIterator
     ;
 
 range

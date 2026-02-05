@@ -1,5 +1,5 @@
 import type { Token } from 'antlr4';
-import { AdditiveContext, AlgorithmContext, ArrayexprContext, ArrayExprContext, AssignStatContext, AssignstatContext, BoolLiteralContext, BreakstatContext, BreakStatContext, ComparisonContext, ContinuestatContext, ContinueStatContext, DotAccessContext, DotAccessorContext, ExprContext, ExprIteratorContext, ExprStatContext, FloatLiteralContext, ForstatContext, ForStatContext, FullidContext, FunccallContext, FuncCallContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IndexAccessContext, IndexAccessorContext, InQueryContext, IntLiteralContext, IteratorContext, KeyvaluepairContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, NilLiteralContext, ObjectexprContext, ObjectExprContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RangeIteratorContext, RepeatStatContext, RepeatstatContext, ReturnStatContext, ReturnstatContext, SetDifferenceContext, SetexprContext, SetExprContext, SetIntersectContext, SetUnionContext, StatContext, StatlistContext, StringLiteralContext, UnaryMinusContext, WhileStatContext, WhilestatContext } from '@interactive-pseudo/parser';
+import { AdditiveContext, AlgorithmContext, ArrayexprContext, ArrayExprContext, AssignStatContext, AssignstatContext, BoolLiteralContext, BreakstatContext, BreakStatContext, ComparisonContext, ContinuestatContext, ContinueStatContext, DotAccessContext, DotAccessorContext, ExprContext, ExprIteratorContext, ExprStatContext, FloatLiteralContext, ForstatContext, ForStatContext, LexprContext, FunccallContext, FuncCallContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IndexAccessContext, IndexAccessorContext, InQueryContext, IntLiteralContext, IteratorContext, KeyvaluepairContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, NilLiteralContext, ObjectexprContext, ObjectExprContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RangeIteratorContext, RepeatStatContext, RepeatstatContext, ReturnStatContext, ReturnstatContext, SetDifferenceContext, SetexprContext, SetExprContext, SetIntersectContext, SetUnionContext, StatContext, StatlistContext, StringLiteralContext, UnaryMinusContext, WhileStatContext, WhilestatContext, Lexpr_partContext, TupleExprContext, TupleexprContext } from '@interactive-pseudo/parser';
 import type Tree from './AST/Tree.js';
 import ProgramTree from './AST/ProgramTree.js';
 import AssignTree from './AST/AssignTree.js';
@@ -14,7 +14,7 @@ import IteratorTree from './AST/IteratorTree.js';
 import FunctionTree from './AST/FunctionTree.js';
 import FunctionCallTree from './AST/FunctionCallTree.js';
 import ArrayTree from './AST/ArrayTree.js';
-import FullIdTree from './AST/FullIdTree.js';
+import FullIdTree from './AST/LexprTree.js';
 import { DotAccessorTree, IndexAccessorTree } from './AST/AccessorTree.js';
 import ObjectTree from './AST/ObjectTree.js';
 import KeyValueTree from './AST/KeyValueTree.js';
@@ -23,6 +23,9 @@ import BreakTree from './AST/BreakTree.js';
 import ContinueTree from './AST/ContinueTree.js';
 import { tokenToNodeLocation } from './AST/NodeLocations.js';
 import SetTree from './AST/SetTree.js';
+import LexprPartTree from './AST/LexprPartTree.js';
+import LexprTree from './AST/LexprTree.js';
+import TupleTree from './AST/TupleTree.js';
 
 type BinaryContext 
     = AdditiveContext 
@@ -80,7 +83,7 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             }
             const expr = ctx.expr()
             const child = this.visit(expr);
-            const id = ctx.fullid().accept(this)
+            const id = ctx.lexpr().accept(this)
             const token = ctx.ASSIGN().symbol;
             if (child instanceof ExprTree && id instanceof FullIdTree) {
                 const tree = new AssignTree(id, child, token);
@@ -388,19 +391,25 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
         }
 
         this.visitRangeIterator = (ctx: RangeIteratorContext): Tree => {
-            const id = ctx.IDENTIFIER().symbol;
+            const id = ctx.lexpr().accept(this);
             const from = this.visit(ctx.range().expr(0))
             const to = this.visit(ctx.range().expr(1))
             const token = ctx.range().DOTDOT().symbol;
             const inclusive = ctx.range().EQUALS() != null;
             const rangeTree = new RangeTree(from, to, inclusive, token)
+            if (!(id instanceof LexprTree)) {
+                throw new Error("unexpected tree type")
+            }
             const iterator = new IteratorTree(id, rangeTree, ctx.IN().symbol);
             return iterator;
         }
 
         this.visitExprIterator = (ctx: ExprIteratorContext): Tree => {
-            const id = ctx.IDENTIFIER().symbol;
+            const id = ctx.lexpr().accept(this);
             const expr = this.visit(ctx.expr());
+            if (!(id instanceof LexprTree)) {
+                throw new Error("unexpected tree type")
+            }
             const iterator = new IteratorTree(id, expr, ctx.IN().symbol);
             return iterator;
         }
@@ -439,11 +448,39 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             return arrayTree;
         }
 
-        this.visitFullid = (ctx: FullidContext): Tree => {
+        this.visitTupleExpr = (ctx: TupleExprContext): Tree => {
+            return ctx.tupleexpr().accept(this);
+        }
+
+        this.visitTupleexpr = (ctx: TupleexprContext): Tree => {
+            const elements = [];
+            const token = ctx.LPAREN().symbol;
+            for (const element of ctx.expr_list()) {
+                const exprTree = this.visit(element);
+                elements.push(exprTree);
+            }
+            const tupleTree = new TupleTree(elements, token);
+            return tupleTree;
+        }
+
+        this.visitLexpr = (ctx: LexprContext): Tree => {
+            const parts = ctx.lexpr_part_list()
+                .map(lexpr_part => {
+                    const part = this.visit(lexpr_part)
+                    if (!(part instanceof LexprPartTree)) {
+                        throw new Error("unexpected tree type")
+                    } 
+                    return part;
+                });
+            const tree = new LexprTree(parts)
+            return tree;
+        }
+
+        this.visitLexpr_part = (ctx: Lexpr_partContext): Tree => {
             const id = ctx.IDENTIFIER().symbol;
             const accessors = ctx.accessor_list()
                 .map(accessor => this.visit(accessor));
-            const tree = new FullIdTree(id, accessors, id);
+            const tree = new LexprPartTree(id, accessors, id);
             return tree;
         }
 
