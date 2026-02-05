@@ -127,7 +127,7 @@ X := { 1, 2, 3 } intersect { 3, 4 }
 ```
 The difference (&#x2216;) of two sets can be computed using the \ Symbol.
 ```
-X := { 1, 2, 3 } \ { 3, 4 }
+X := { 1, 2, 3 } \\ { 3, 4 }
 // X = { 1, 2 };
 ```
 Sets can be queried for their elements using the keyword _in_
