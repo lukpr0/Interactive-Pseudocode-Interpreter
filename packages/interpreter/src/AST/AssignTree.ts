@@ -1,7 +1,7 @@
 import type Tree from "./Tree.js";
 import type Visitor from "./Visitor.js";
 import type { ExprTree } from "./ExprTree.js";
-import type FullIdTree from "./FullIdTree.js";
+import type FullIdTree from "./LexprTree.js";
 import type InfoTree from "./InfoTree.js";
 import type { Token } from "antlr4";
 import type NodeLocation from "./NodeLocations.js";

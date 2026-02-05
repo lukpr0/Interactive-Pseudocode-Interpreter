@@ -17,36 +17,39 @@ import { ContinueStatContext } from "./PseudoParser.js";
 import { StatlistContext } from "./PseudoParser.js";
 import { DotAccessContext } from "./PseudoParser.js";
 import { NegationContext } from "./PseudoParser.js";
-import { IdLiteralContext } from "./PseudoParser.js";
-import { FloatLiteralContext } from "./PseudoParser.js";
-import { IndexAccessContext } from "./PseudoParser.js";
 import { SetUnionContext } from "./PseudoParser.js";
-import { UnaryMinusContext } from "./PseudoParser.js";
 import { InQueryContext } from "./PseudoParser.js";
 import { LogicalOrContext } from "./PseudoParser.js";
-import { FuncCallContext } from "./PseudoParser.js";
-import { ArrayExprContext } from "./PseudoParser.js";
 import { MultiplicativeContext } from "./PseudoParser.js";
 import { AdditiveContext } from "./PseudoParser.js";
-import { StringLiteralContext } from "./PseudoParser.js";
 import { BoolLiteralContext } from "./PseudoParser.js";
-import { ObjectExprContext } from "./PseudoParser.js";
 import { SetExprContext } from "./PseudoParser.js";
+import { ObjectExprContext } from "./PseudoParser.js";
 import { ComparisonContext } from "./PseudoParser.js";
-import { NilLiteralContext } from "./PseudoParser.js";
 import { SetDifferenceContext } from "./PseudoParser.js";
 import { LogicalAndContext } from "./PseudoParser.js";
 import { IntLiteralContext } from "./PseudoParser.js";
-import { SetIntersectContext } from "./PseudoParser.js";
 import { ParenthesesContext } from "./PseudoParser.js";
+import { IdLiteralContext } from "./PseudoParser.js";
+import { FloatLiteralContext } from "./PseudoParser.js";
+import { IndexAccessContext } from "./PseudoParser.js";
+import { UnaryMinusContext } from "./PseudoParser.js";
+import { TupleExprContext } from "./PseudoParser.js";
+import { FuncCallContext } from "./PseudoParser.js";
+import { ArrayExprContext } from "./PseudoParser.js";
+import { StringLiteralContext } from "./PseudoParser.js";
+import { NilLiteralContext } from "./PseudoParser.js";
+import { SetIntersectContext } from "./PseudoParser.js";
 import { BreakstatContext } from "./PseudoParser.js";
 import { ContinuestatContext } from "./PseudoParser.js";
 import { ReturnstatContext } from "./PseudoParser.js";
 import { ArrayexprContext } from "./PseudoParser.js";
 import { ObjectexprContext } from "./PseudoParser.js";
 import { SetexprContext } from "./PseudoParser.js";
+import { TupleexprContext } from "./PseudoParser.js";
 import { KeyvaluepairContext } from "./PseudoParser.js";
-import { FullidContext } from "./PseudoParser.js";
+import { LexprContext } from "./PseudoParser.js";
+import { Lexpr_partContext } from "./PseudoParser.js";
 import { IndexAccessorContext } from "./PseudoParser.js";
 import { DotAccessorContext } from "./PseudoParser.js";
 import { AssignstatContext } from "./PseudoParser.js";
@@ -167,40 +170,12 @@ export default class PseudoParserVisitor<Result> extends ParseTreeVisitor<Result
 	 */
 	visitNegation?: (ctx: NegationContext) => Result;
 	/**
-	 * Visit a parse tree produced by the `IdLiteral`
-	 * labeled alternative in `PseudoParser.expr`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitIdLiteral?: (ctx: IdLiteralContext) => Result;
-	/**
-	 * Visit a parse tree produced by the `FloatLiteral`
-	 * labeled alternative in `PseudoParser.expr`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitFloatLiteral?: (ctx: FloatLiteralContext) => Result;
-	/**
-	 * Visit a parse tree produced by the `IndexAccess`
-	 * labeled alternative in `PseudoParser.expr`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitIndexAccess?: (ctx: IndexAccessContext) => Result;
-	/**
 	 * Visit a parse tree produced by the `SetUnion`
 	 * labeled alternative in `PseudoParser.expr`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	visitSetUnion?: (ctx: SetUnionContext) => Result;
-	/**
-	 * Visit a parse tree produced by the `UnaryMinus`
-	 * labeled alternative in `PseudoParser.expr`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitUnaryMinus?: (ctx: UnaryMinusContext) => Result;
 	/**
 	 * Visit a parse tree produced by the `InQuery`
 	 * labeled alternative in `PseudoParser.expr`.
@@ -216,20 +191,6 @@ export default class PseudoParserVisitor<Result> extends ParseTreeVisitor<Result
 	 */
 	visitLogicalOr?: (ctx: LogicalOrContext) => Result;
 	/**
-	 * Visit a parse tree produced by the `FuncCall`
-	 * labeled alternative in `PseudoParser.expr`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitFuncCall?: (ctx: FuncCallContext) => Result;
-	/**
-	 * Visit a parse tree produced by the `ArrayExpr`
-	 * labeled alternative in `PseudoParser.expr`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitArrayExpr?: (ctx: ArrayExprContext) => Result;
-	/**
 	 * Visit a parse tree produced by the `Multiplicative`
 	 * labeled alternative in `PseudoParser.expr`.
 	 * @param ctx the parse tree
@@ -244,26 +205,12 @@ export default class PseudoParserVisitor<Result> extends ParseTreeVisitor<Result
 	 */
 	visitAdditive?: (ctx: AdditiveContext) => Result;
 	/**
-	 * Visit a parse tree produced by the `StringLiteral`
-	 * labeled alternative in `PseudoParser.expr`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitStringLiteral?: (ctx: StringLiteralContext) => Result;
-	/**
 	 * Visit a parse tree produced by the `BoolLiteral`
 	 * labeled alternative in `PseudoParser.expr`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	visitBoolLiteral?: (ctx: BoolLiteralContext) => Result;
-	/**
-	 * Visit a parse tree produced by the `ObjectExpr`
-	 * labeled alternative in `PseudoParser.expr`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitObjectExpr?: (ctx: ObjectExprContext) => Result;
 	/**
 	 * Visit a parse tree produced by the `SetExpr`
 	 * labeled alternative in `PseudoParser.expr`.
@@ -272,19 +219,19 @@ export default class PseudoParserVisitor<Result> extends ParseTreeVisitor<Result
 	 */
 	visitSetExpr?: (ctx: SetExprContext) => Result;
 	/**
+	 * Visit a parse tree produced by the `ObjectExpr`
+	 * labeled alternative in `PseudoParser.expr`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitObjectExpr?: (ctx: ObjectExprContext) => Result;
+	/**
 	 * Visit a parse tree produced by the `Comparison`
 	 * labeled alternative in `PseudoParser.expr`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	visitComparison?: (ctx: ComparisonContext) => Result;
-	/**
-	 * Visit a parse tree produced by the `NilLiteral`
-	 * labeled alternative in `PseudoParser.expr`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitNilLiteral?: (ctx: NilLiteralContext) => Result;
 	/**
 	 * Visit a parse tree produced by the `SetDifference`
 	 * labeled alternative in `PseudoParser.expr`.
@@ -307,19 +254,82 @@ export default class PseudoParserVisitor<Result> extends ParseTreeVisitor<Result
 	 */
 	visitIntLiteral?: (ctx: IntLiteralContext) => Result;
 	/**
-	 * Visit a parse tree produced by the `SetIntersect`
-	 * labeled alternative in `PseudoParser.expr`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitSetIntersect?: (ctx: SetIntersectContext) => Result;
-	/**
 	 * Visit a parse tree produced by the `Parentheses`
 	 * labeled alternative in `PseudoParser.expr`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	visitParentheses?: (ctx: ParenthesesContext) => Result;
+	/**
+	 * Visit a parse tree produced by the `IdLiteral`
+	 * labeled alternative in `PseudoParser.expr`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitIdLiteral?: (ctx: IdLiteralContext) => Result;
+	/**
+	 * Visit a parse tree produced by the `FloatLiteral`
+	 * labeled alternative in `PseudoParser.expr`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitFloatLiteral?: (ctx: FloatLiteralContext) => Result;
+	/**
+	 * Visit a parse tree produced by the `IndexAccess`
+	 * labeled alternative in `PseudoParser.expr`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitIndexAccess?: (ctx: IndexAccessContext) => Result;
+	/**
+	 * Visit a parse tree produced by the `UnaryMinus`
+	 * labeled alternative in `PseudoParser.expr`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitUnaryMinus?: (ctx: UnaryMinusContext) => Result;
+	/**
+	 * Visit a parse tree produced by the `TupleExpr`
+	 * labeled alternative in `PseudoParser.expr`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitTupleExpr?: (ctx: TupleExprContext) => Result;
+	/**
+	 * Visit a parse tree produced by the `FuncCall`
+	 * labeled alternative in `PseudoParser.expr`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitFuncCall?: (ctx: FuncCallContext) => Result;
+	/**
+	 * Visit a parse tree produced by the `ArrayExpr`
+	 * labeled alternative in `PseudoParser.expr`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitArrayExpr?: (ctx: ArrayExprContext) => Result;
+	/**
+	 * Visit a parse tree produced by the `StringLiteral`
+	 * labeled alternative in `PseudoParser.expr`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitStringLiteral?: (ctx: StringLiteralContext) => Result;
+	/**
+	 * Visit a parse tree produced by the `NilLiteral`
+	 * labeled alternative in `PseudoParser.expr`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitNilLiteral?: (ctx: NilLiteralContext) => Result;
+	/**
+	 * Visit a parse tree produced by the `SetIntersect`
+	 * labeled alternative in `PseudoParser.expr`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitSetIntersect?: (ctx: SetIntersectContext) => Result;
 	/**
 	 * Visit a parse tree produced by `PseudoParser.breakstat`.
 	 * @param ctx the parse tree
@@ -357,17 +367,29 @@ export default class PseudoParserVisitor<Result> extends ParseTreeVisitor<Result
 	 */
 	visitSetexpr?: (ctx: SetexprContext) => Result;
 	/**
+	 * Visit a parse tree produced by `PseudoParser.tupleexpr`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitTupleexpr?: (ctx: TupleexprContext) => Result;
+	/**
 	 * Visit a parse tree produced by `PseudoParser.keyvaluepair`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	visitKeyvaluepair?: (ctx: KeyvaluepairContext) => Result;
 	/**
-	 * Visit a parse tree produced by `PseudoParser.fullid`.
+	 * Visit a parse tree produced by `PseudoParser.lexpr`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	visitFullid?: (ctx: FullidContext) => Result;
+	visitLexpr?: (ctx: LexprContext) => Result;
+	/**
+	 * Visit a parse tree produced by `PseudoParser.lexpr_part`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitLexpr_part?: (ctx: Lexpr_partContext) => Result;
 	/**
 	 * Visit a parse tree produced by the `IndexAccessor`
 	 * labeled alternative in `PseudoParser.accessor`.
