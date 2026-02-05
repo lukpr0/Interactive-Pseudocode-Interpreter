@@ -38,7 +38,7 @@ y := 9 mod 5
 Numbers can be compared using =, !=, &lt;, &gt;, &lt;=, &gt;=.
 
 ```
-x := 1 &lt; 2
+x := 1 < 2
 x := 5 != 7
 ```
 ## Strings
@@ -134,6 +134,27 @@ Sets can be queried for their elements using the keyword _in_
 ```
 x := 2 in { 1, 2, 3 } //x = true
 ```
+## Tuples
+
+Tuples can be created with comma separated lists wrapped in parentheses
+```
+t := (1, 2, 3)
+```
+
+Tuples can be unpacked with multiple comma separated identifiers on the left side.
+The amount of identifiers and values in the tuple have to match exactly.
+```
+a, b := (1, 2)
+```
+
+This also works in for-loops.
+```
+for x, y in [(1, 2), (3, 4)] do
+    ...
+end
+```
+
+
 # Control structures
 ## If
 If statements can be made like this
