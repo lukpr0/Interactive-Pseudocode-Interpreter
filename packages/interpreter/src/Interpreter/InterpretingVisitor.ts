@@ -136,22 +136,7 @@ export default class InterpretingVisitor implements Visitor<void> {
         return values;
     }
 
-    private assignValueToPart(part: LexprPartTree, value: Value, location: NodeLocation) {
-        if (!(part instanceof LexprPartTree)) {
-            throw new Error()
-        }
-        if (value === undefined) {
-            throw new Error();
-        }
-        if (part.accessors.length == 0) {
-            this.symbolTable.setVariable(part.name.text, new Slot(value));
-        } else {
-            let slot = this.symbolTable.getVariable(part.name.text);
-            if (slot === undefined) {
-                throw new VariableError(part.name, tokenToNodeLocation(part.name));
-            }
-            for (const accessor of part.accessors) {
-                if (accessor instanceof IndexAccessorTree) {
+    private assignWithIndexAccessor(accessor: IndexAccessorTree, slot: Slot, location: NodeLocation) {
                     accessor.index.accept(this);
                     const index = this.stack.pop()
                     if (index === undefined) {
@@ -171,7 +156,10 @@ export default class InterpretingVisitor implements Visitor<void> {
                             throw new PseudoRuntimeError(e.message, location);
                         } else throw e;
                     }
-                } else if (accessor instanceof DotAccessorTree) {
+
+    }
+
+    private assignWithDotAccessor(accessor: DotAccessorTree, slot: Slot, location: NodeLocation) {
                     if (slot.value.type != Type.Object) {
                         throw new PseudoTypeError(`Member access not possible on type ${typeToString(slot.value.type)}`, accessor.location)
                     }
@@ -182,6 +170,27 @@ export default class InterpretingVisitor implements Visitor<void> {
                             throw new PseudoRuntimeError(e.message, location);
                         } else throw e;
                     }
+    }
+
+    private assignValueToPart(part: LexprPartTree, value: Value, location: NodeLocation) {
+        if (!(part instanceof LexprPartTree)) {
+            throw new Error()
+        }
+        if (value === undefined) {
+            throw new Error();
+        }
+        if (part.accessors.length == 0) {
+            this.symbolTable.setVariable(part.name.text, new Slot(value));
+        } else {
+            let slot = this.symbolTable.getVariable(part.name.text);
+            if (slot === undefined) {
+                throw new VariableError(part.name, tokenToNodeLocation(part.name));
+            }
+            for (const accessor of part.accessors) {
+                if (accessor instanceof IndexAccessorTree) {
+                    this.assignWithIndexAccessor(accessor, slot, location)
+                } else if (accessor instanceof DotAccessorTree) {
+                    this.assignWithDotAccessor(accessor, slot, location)
                 }
             }
             slot.value = value;
