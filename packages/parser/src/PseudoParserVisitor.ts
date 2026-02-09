@@ -44,6 +44,8 @@ import { BreakstatContext } from "./PseudoParser.js";
 import { ContinuestatContext } from "./PseudoParser.js";
 import { ReturnstatContext } from "./PseudoParser.js";
 import { ArrayexprContext } from "./PseudoParser.js";
+import { DictexprContext } from "./PseudoParser.js";
+import { DictpairContext } from "./PseudoParser.js";
 import { ObjectexprContext } from "./PseudoParser.js";
 import { SetexprContext } from "./PseudoParser.js";
 import { TupleexprContext } from "./PseudoParser.js";
@@ -354,6 +356,18 @@ export default class PseudoParserVisitor<Result> extends ParseTreeVisitor<Result
 	 * @return the visitor result
 	 */
 	visitArrayexpr?: (ctx: ArrayexprContext) => Result;
+	/**
+	 * Visit a parse tree produced by `PseudoParser.dictexpr`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitDictexpr?: (ctx: DictexprContext) => Result;
+	/**
+	 * Visit a parse tree produced by `PseudoParser.dictpair`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitDictpair?: (ctx: DictpairContext) => Result;
 	/**
 	 * Visit a parse tree produced by `PseudoParser.objectexpr`.
 	 * @param ctx the parse tree
