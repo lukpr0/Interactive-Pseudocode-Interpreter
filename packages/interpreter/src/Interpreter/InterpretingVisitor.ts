@@ -136,40 +136,49 @@ export default class InterpretingVisitor implements Visitor<void> {
         return values;
     }
 
-    private assignWithIndexAccessor(accessor: IndexAccessorTree, slot: Slot, location: NodeLocation) {
-                    accessor.index.accept(this);
-                    const index = this.stack.pop()
-                    if (index === undefined) {
-                        throw new EmptyStackError(location);
-                    }
-                    if (index.type != Type.Integer && index.type != Type.Float) {
-                        throw new UnexpectedTypeError([Type.Integer, Type.Float], index.type, location)
-                    }
-                    if (slot.value.type != Type.Array) {
-                        throw new IncompatibleTypesError(slot.value.type, index.type, accessor.token, accessor.location)
-                    }
-                    const indexAsNum = typeof index.value == "number" ? index.value : Number(index.value)
-                    try {
-                        slot = slot.value.getSlot(indexAsNum);
-                    } catch (e) {
-                        if (e instanceof Error) {
-                            throw new PseudoRuntimeError(e.message, location);
-                        } else throw e;
-                    }
-
+    private assignWithIndexAccessor(accessor: IndexAccessorTree, slot: Slot, location: NodeLocation): Slot {
+        accessor.index.accept(this);
+        const index = this.stack.pop()
+        if (index === undefined) {
+            throw new EmptyStackError(location);
+        }
+        if (slot.value.type != Type.Array && slot.value.type != Type.Dict) {
+            throw new IncompatibleTypesError(slot.value.type, index.type, accessor.token, accessor.location)
+        }
+        if (slot.value.type == Type.Array) {
+            if (index.type != Type.Integer && index.type != Type.Float) {
+                throw new UnexpectedTypeError([Type.Integer, Type.Float], index.type, location)
+            }
+            const indexAsNum = typeof index.value == "number" ? index.value : Number(index.value)
+            try {
+                return slot.value.getSlot(indexAsNum);
+            } catch (e) {
+                if (e instanceof Error) {
+                    throw new PseudoRuntimeError(e.message, location);
+                } else throw e;
+            }
+        } else {
+            try {
+                return slot.value.getSlot(index)
+            } catch (e) {
+                if (e instanceof Error) {
+                    throw new PseudoRuntimeError(e.message, location);
+                } else throw e;
+            }
+        }
     }
 
     private assignWithDotAccessor(accessor: DotAccessorTree, slot: Slot, location: NodeLocation) {
-                    if (slot.value.type != Type.Object) {
-                        throw new PseudoTypeError(`Member access not possible on type ${typeToString(slot.value.type)}`, accessor.location)
-                    }
-                    try {
-                        slot = slot.value.get(accessor.name.text);
-                    } catch (e) {
-                        if (e instanceof Error) {
-                            throw new PseudoRuntimeError(e.message, location);
-                        } else throw e;
-                    }
+        if (slot.value.type != Type.Object) {
+            throw new PseudoTypeError(`Member access not possible on type ${typeToString(slot.value.type)}`, accessor.location)
+        }
+        try {
+            return slot.value.get(accessor.name.text);
+        } catch (e) {
+            if (e instanceof Error) {
+                throw new PseudoRuntimeError(e.message, location);
+            } else throw e;
+        }
     }
 
     private assignValueToPart(part: LexprPartTree, value: Value, location: NodeLocation) {
@@ -188,9 +197,9 @@ export default class InterpretingVisitor implements Visitor<void> {
             }
             for (const accessor of part.accessors) {
                 if (accessor instanceof IndexAccessorTree) {
-                    this.assignWithIndexAccessor(accessor, slot, location)
+                    slot = this.assignWithIndexAccessor(accessor, slot, location)
                 } else if (accessor instanceof DotAccessorTree) {
-                    this.assignWithDotAccessor(accessor, slot, location)
+                    slot = this.assignWithDotAccessor(accessor, slot, location)
                 }
             }
             slot.value = value;
@@ -613,8 +622,8 @@ export default class InterpretingVisitor implements Visitor<void> {
     }
 
     visitDictPair(expr: DictPairTree): void {
-        expr.value.accept(this);
         expr.key.accept(this);
+        expr.value.accept(this);
     }
 
     visitLexpr(expr: LexprTree): void {
@@ -881,6 +890,8 @@ export default class InterpretingVisitor implements Visitor<void> {
                     throw error
                 } else throw e;
             }
+        } else if (left.type == Type.Dict) {
+            return left.get(right);
         }
         throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
     }

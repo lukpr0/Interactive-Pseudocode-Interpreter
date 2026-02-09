@@ -1,6 +1,7 @@
 import Slot from "../Slot.js";
 import Type, { toSimpleString } from "../Type.js";
 import type { Value } from "../Value.js";
+import PseudoNil from "./PseudoNil.js";
 
 export default class PseudoDict {
 
@@ -14,7 +15,8 @@ export default class PseudoDict {
     }
     
     toString(): string {
-        return `[${this.values.keys().map(key => {
+        return `[${this.values.keys()
+            .map(key => {
             const keyObj = this.keys.get(key)!.value;
             const value = this.values.get(key)!.value;
             const keyStr = toSimpleString(keyObj);
@@ -28,20 +30,28 @@ export default class PseudoDict {
         return `Dict { value: ${this.values} }`
     }
     
-    get(index: Value): Slot{
+    getSlot(index: Value): Slot {
+        const key = index.asKey();
+        if (!this.hasKey(key)) {
+            this.add(index, new PseudoNil())
+        }
+        const element = this.values.get(key)!;
+        return element;
+    }
+    
+    get(index: Value): Value {
         const key = index.asKey();
         const element = this.values.get(key);
-        if (element) {
-            return element;
-        } else {
-            throw new Error(`No element with key ${index}`);
+        if (!element) {
+            return new PseudoNil();
         }
+        return element.value;
     }
 
     add(index: Value, value: Value) {
         const key = index.asKey();
+        this.keys.set(key, new Slot(index));
         this.values.set(key, new Slot(value));
-        this.keys.set(key, new Slot(value));
     }
 
     hasKey(index: string): boolean {
