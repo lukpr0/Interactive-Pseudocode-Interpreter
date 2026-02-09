@@ -29,6 +29,7 @@ import { ComparisonContext } from "./PseudoParser.js";
 import { SetDifferenceContext } from "./PseudoParser.js";
 import { LogicalAndContext } from "./PseudoParser.js";
 import { IntLiteralContext } from "./PseudoParser.js";
+import { DictExprContext } from "./PseudoParser.js";
 import { ParenthesesContext } from "./PseudoParser.js";
 import { IdLiteralContext } from "./PseudoParser.js";
 import { FloatLiteralContext } from "./PseudoParser.js";
@@ -255,6 +256,13 @@ export default class PseudoParserVisitor<Result> extends ParseTreeVisitor<Result
 	 * @return the visitor result
 	 */
 	visitIntLiteral?: (ctx: IntLiteralContext) => Result;
+	/**
+	 * Visit a parse tree produced by the `DictExpr`
+	 * labeled alternative in `PseudoParser.expr`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitDictExpr?: (ctx: DictExprContext) => Result;
 	/**
 	 * Visit a parse tree produced by the `Parentheses`
 	 * labeled alternative in `PseudoParser.expr`.

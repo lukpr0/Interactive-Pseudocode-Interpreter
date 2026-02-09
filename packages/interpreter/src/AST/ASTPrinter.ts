@@ -23,6 +23,8 @@ import type SetTree from "./SetTree.js";
 import type LexprPartTree from "./LexprPartTree.js";
 import type LexprTree from "./LexprTree.js";
 import type TupleTree from "./TupleTree.js";
+import type DictTree from "./DictTree.js";
+import type DictPairTree from "./DictPairTree.js";
 
 export default class ASTPrinter implements Visitor<string> {
 
@@ -188,6 +190,18 @@ export default class ASTPrinter implements Visitor<string> {
 
     visitContinue(expr: ContinueTree): string {
         return `(continue)`
+    }
+
+    visitDict(expr: DictTree): string {
+        console.log("visiting dict")
+        const pairs = expr.elements
+            .map(e => e.accept(this))
+            .join(' ') 
+        return `(dict ${pairs})`
+    }
+
+    visitDictPair(expr: DictPairTree): string {
+        return `(${expr.key.accept(this)} ${expr.value.accept(this)})`
     }
 
 }
