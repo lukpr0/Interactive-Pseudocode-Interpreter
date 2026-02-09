@@ -1,12 +1,12 @@
 import { Token } from "antlr4";
 import { PseudoParser } from "@interactive-pseudo/parser";
-import { type WhileTree, type StatListTree, type RepeatUntilTree, type IfTree, type ForTree, type IteratorTree, RangeTree, type KeyValueTree, type ObjectTree, type BreakTree, type ReturnTree, type ContinueTree, type AssignTree, type ProgramTree, type Visitor, type ArrayTree, type LexprTree, type SetTree, LexprPartTree, TupleTree } from "../AST/index.js";
+import { type WhileTree, type StatListTree, type RepeatUntilTree, type IfTree, type ForTree, type IteratorTree, RangeTree, type KeyValueTree, type ObjectTree, type BreakTree, type ReturnTree, type ContinueTree, type AssignTree, type ProgramTree, type Visitor, type ArrayTree, type LexprTree, type SetTree, LexprPartTree, TupleTree, DictPairTree, DictTree } from "../AST/index.js";
 import type { Value } from "./Value.js";
 import type BuiltInFunction from "./BuiltInFunctions/BuiltInFunction.js";
 import type PrintObserver from "./PrintObserver.js";
 
 import { BinaryOperationTree, UnaryOperationTree, FunctionCallTree, FunctionTree, ExprTree, DotAccessorTree, IndexAccessorTree } from "../AST/index.js"
-import { PseudoInteger, PseudoFloat, PseudoBoolean, PseudoArray, PseudoObject, PseudoNil, PseudoString, PseudoSet, PseudoTuple } from "./Types/index.js";
+import { PseudoInteger, PseudoFloat, PseudoBoolean, PseudoArray, PseudoObject, PseudoNil, PseudoString, PseudoSet, PseudoTuple, PseudoDict } from "./Types/index.js";
 import { ArrayConstructor, DequeueFunction, LengthFunction, PopFunction, PushFunction, CeilFunction, FloorFunction, PowFunction, SquarerootFunction, PrintFunction, CharFunction, CodepointFunction, MaxFunction, MinFunction } from "./BuiltInFunctions/index.js";
 import { Slot, SymbolTable, Type, Range} from "./index.js"
 import { PseudoTypeError, EmptyStackError, VariableError, UnexpectedTypeError, FeatureNotImplementedError, IncompatibleTypesError, BuiltInTypeError, InternalError, LocatedInternalError, PseudoRuntimeError, UnexpectedStatementError } from "./Errors/index.js";
@@ -584,6 +584,28 @@ export default class InterpretingVisitor implements Visitor<void> {
             set.insert(value);
         }
         this.stack.push(set);
+    }
+
+    visitDict(expr: DictTree): void {
+        const dict = new PseudoDict();
+        for (const element of expr.elements) {
+            element.accept(this);
+            const value = this.stack.pop();
+            if (value === undefined) {
+                throw new EmptyStackError(expr.location);
+            }
+            const key = this.stack.pop();
+            if (key === undefined) {
+                throw new EmptyStackError(expr.location);
+            }
+            dict.add(key, value);
+        }        
+        this.stack.push(dict);
+    }
+
+    visitDictPair(expr: DictPairTree): void {
+        expr.value.accept(this);
+        expr.key.accept(this);
     }
 
     visitLexpr(expr: LexprTree): void {
