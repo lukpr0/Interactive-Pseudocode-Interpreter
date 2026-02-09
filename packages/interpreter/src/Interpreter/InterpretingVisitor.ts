@@ -7,7 +7,7 @@ import type PrintObserver from "./PrintObserver.js";
 
 import { BinaryOperationTree, UnaryOperationTree, FunctionCallTree, FunctionTree, ExprTree, DotAccessorTree, IndexAccessorTree } from "../AST/index.js"
 import { PseudoInteger, PseudoFloat, PseudoBoolean, PseudoArray, PseudoObject, PseudoNil, PseudoString, PseudoSet, PseudoTuple, PseudoDict } from "./Types/index.js";
-import { ArrayConstructor, DequeueFunction, LengthFunction, PopFunction, PushFunction, CeilFunction, FloorFunction, PowFunction, SquarerootFunction, PrintFunction, CharFunction, CodepointFunction, MaxFunction, MinFunction } from "./BuiltInFunctions/index.js";
+import { ArrayConstructor, DequeueFunction, LengthFunction, PopFunction, PushFunction, CeilFunction, FloorFunction, PowFunction, SquarerootFunction, PrintFunction, CharFunction, CodepointFunction, MaxFunction, MinFunction, DictConstructor } from "./BuiltInFunctions/index.js";
 import { Slot, SymbolTable, Type, Range} from "./index.js"
 import { PseudoTypeError, EmptyStackError, VariableError, UnexpectedTypeError, FeatureNotImplementedError, IncompatibleTypesError, BuiltInTypeError, InternalError, LocatedInternalError, PseudoRuntimeError, UnexpectedStatementError } from "./Errors/index.js";
 import { typeToString } from "./Type.js";
@@ -64,6 +64,7 @@ export default class InterpretingVisitor implements Visitor<void> {
         this.builtInFunctions.setVariable('codepoint', new CodepointFunction());
         this.builtInFunctions.setVariable('char', new CharFunction());
 
+        this.builtInFunctions.setVariable('Dict', new DictConstructor());
     }
 
     visitStatlist(expr: StatListTree): void {
