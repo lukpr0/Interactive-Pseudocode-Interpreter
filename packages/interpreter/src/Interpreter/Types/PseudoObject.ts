@@ -37,7 +37,10 @@ export default class PseudoObject {
     }
     
     asKey(): string {
-        throw new Error("Method not implemented.")
+        return JSON.stringify({
+            type: Type.Object,
+            value: this.values.entries().map(([key, value]) => `${key}:${value.value.asKey()}`)
+        })
     }
 
 }
