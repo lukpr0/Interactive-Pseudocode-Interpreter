@@ -723,11 +723,11 @@ export default class InterpretingVisitor implements Visitor<void> {
     private handlePlus(left: Value, right: Value, operator: Token): Value {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.add(right);
-        } else if (left.type == Type.String && (right.type == Type.String || right.type == Type.Integer || right.type == Type.Float || right.type == Type.Boolean || right.type == Type.Array || right.type == Type.Object)) {
+        } else if (left.type == Type.String && (right.type == Type.String || right.type == Type.Integer || right.type == Type.Float || right.type == Type.Boolean || right.type == Type.Array || right.type == Type.Object || right.type == Type.Set || right.type == Type.Dict || right.type == Type.Tuple)) {
             return left.add(right)
-        } else if (right.type == Type.String && (left.type == Type.String || left.type == Type.Integer || left.type == Type.Float || left.type == Type.Boolean || left.type == Type.Array || left.type == Type.Object)) {
+        } else if (right.type == Type.String && (left.type == Type.String || left.type == Type.Integer || left.type == Type.Float || left.type == Type.Boolean || left.type == Type.Array || left.type == Type.Object || left.type == Type.Set || left.type == Type.Dict || left.type == Type.Tuple)) {
             return new PseudoString("").add(left).add(right)
-        } {
+        } else {
             throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
         }
     }
