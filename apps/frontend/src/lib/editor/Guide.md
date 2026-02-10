@@ -134,6 +134,30 @@ Sets can be queried for their elements using the keyword _in_
 ```
 x := 2 in { 1, 2, 3 } //x = true
 ```
+
+## Dictionaries
+
+Dictionaries can be created using square brackets and comma-separated key-value-pairs.
+In the key-value-pairs, key and value are separated using a colon :
+```
+dict := ["a": 1, "b": 2]
+```
+Any value can be used as a key. Though it is important, to not mutate values, that are used as a key, similar to entries of a set.
+Also similar to arrays and sets, dictionaries can hold values of mixed types, both for keys and values.
+
+You can access the elements of a dictionary with square brackets, as you can do with arrays.
+```
+dict["a"] = 5
+print(dict["a"]) //5
+```
+
+As dictionaries use square brackets, like arrays, it is not possible to create an empty dictionary with this syntax.
+For this reason the _Dict_ constructor exists.
+
+```
+dict := Dict()
+```
+
 ## Tuples
 
 Tuples can be created with comma separated lists wrapped in parentheses
@@ -345,6 +369,26 @@ Returns the Unicode-codepoint of the first character of the given string s
 char(c)
 ```
 Returns the character encoded by a given Unicode-codepoint c
+## Dictionary
+
+### Dict
+```
+Dict()
+```
+Creates an empty dictionary.
+
+### keys
+```
+keys(d)
+```
+Creates an array with the keys from a dictionary d.
+
+### values 
+```
+values(d)
+```
+Creates an array with the keys from a dictionary d.
+
 ## Print
 ```
 print(x)
