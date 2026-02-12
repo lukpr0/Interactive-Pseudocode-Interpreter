@@ -80,6 +80,9 @@ export const rest = ['nil', 'false', '{x:0}', '(1,2)'];
 export const indexable = ['[1]', 'Dict()', '"x"']
 export const notIndexable = [...num, ...rest, '{}']
 
+export const iterable = ['[]', '{}', 'Dict()']
+export const notIterable = [...num, ...rest, '""']
+
 export const notSized = [...num, ...rest];
 export const notNum = [...sized, ...rest];
 export const notRest = [...sized, ...num];
