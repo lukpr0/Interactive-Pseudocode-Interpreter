@@ -72,3 +72,14 @@ export function testArgtype(name: string, template: (arg: string) => string, cor
         }
     });
 }
+
+export const sized = ['""', '[]', '{}'];
+export const num = ['1', '1.5'];
+export const rest = ['nil', 'false', '{x:0}', '(1,2)'];
+export const notSized = [...num, ...rest];
+export const notArray = [...notSized, '""', '{}'];
+export const notNum = [...sized, ...rest];
+export const notInt = [...notNum, '1.5'];
+export const notString = [...notSized, '[]', '{}'];
+export const notDict = [...notSized, '""', '[]'];
+export const everything = [...sized, ...num, ...rest];
