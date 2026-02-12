@@ -1,18 +1,8 @@
 import { describe } from "node:test";
-import { testArgtype } from "./BaseTest";
+import { everything, notArray, notDict, notInt, notNum, notSized, notString, testArgtype } from "./BaseTest";
 
 
 describe('Test Built-in function typechecks', () => {
-    const sized = ['""', '[]', '{}'];
-    const num = ['1', '1.5'];
-    const rest = ['nil', 'false', '{x:0}', '(1,2)'];
-    const notSized = [...num, ...rest];
-    const notArray = [...notSized, '""', '{}'];
-    const notNum = [...sized, ...rest];
-    const notInt = [...notNum, '1.5'];
-    const notString = [...notSized, '[]', '{}'];
-    const notDict = [...notSized, '""', '[]'];
-    const everything = [...sized, ...num, ...rest];
     testArgtype('Array', (a) => `Array(${a}, nil)`, ['1'], notInt);
     testArgtype('len', (a) => `len(${a})`, ['[]', '""', '{}'], notSized);
     testArgtype('dequeue', (a) => `dequeue(${a})`, ['[1]'], notArray);
