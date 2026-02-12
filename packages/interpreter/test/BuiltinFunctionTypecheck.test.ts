@@ -1,10 +1,10 @@
 import { describe } from "node:test";
-import { everything, notArray, notDict, notInt, notNum, notSized, notString, testArgtype } from "./BaseTest";
+import { everything, notArray, notDict, notInt, notNum, notSized, notString, sized, testArgtype } from "./BaseTest";
 
 
 describe('Test Built-in function typechecks', () => {
     testArgtype('Array', (a) => `Array(${a}, nil)`, ['1'], notInt);
-    testArgtype('len', (a) => `len(${a})`, ['[]', '""', '{}'], notSized);
+    testArgtype('len', (a) => `len(${a})`, sized, notSized);
     testArgtype('dequeue', (a) => `dequeue(${a})`, ['[1]'], notArray);
     testArgtype('pop', (a) => `pop(${a})`, ['[1]'], notArray);
     testArgtype('push', (a) => `push(${a}, nil)`, ['[]'], notArray);
@@ -20,6 +20,6 @@ describe('Test Built-in function typechecks', () => {
     testArgtype('codepoint', (a) => `codepoint(${a})`, ['"a"'], notString);
     testArgtype('char', (a) => `char(${a})`, ['97'], notInt);
     testArgtype('print', (a) => `print(${a})`, everything, []);
-    testArgtype('keys', (a) => `keys(${a})`, ['{}'], notDict);
-    testArgtype('values', (a) => `values(${a})`, ['{}'], notDict);
+    testArgtype('keys', (a) => `keys(${a})`, ['Dict()'], notDict);
+    testArgtype('values', (a) => `values(${a})`, ['Dict()'], notDict);
 })

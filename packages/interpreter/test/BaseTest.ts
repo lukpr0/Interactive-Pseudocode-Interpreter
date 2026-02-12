@@ -73,13 +73,25 @@ export function testArgtype(name: string, template: (arg: string) => string, cor
     });
 }
 
-export const sized = ['""', '[]', '{}'];
-export const num = ['1', '1.5'];
+export const sized = ['""', '[]', '{}', 'Dict()'];
+export const num = ['(1)', '(1.5)'];
 export const rest = ['nil', 'false', '{x:0}', '(1,2)'];
+
+export const indexable = ['[1]', 'Dict()', '"x"']
+export const notIndexable = [...num, ...rest, '{}']
+
 export const notSized = [...num, ...rest];
-export const notArray = [...notSized, '""', '{}'];
 export const notNum = [...sized, ...rest];
+export const notRest = [...sized, ...num];
+
+export const notString = [...notSized, '[]', '{}', 'Dict()'];
+export const notArray = [...notSized, '""', '{}', 'Dict()'];
+export const notDict = [...notSized, '""', '[]', '{}'];
+export const notSet = [...notSized, '""', '[]', 'Dict()']
+
 export const notInt = [...notNum, '1.5'];
-export const notString = [...notSized, '[]', '{}'];
-export const notDict = [...notSized, '""', '[]'];
+
+export const notBool = [...notRest, 'nil', '{x:0}', '(1,2)']
+export const notObject = [...notRest, 'nil', 'false', '(1,2)']
+
 export const everything = [...sized, ...num, ...rest];
