@@ -13,7 +13,6 @@ import type IteratorTree from "./IteratorTree.js";
 import type FunctionTree from "./FunctionTree.js";
 import type FunctionCallTree from "./FunctionCallTree.js";
 import type ArrayTree from "./ArrayTree.js";
-import type FullIdTree from "./FullIdTree.js";
 import type { DotAccessorTree, IndexAccessorTree } from "./AccessorTree.js";
 import type KeyValueTree from "./KeyValueTree.js";
 import type ObjectTree from "./ObjectTree.js";
@@ -21,6 +20,11 @@ import type BreakTree from "./BreakTree.js";
 import type ReturnTree from "./ReturnTree.js";
 import type ContinueTree from "./ContinueTree.js";
 import type SetTree from "./SetTree.js";
+import type LexprPartTree from "./LexprPartTree.js";
+import type LexprTree from "./LexprTree.js";
+import type TupleTree from "./TupleTree.js";
+import type DictTree from "./DictTree.js";
+import type DictPairTree from "./DictPairTree.js";
 
 export default class ASTPrinter implements Visitor<string> {
 
@@ -113,8 +117,9 @@ export default class ASTPrinter implements Visitor<string> {
 
     visitIterator(expr: IteratorTree): string {
         const id = expr.id;
-        const iterated = expr.iterator.accept(this)
-        return `(iter ${id.text} ${iterated})`
+        const iterated = expr.iterator.accept(this);
+        const lexpr = expr.id.accept(this)
+        return `(iter ${lexpr} ${iterated})`
     }
 
     visitRange(expr: RangeTree): string {
@@ -139,9 +144,19 @@ export default class ASTPrinter implements Visitor<string> {
         return `(array ${elements})`
     }
 
-    visitFullId(expr: FullIdTree): string {
+    visitTuple(expr: TupleTree): string {
+        const elements = expr.elements.map(element => element.accept(this)).join(" ");
+        return `(tuple ${elements})`
+    }
+
+    visitLexpr(expr: LexprTree): string {
+        const parts = expr.parts.map(accessor => accessor.accept(this)).join(" ")
+        return `(fullid ${parts})`
+    }
+
+    visitLexprPart(expr: LexprPartTree): string {
         const accessors = expr.accessors.map(accessor => accessor.accept(this)).join(" ")
-        return `(fullid ${expr.name.text} ${accessors})`
+        return `${expr.name.text} ${accessors}`
     }
 
     visitIndex(expr: IndexAccessorTree): string {
@@ -175,6 +190,18 @@ export default class ASTPrinter implements Visitor<string> {
 
     visitContinue(expr: ContinueTree): string {
         return `(continue)`
+    }
+
+    visitDict(expr: DictTree): string {
+        console.log("visiting dict")
+        const pairs = expr.elements
+            .map(e => e.accept(this))
+            .join(' ') 
+        return `(dict ${pairs})`
+    }
+
+    visitDictPair(expr: DictPairTree): string {
+        return `(${expr.key.accept(this)} ${expr.value.accept(this)})`
     }
 
 }
