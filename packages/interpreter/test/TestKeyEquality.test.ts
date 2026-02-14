@@ -1,6 +1,7 @@
 import { describe } from "node:test";
 import { test, expect } from "vitest";
-import { type Value, PseudoInteger, PseudoFloat, PseudoBoolean, PseudoString, PseudoNil, PseudoArray } from "../src";
+import { type Value, PseudoInteger, PseudoFloat, PseudoBoolean, PseudoString, PseudoNil, PseudoArray, PseudoTuple, Slot, PseudoDict, PseudoSet, PseudoObject } from "../src";
+import { testKeyInequality } from "./BaseTest";
 
 
 function testKeyEquality(name: string, a: Value, b: Value) {
@@ -8,14 +9,6 @@ function testKeyEquality(name: string, a: Value, b: Value) {
         const aKey = a.asKey();
         const bKey = b.asKey();
         expect(aKey).toEqual(bKey);
-    })
-}
-
-function testKeyInequality(name: string, a: Value, b: Value) {
-    test(name, () => {
-        const aKey = a.asKey();
-        const bKey = b.asKey();
-        expect(aKey).not.toEqual(bKey);
     })
 }
 
@@ -65,43 +58,6 @@ describe('Test equality of keys', () => {
     testKeyEquality('Test Boolean equality (true)', trueA, trueB);
     testKeyEquality('Test Boolean equality (false)', falseA, falseB);
 
-    testKeyInequality('Test Integer-Float inequality', oneIntA, oneFloatA)
-    testKeyInequality('Test Integer-Float inequality (negative)', negOneIntA, negOneFloatA)
-    testKeyInequality('Test Integer-Float inequality (zero)', zeroIntA, zeroFloatA)
-
-    testKeyInequality('Test Integer-Nil inequality', zeroIntA, nilA);
-
-    testKeyInequality('Test Integer-Boolean inequality', oneIntA, trueA);
-    testKeyInequality('Test Integer-Boolean inequality', zeroIntA, falseA);
-    testKeyInequality('Test Integer-Boolean inequality', oneIntA, falseA);
-    
-    testKeyInequality('Test Integer-String inequality', zeroIntA, zeroStringA);
-    testKeyInequality('Test Integer-String inequality', zeroIntA, emptyStringA);
-    testKeyInequality('Test Integer-String inequality', zeroIntA, stringA);
-
-    testKeyInequality('Test Float-Nil inequality', zeroFloatA, nilA);
-    
-    testKeyInequality('Test Float-Boolean inequality', oneFloatA, trueA);
-    testKeyInequality('Test Float-Boolean inequality', zeroFloatA, falseA);
-    testKeyInequality('Test Float-Boolean inequality', oneFloatA, falseA);
-
-    testKeyInequality('Test Float-String inequality', zeroFloatA, zeroStringA);
-    testKeyInequality('Test Float-String inequality', zeroFloatA, emptyStringA);
-    testKeyInequality('Test Float-String inequality', zeroFloatA, stringA);
-
-    testKeyInequality('Test Nil-Boolean inequality', nilA, falseA);
-    testKeyInequality('Test Nil-Boolean inequality', nilA, trueA);
-
-    testKeyInequality('Test Nil-String inequality', nilA, emptyStringA);
-    testKeyInequality('Test Nil-String inequality', nilA, zeroStringA);
-    testKeyInequality('Test Nil-String inequality', nilA, stringA);
-    
-    testKeyInequality('Test Boolean-String inequality', trueA, emptyStringA);
-    testKeyInequality('Test Boolean-String inequality', trueA, zeroStringA);
-    testKeyInequality('Test Boolean-String inequality', trueA, stringA);
-    testKeyInequality('Test Boolean-String inequality', falseA, emptyStringA);
-    testKeyInequality('Test Boolean-String inequality', falseA, zeroStringA);
-    testKeyInequality('Test Boolean-String inequality', falseA, stringA);
 
     const listA = new PseudoArray()
     const element1A = new PseudoInteger(1n);
@@ -121,14 +77,80 @@ describe('Test equality of keys', () => {
 
     testKeyEquality('Test List equality', listA, listB);
 
-    testKeyInequality('Test List inequality', listA, listC);
 
     const listEmpty = new PseudoArray();
+    
+    const tupleA = new PseudoTuple()
+    tupleA.value.push(new Slot(element1A));
+    tupleA.value.push(new Slot(element2A));
+    
+    const tupleB = new PseudoTuple()
+    tupleB.value.push(new Slot(element1B));
+    tupleB.value.push(new Slot(element2B));
+    
+    const tupleC = new PseudoTuple()
+    tupleC.value.push(new Slot(element2B));
+    tupleC.value.push(new Slot(element1B));
 
-    testKeyInequality('Test List-Integer inequality', listEmpty, zeroIntA);
-    testKeyInequality('Test List-Float inequality', listEmpty, zeroFloatA);
-    testKeyInequality('Test List-Nil inequality', listEmpty, nilA);
-    testKeyInequality('Test List-Boolean inequality', listEmpty, falseA);
-    testKeyInequality('Test List-String inequality', listEmpty, emptyStringA);
+    testKeyEquality('Test Tuple Equality', tupleA, tupleB);
+    
+    const setA = new PseudoSet()
+    setA.insert(element1A);
+    setA.insert(element2A);
+    
+    const setB = new PseudoSet()
+    setB.insert(element1B);
+    setB.insert(element2B);
+
+    const setC = new PseudoSet();
+    setC.insert(element2B);
+    setC.insert(element1B);
+    
+    const setD = new PseudoSet();
+    setD.insert(element2B);
+    
+    testKeyEquality('Test Set equality', setA, setB);
+    testKeyEquality('Test Set equality', setA, setC);
+
+    const dictA = new PseudoDict();
+    dictA.add(oneIntA, element1A);
+    dictA.add(zeroIntA, element2A);
+    
+    const dictB = new PseudoDict();
+    dictB.add(oneIntB, element1B);
+    dictB.add(zeroIntB, element2B);
+    
+    const dictC = new PseudoDict();
+    dictC.add(zeroIntB, element2B);
+    dictC.add(oneIntB, element1B);
+
+    const dictD = new PseudoDict();
+    dictD.add(zeroIntB, element2B);
+
+    testKeyEquality('Test Dict equality', dictA, dictB);
+    testKeyEquality('Test Dict equality', dictA, dictC);
+    
+    const objA = new PseudoObject();
+    objA.set("a", element1A);
+    objA.set("b", element2A);
+    
+    const objB = new PseudoObject();
+    objB.set("a", element1B);
+    objB.set("b", element2B);
+    
+    const objC = new PseudoObject();
+    objC.set("b", element2B);
+    objC.set("a", element1B);
+
+    const objD = new PseudoObject();
+    objD.set("a", element2B);
+
+    testKeyEquality('Test Object equality', objA, objB);
+    testKeyEquality('Test Object equality', objA, objC);
+
+    const everything = [oneIntA, oneFloatA, negOneIntA, negOneFloatB, zeroIntA, zeroFloatA, emptyStringA, zeroStringA, stringA, trueA, falseA, listA, listC, listEmpty, nilA, tupleA, tupleC, setA, setD, dictA, dictD, objA, objD]
+
+    testKeyInequality(everything)
+
 
 })

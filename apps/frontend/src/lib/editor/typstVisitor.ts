@@ -1,4 +1,4 @@
-import { BinaryOperationTree, ExprTree, type ArrayTree, type AssignTree, type BreakTree, type ContinueTree, type DotAccessorTree, type ForTree, type FunctionCallTree, type FunctionTree, type IfTree, type IndexAccessorTree, type IteratorTree, type KeyValueTree, type ObjectTree, type ProgramTree, type RangeTree, type RepeatUntilTree, type ReturnTree, type StatListTree, UnaryOperationTree, type Visitor, type WhileTree, SetTree, LexprPartTree, LexprTree, TupleTree } from "@interactive-pseudo/interpreter";
+import { BinaryOperationTree, ExprTree, type ArrayTree, type AssignTree, type BreakTree, type ContinueTree, type DotAccessorTree, type ForTree, type FunctionCallTree, type FunctionTree, type IfTree, type IndexAccessorTree, type IteratorTree, type KeyValueTree, type ObjectTree, type ProgramTree, type RangeTree, type RepeatUntilTree, type ReturnTree, type StatListTree, UnaryOperationTree, type Visitor, type WhileTree, SetTree, LexprPartTree, LexprTree, TupleTree, DictTree, DictPairTree } from "@interactive-pseudo/interpreter";
 import { PseudoLexer } from '@interactive-pseudo/parser'
 import { MarkupGenerationVisitor } from "./markupGenerationVisitor.js";
 
@@ -262,6 +262,17 @@ export class TypstVisitor extends MarkupGenerationVisitor {
     visitTuple(expr: TupleTree): string {
         const values = expr.elements.map(v => v.accept(this)).join(", ")
         return `(${values})`
+    }
+
+    visitDict(expr: DictTree): string {
+        const values = expr.elements.map(element => `#[$${element.accept(this)}$]`).join(", ")
+        return `[${values}]`
+    }
+
+    visitDictPair(expr: DictPairTree): string {
+        const key = expr.key.accept(this);
+        const value = expr.value.accept(this);
+        return `${key}: ${value}`
     }
 
 }

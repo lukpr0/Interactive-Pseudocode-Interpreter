@@ -1,3 +1,4 @@
+import type { Value } from "./Value";
 
 enum Type {
     Integer,
@@ -5,6 +6,7 @@ enum Type {
     Boolean,
     Array,
     Set,
+    Dict,
     Tuple,
     Function,
     Iterator,
@@ -27,6 +29,8 @@ export function typeToString(type: Type): string {
             return "Array";
         case Type.Set:
             return "Set";
+        case Type.Dict:
+            return "Dict";
         case Type.Tuple:
             return "Tuple";
         case Type.Function:
@@ -39,6 +43,21 @@ export function typeToString(type: Type): string {
             return "String"
         case Type.Nil:
             return "Nil"
+    }
+}
+
+export function toSimpleString(value: Value): string {
+    switch (value.type) {
+        case Type.Array:
+            return "Array"
+        case Type.Object:
+            return "Object"
+        case Type.Set:
+            return "Set"
+        case Type.Dict:
+            return "Dict"
+        default:
+            return value.toString()
     }
 }
 
