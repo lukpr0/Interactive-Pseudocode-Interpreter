@@ -15,7 +15,7 @@ export default class SetIterator implements Iterable<Value> {
 
     constructor(set: PseudoSet) {
         this.set = set;
-        this.array = set.value.values().toArray();
+        this.array = set.values.values().toArray();
         this.index = 0;
     }
 
