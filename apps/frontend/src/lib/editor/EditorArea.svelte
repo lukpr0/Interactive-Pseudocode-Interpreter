@@ -16,7 +16,7 @@
 {/snippet}
 
 {#snippet guide()}
-    <GuideArea />
+    <Guide />
 {/snippet}
 
 <script lang="ts">
@@ -26,7 +26,7 @@
     import MarkupArea from "./MarkupArea.svelte";
     import { TypstVisitor } from "./typstVisitor";
     import { LatexVisitor } from "./latexVisitor";
-    import GuideArea from "./GuideArea.svelte";
+    import Guide from "./Guide.md";
 
     let { changeCode } = $props();
 

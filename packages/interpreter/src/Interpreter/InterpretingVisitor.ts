@@ -1,13 +1,13 @@
 import { Token } from "antlr4";
 import { PseudoParser } from "@interactive-pseudo/parser";
-import { type WhileTree, type StatListTree, type RepeatUntilTree, type IfTree, type ForTree, type IteratorTree, RangeTree, type KeyValueTree, type ObjectTree, type BreakTree, type ReturnTree, type ContinueTree, type AssignTree, type ProgramTree, type Visitor, type ArrayTree, type FullIdTree, type SetTree } from "../AST/index.js";
+import { type WhileTree, type StatListTree, type RepeatUntilTree, type IfTree, type ForTree, type IteratorTree, RangeTree, type KeyValueTree, type ObjectTree, type BreakTree, type ReturnTree, type ContinueTree, type AssignTree, type ProgramTree, type Visitor, type ArrayTree, type LexprTree, type SetTree, LexprPartTree, TupleTree, DictPairTree, DictTree } from "../AST/index.js";
 import type { Value } from "./Value.js";
 import type BuiltInFunction from "./BuiltInFunctions/BuiltInFunction.js";
 import type PrintObserver from "./PrintObserver.js";
 
 import { BinaryOperationTree, UnaryOperationTree, FunctionCallTree, FunctionTree, ExprTree, DotAccessorTree, IndexAccessorTree } from "../AST/index.js"
-import { PseudoInteger, PseudoFloat, PseudoBoolean, PseudoArray, PseudoObject, PseudoNil, PseudoString, PseudoSet } from "./Types/index.js";
-import { ArrayConstructor, DequeueFunction, LengthFunction, PopFunction, PushFunction, CeilFunction, FloorFunction, PowFunction, SquarerootFunction, PrintFunction, CharFunction, CodepointFunction, MaxFunction, MinFunction } from "./BuiltInFunctions/index.js";
+import { PseudoInteger, PseudoFloat, PseudoBoolean, PseudoArray, PseudoObject, PseudoNil, PseudoString, PseudoSet, PseudoTuple, PseudoDict } from "./Types/index.js";
+import { ArrayConstructor, DequeueFunction, LengthFunction, PopFunction, PushFunction, CeilFunction, FloorFunction, PowFunction, SquarerootFunction, PrintFunction, CharFunction, CodepointFunction, MaxFunction, MinFunction, DictConstructor, DictKeys, DictValues } from "./BuiltInFunctions/index.js";
 import { Slot, SymbolTable, Type, Range} from "./index.js"
 import { PseudoTypeError, EmptyStackError, VariableError, UnexpectedTypeError, FeatureNotImplementedError, IncompatibleTypesError, BuiltInTypeError, InternalError, LocatedInternalError, PseudoRuntimeError, UnexpectedStatementError } from "./Errors/index.js";
 import { typeToString } from "./Type.js";
@@ -15,6 +15,7 @@ import { tokenToNodeLocation } from "../AST/NodeLocations.js";
 import type NodeLocation from "../AST/NodeLocations.js";
 import ArrayIterator from "./ArrayIterator.js";
 import SetIterator from "./SetIterator.js";
+import DictIterator from "./DictIterator.js";
 
 export default class InterpretingVisitor implements Visitor<void> {
     symbolTable: SymbolTable<Slot>;
@@ -64,6 +65,9 @@ export default class InterpretingVisitor implements Visitor<void> {
         this.builtInFunctions.setVariable('codepoint', new CodepointFunction());
         this.builtInFunctions.setVariable('char', new CharFunction());
 
+        this.builtInFunctions.setVariable('Dict', new DictConstructor());
+        this.builtInFunctions.setVariable('keys', new DictKeys());
+        this.builtInFunctions.setVariable('values', new DictValues());
     }
 
     visitStatlist(expr: StatListTree): void {
@@ -108,49 +112,103 @@ export default class InterpretingVisitor implements Visitor<void> {
         if (value === undefined) {
             throw new EmptyStackError(assign.location);
         }
-        if (assign.id.accessors.length == 0) {
-            this.symbolTable.setVariable(assign.id.name.text, new Slot(value));
-        } else {
-            let slot = this.symbolTable.getVariable(assign.id.name.text);
-            if (slot === undefined) {
-                throw new VariableError(assign.id.name, tokenToNodeLocation(assign.id.name));
+        const values = this.prepareAssign(value, assign.id.parts.length, assign.location);
+        for (let i = 0; i < values.length; i++) {
+            const id = assign.id.parts[i]!;
+            const value = values[i]!;
+            this.assignValueToPart(id, value, assign.location)
+        }
+    }
+
+    private prepareAssign(value: Value, ids: number, location: NodeLocation): Value[] {
+        const values = [];
+        if (value.type == Type.Tuple && value.value.length == ids) {
+            for (const element of value.value) {
+                values.push(element.value);
             }
-            for (const accessor of assign.id.accessors) {
+        } else if (value.type == Type.Tuple && value.value.length != ids && ids > 1) {
+            if (value.value.length > ids) {
+                throw new PseudoRuntimeError("Too many values to unpack", location);
+            } else {
+                throw new PseudoRuntimeError("Not enough values to unpack", location);
+            }
+        } else if (value.type != Type.Tuple && ids > 1) {
+            throw new PseudoTypeError("Value can't be unpacked", location);
+        } else {
+            values.push(value);
+        }
+        return values;
+    }
+
+    private assignWithIndexAccessor(accessor: IndexAccessorTree, slot: Slot, location: NodeLocation): Slot {
+        accessor.index.accept(this);
+        const index = this.stack.pop()
+        if (index === undefined) {
+            throw new EmptyStackError(location);
+        }
+        if (slot.value.type != Type.Array && slot.value.type != Type.Dict) {
+            throw new IncompatibleTypesError(slot.value.type, index.type, accessor.token, accessor.location)
+        }
+        if (slot.value.type == Type.Array) {
+            if (index.type != Type.Integer && index.type != Type.Float) {
+                throw new UnexpectedTypeError([Type.Integer, Type.Float], index.type, location)
+            }
+            const indexAsNum = typeof index.value == "number" ? index.value : Number(index.value)
+            try {
+                return slot.value.getSlot(indexAsNum);
+            } catch (e) {
+                if (e instanceof Error) {
+                    throw new PseudoRuntimeError(e.message, location);
+                } else throw e;
+            }
+        } else {
+            try {
+                return slot.value.getSlot(index)
+            } catch (e) {
+                if (e instanceof Error) {
+                    throw new PseudoRuntimeError(e.message, location);
+                } else throw e;
+            }
+        }
+    }
+
+    private assignWithDotAccessor(accessor: DotAccessorTree, slot: Slot, location: NodeLocation) {
+        if (slot.value.type != Type.Object) {
+            throw new PseudoTypeError(`Member access not possible on type ${typeToString(slot.value.type)}`, accessor.location)
+        }
+        try {
+            return slot.value.get(accessor.name.text);
+        } catch (e) {
+            if (e instanceof Error) {
+                throw new PseudoRuntimeError(e.message, location);
+            } else throw e;
+        }
+    }
+
+    private assignValueToPart(part: LexprPartTree, value: Value, location: NodeLocation) {
+        if (!(part instanceof LexprPartTree)) {
+            throw new Error()
+        }
+        if (value === undefined) {
+            throw new Error();
+        }
+        if (part.accessors.length == 0) {
+            this.symbolTable.setVariable(part.name.text, new Slot(value));
+        } else {
+            let slot = this.symbolTable.getVariable(part.name.text);
+            if (slot === undefined) {
+                throw new VariableError(part.name, tokenToNodeLocation(part.name));
+            }
+            for (const accessor of part.accessors) {
                 if (accessor instanceof IndexAccessorTree) {
-                    accessor.index.accept(this);
-                    const index = this.stack.pop()
-                    if (index === undefined) {
-                        throw new EmptyStackError(assign.location);
-                    }
-                    if (index.type != Type.Integer && index.type != Type.Float) {
-                        throw new UnexpectedTypeError([Type.Integer, Type.Float], index.type, assign.location)
-                    }
-                    if (slot.value.type != Type.Array) {
-                        throw new IncompatibleTypesError(slot.value.type, index.type, accessor.token, accessor.location)
-                    }
-                    const indexAsNum = typeof index.value == "number" ? index.value : Number(index.value)
-                    try {
-                        slot = slot.value.getSlot(indexAsNum);
-                    } catch (e) {
-                        if (e instanceof Error) {
-                            throw new PseudoRuntimeError(e.message, assign.location);
-                        } else throw e;
-                    }
+                    slot = this.assignWithIndexAccessor(accessor, slot, location)
                 } else if (accessor instanceof DotAccessorTree) {
-                    if (slot.value.type != Type.Object) {
-                        throw new PseudoTypeError(`Member access not possible on type ${typeToString(slot.value.type)}`, accessor.location)
-                    }
-                    try {
-                        slot = slot.value.get(accessor.name.text);
-                    } catch (e) {
-                        if (e instanceof Error) {
-                            throw new PseudoRuntimeError(e.message, assign.location);
-                        } else throw e;
-                    }
+                    slot = this.assignWithDotAccessor(accessor, slot, location)
                 }
             }
             slot.value = value;
         }
+
     }
 
     visitExpr(expr: ExprTree): void {
@@ -422,11 +480,18 @@ export default class InterpretingVisitor implements Visitor<void> {
         if (iter.type != Type.Iterator) {
             throw new UnexpectedTypeError([Type.Iterator], iter.type, expr.location)
         }
-        const variableName = expr.cond.id.text;
+        //const variableName = expr.cond.id.text;
         while (iter.hasNext()) {
             this.symbolTable.addChild(new SymbolTable());
             const value = iter.next();
-            this.symbolTable.setVariable(variableName, new Slot(value));
+            const values = this.prepareAssign(value, expr.cond.id.parts.length, expr.location)
+            for (let i = 0; i < values.length; i++) {
+                const id = expr.cond.id.parts[i]!;
+                const value = values[i]!;
+                this.assignValueToPart(id, value, expr.location)
+            }
+            //this.symbolTable.setVariable(variableName, new Slot(value));
+
             expr.list.accept(this);
             if (this.breaking) {
                 this.breaking = false;
@@ -456,6 +521,11 @@ export default class InterpretingVisitor implements Visitor<void> {
             } else if (value.type == Type.Set) {
                 const iterator = new SetIterator(value);
                 this.stack.push(iterator);
+            } else if (value.type == Type.Dict) {
+                const iterator = new DictIterator(value);
+                this.stack.push(iterator);
+            } else {
+                throw new UnexpectedTypeError([Type.Array, Type.Set, Type.Dict], value.type, expr.location);
             }
         }
     }
@@ -514,6 +584,19 @@ export default class InterpretingVisitor implements Visitor<void> {
         }
         this.stack.push(array);
     }
+
+    visitTuple(expr: TupleTree): void {
+        const tuple = new PseudoTuple();
+        for (const element of expr.elements) {
+            element.accept(this);
+            const value = this.stack.pop();
+            if (value === undefined) {
+                throw new EmptyStackError(expr.location);
+            }
+            tuple.value.push(new Slot(value));
+        }
+        this.stack.push(tuple);
+    }
     
     visitSet(expr: SetTree): void {
         const set = new PseudoSet();
@@ -528,7 +611,33 @@ export default class InterpretingVisitor implements Visitor<void> {
         this.stack.push(set);
     }
 
-    visitFullId(expr: FullIdTree): void {
+    visitDict(expr: DictTree): void {
+        const dict = new PseudoDict();
+        for (const element of expr.elements) {
+            element.accept(this);
+            const value = this.stack.pop();
+            if (value === undefined) {
+                throw new EmptyStackError(expr.location);
+            }
+            const key = this.stack.pop();
+            if (key === undefined) {
+                throw new EmptyStackError(expr.location);
+            }
+            dict.add(key, value);
+        }        
+        this.stack.push(dict);
+    }
+
+    visitDictPair(expr: DictPairTree): void {
+        expr.key.accept(this);
+        expr.value.accept(this);
+    }
+
+    visitLexpr(expr: LexprTree): void {
+        throw new Error("not implemented");
+    }
+
+    visitLexprPart(expr: LexprPartTree): void {
         const name = expr.name.text
         let slot = this.symbolTable.getVariable(name);
         if (slot === undefined) {
@@ -618,11 +727,11 @@ export default class InterpretingVisitor implements Visitor<void> {
     private handlePlus(left: Value, right: Value, operator: Token): Value {
         if ((left.type == Type.Integer || left.type == Type.Float) && (right.type == Type.Integer || right.type == Type.Float)) {
             return left.add(right);
-        } else if (left.type == Type.String && (right.type == Type.String || right.type == Type.Integer || right.type == Type.Float || right.type == Type.Boolean || right.type == Type.Array || right.type == Type.Object)) {
+        } else if (left.type == Type.String && (right.type == Type.String || right.type == Type.Integer || right.type == Type.Float || right.type == Type.Boolean || right.type == Type.Array || right.type == Type.Object || right.type == Type.Set || right.type == Type.Dict || right.type == Type.Tuple)) {
             return left.add(right)
-        } else if (right.type == Type.String && (left.type == Type.String || left.type == Type.Integer || left.type == Type.Float || left.type == Type.Boolean || left.type == Type.Array || left.type == Type.Object)) {
+        } else if (right.type == Type.String && (left.type == Type.String || left.type == Type.Integer || left.type == Type.Float || left.type == Type.Boolean || left.type == Type.Array || left.type == Type.Object || left.type == Type.Set || left.type == Type.Dict || left.type == Type.Tuple)) {
             return new PseudoString("").add(left).add(right)
-        } {
+        } else {
             throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
         }
     }
@@ -788,6 +897,8 @@ export default class InterpretingVisitor implements Visitor<void> {
                     throw error
                 } else throw e;
             }
+        } else if (left.type == Type.Dict) {
+            return left.get(right);
         }
         throw new IncompatibleTypesError(left.type, right.type, operator, tokenToNodeLocation(operator))
     }

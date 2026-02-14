@@ -1,6 +1,6 @@
 import { PseudoLexer, PseudoParser } from "@interactive-pseudo/parser";
 import { CharStream, CommonTokenStream } from "antlr4";
-import { AstBuilderVisitor, FunctionTree, InterpretingVisitor, PseudoTypeError, Slot, SymbolTable, Tree } from "../dist";
+import { AstBuilderVisitor, FunctionTree, InterpretingVisitor, PseudoTypeError, Slot, SymbolTable, Tree, Value } from "../src";
 import { expect, test } from "vitest";
 
 function makeParser(code: string): Tree {
@@ -21,6 +21,7 @@ function makeInterpreter(): InterpretingVisitor {
     const interpreter = new InterpretingVisitor(symbolTable, functionTable);
     return interpreter;
 }
+
 export function testOperatorCommutative(operator: string, correct: string[], wrong: string[]) {
     const cases = []
     for (const a of correct) {
@@ -72,3 +73,49 @@ export function testArgtype(name: string, template: (arg: string) => string, cor
         }
     });
 }
+
+export function testKeyInequality(values: Value[]) {
+    const cases = []
+    for (const a of values) {
+        for (const b of values) {
+            if (a != b) {
+                cases.push({a: a, b: b});
+            }
+        }
+    }
+
+    test.each(cases)(`$a != $b`, ({a, b}) => {
+        const aKey = a.asKey();
+        const bKey = b.asKey();
+        expect(aKey).not.toEqual(bKey);
+    });
+}
+
+export const sized = ['""', '[]', '{}', 'Dict()'];
+export const num = ['(1)', '(1.5)'];
+export const rest = ['nil', 'false', '{x:0}', '(1,2)'];
+
+export const indexable = ['[1]', 'Dict()', '"x"']
+export const notIndexable = [...num, ...rest, '{}']
+
+export const iterable = ['[]', '{}', 'Dict()']
+export const notIterable = [...num, ...rest, '""']
+
+export const notSized = [...num, ...rest];
+export const notNum = [...sized, ...rest];
+export const notRest = [...sized, ...num];
+
+export const notString = [...notSized, '[]', '{}', 'Dict()'];
+export const notArray = [...notSized, '""', '{}', 'Dict()'];
+export const notDict = [...notSized, '""', '[]', '{}'];
+export const notSet = [...notSized, '""', '[]', 'Dict()']
+
+export const notInt = [...notNum, '1.5'];
+export const notFloat = [...notNum, '1'];
+
+export const notBool = [...notRest, 'nil', '{x:0}', '(1,2)']
+export const notObject = [...notRest, 'nil', 'false', '(1,2)']
+export const notNil = [...notRest, 'false', '{x:0}', '(1,2)']
+export const notTuple = [...notRest, 'nil', 'false', '{x:0}']
+
+export const everything = [...sized, ...num, ...rest];

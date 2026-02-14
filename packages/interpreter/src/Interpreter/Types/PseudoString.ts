@@ -4,6 +4,9 @@ import type PseudoInteger from "./PseudoInteger.js";
 import PseudoBoolean from "./PseudoBoolean.js";
 import type PseudoArray from "./PseudoArray.js";
 import type PseudoObject from "./PseudoObject.js";
+import type PseudoDict from "./PseudoDict.js";
+import type PseudoSet from "./PseudoSet.js";
+import type PseudoTuple from "./PseudoTuple.js";
 
 export default class PseudoString {
     type: Type.String = Type.String;
@@ -20,7 +23,7 @@ export default class PseudoString {
         return this.value;
     }
 
-    add(right: PseudoInteger | PseudoFloat | PseudoString | PseudoBoolean | PseudoArray | PseudoObject): PseudoString {
+    add(right: PseudoInteger | PseudoFloat | PseudoString | PseudoBoolean | PseudoArray | PseudoObject | PseudoSet | PseudoDict | PseudoTuple ): PseudoString {
         return new PseudoString(this.value + right.toString());
     }
     
