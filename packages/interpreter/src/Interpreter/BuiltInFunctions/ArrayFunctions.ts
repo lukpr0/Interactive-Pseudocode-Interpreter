@@ -31,10 +31,14 @@ export class LengthFunction extends BuiltInFunction {
     }
 
     eval(args: Value[]): Value {
-        if (args[0]?.type != Type.Array && args[0]?.type != Type.String) {
-            throw new BuiltInTypeError([Type.Array, Type.String], args[0]!.type)
+        if (args[0]?.type == Type.Array || args[0]?.type == Type.String) {
+            return new PseudoInteger(BigInt(args[0].value.length))
+        } else if (args[0]?.type == Type.Set) {
+            return new PseudoInteger(BigInt(args[0].values.size))
+        } else if (args[0]?.type == Type.Dict) {
+            return new PseudoInteger(BigInt(args[0].values.size))
         }
-        return new PseudoInteger(BigInt(args[0].value.length))
+            throw new BuiltInTypeError([Type.Array, Type.String], args[0]!.type)
     }
 
 }

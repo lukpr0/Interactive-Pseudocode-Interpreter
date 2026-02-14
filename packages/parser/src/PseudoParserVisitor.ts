@@ -29,6 +29,7 @@ import { ComparisonContext } from "./PseudoParser.js";
 import { SetDifferenceContext } from "./PseudoParser.js";
 import { LogicalAndContext } from "./PseudoParser.js";
 import { IntLiteralContext } from "./PseudoParser.js";
+import { DictExprContext } from "./PseudoParser.js";
 import { ParenthesesContext } from "./PseudoParser.js";
 import { IdLiteralContext } from "./PseudoParser.js";
 import { FloatLiteralContext } from "./PseudoParser.js";
@@ -44,6 +45,8 @@ import { BreakstatContext } from "./PseudoParser.js";
 import { ContinuestatContext } from "./PseudoParser.js";
 import { ReturnstatContext } from "./PseudoParser.js";
 import { ArrayexprContext } from "./PseudoParser.js";
+import { DictexprContext } from "./PseudoParser.js";
+import { DictpairContext } from "./PseudoParser.js";
 import { ObjectexprContext } from "./PseudoParser.js";
 import { SetexprContext } from "./PseudoParser.js";
 import { TupleexprContext } from "./PseudoParser.js";
@@ -254,6 +257,13 @@ export default class PseudoParserVisitor<Result> extends ParseTreeVisitor<Result
 	 */
 	visitIntLiteral?: (ctx: IntLiteralContext) => Result;
 	/**
+	 * Visit a parse tree produced by the `DictExpr`
+	 * labeled alternative in `PseudoParser.expr`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitDictExpr?: (ctx: DictExprContext) => Result;
+	/**
 	 * Visit a parse tree produced by the `Parentheses`
 	 * labeled alternative in `PseudoParser.expr`.
 	 * @param ctx the parse tree
@@ -354,6 +364,18 @@ export default class PseudoParserVisitor<Result> extends ParseTreeVisitor<Result
 	 * @return the visitor result
 	 */
 	visitArrayexpr?: (ctx: ArrayexprContext) => Result;
+	/**
+	 * Visit a parse tree produced by `PseudoParser.dictexpr`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitDictexpr?: (ctx: DictexprContext) => Result;
+	/**
+	 * Visit a parse tree produced by `PseudoParser.dictpair`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitDictpair?: (ctx: DictpairContext) => Result;
 	/**
 	 * Visit a parse tree produced by `PseudoParser.objectexpr`.
 	 * @param ctx the parse tree

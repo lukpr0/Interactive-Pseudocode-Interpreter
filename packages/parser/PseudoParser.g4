@@ -39,6 +39,7 @@ expr
     | arrayexpr                         # ArrayExpr
     | setexpr                           # SetExpr
     | objectexpr                        # ObjectExpr
+    | dictexpr                          # DictExpr
     | tupleexpr                         # TupleExpr
     | expr '[' expr ']'                 # IndexAccess
     | expr '.' IDENTIFIER               # DotAccess
@@ -68,6 +69,14 @@ returnstat
 
 arrayexpr
     : '[' NEWLINE* (expr NEWLINE* (',' NEWLINE* expr NEWLINE*)* ','? NEWLINE* )? ']'
+    ;
+
+dictexpr
+    : '[' NEWLINE* (dictpair NEWLINE* (',' NEWLINE* dictpair NEWLINE*)* ','? NEWLINE*)? ']'
+    ;
+
+dictpair
+    : key=expr ':' value=expr
     ;
 
 objectexpr

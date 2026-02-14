@@ -1,4 +1,4 @@
-import { BinaryOperationTree, LexprPartTree, LexprTree, SetTree, TupleTree, type ArrayTree, type AssignTree, type BreakTree, type ContinueTree, type DotAccessorTree, type ExprTree, type ForTree, type FunctionCallTree, type FunctionTree, type IfTree, type IndexAccessorTree, type IteratorTree, type KeyValueTree, type ObjectTree, type ProgramTree, type RangeTree, type RepeatUntilTree, type ReturnTree, type StatListTree, type UnaryOperationTree, type Visitor, type WhileTree } from "@interactive-pseudo/interpreter";
+import { BinaryOperationTree, DictPairTree, DictTree, LexprPartTree, LexprTree, SetTree, TupleTree, type ArrayTree, type AssignTree, type BreakTree, type ContinueTree, type DotAccessorTree, type ExprTree, type ForTree, type FunctionCallTree, type FunctionTree, type IfTree, type IndexAccessorTree, type IteratorTree, type KeyValueTree, type ObjectTree, type ProgramTree, type RangeTree, type RepeatUntilTree, type ReturnTree, type StatListTree, type UnaryOperationTree, type Visitor, type WhileTree } from "@interactive-pseudo/interpreter";
 import { PseudoLexer } from "@interactive-pseudo/parser";
 
 export abstract class MarkupGenerationVisitor implements Visitor<string> {
@@ -35,6 +35,8 @@ export abstract class MarkupGenerationVisitor implements Visitor<string> {
     abstract visitLexpr(expr: LexprTree): string;
     abstract visitLexprPart(expr: LexprPartTree): string;
     abstract visitTuple(expr: TupleTree): string;
+    abstract visitDictPair(expr: DictPairTree): string;
+    abstract visitDict(expr: DictTree): string;
     
     protected lowerPrecedence(parent: number, child: number): boolean {
         const accessors = [PseudoLexer.LBRACK, PseudoLexer.DOT]

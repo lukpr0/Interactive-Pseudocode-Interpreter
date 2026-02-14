@@ -1,5 +1,5 @@
 import type { Token } from 'antlr4';
-import { AdditiveContext, AlgorithmContext, ArrayexprContext, ArrayExprContext, AssignStatContext, AssignstatContext, BoolLiteralContext, BreakstatContext, BreakStatContext, ComparisonContext, ContinuestatContext, ContinueStatContext, DotAccessContext, DotAccessorContext, ExprContext, ExprIteratorContext, ExprStatContext, FloatLiteralContext, ForstatContext, ForStatContext, LexprContext, FunccallContext, FuncCallContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IndexAccessContext, IndexAccessorContext, InQueryContext, IntLiteralContext, IteratorContext, KeyvaluepairContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, NilLiteralContext, ObjectexprContext, ObjectExprContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RangeIteratorContext, RepeatStatContext, RepeatstatContext, ReturnStatContext, ReturnstatContext, SetDifferenceContext, SetexprContext, SetExprContext, SetIntersectContext, SetUnionContext, StatContext, StatlistContext, StringLiteralContext, UnaryMinusContext, WhileStatContext, WhilestatContext, Lexpr_partContext, TupleExprContext, TupleexprContext } from '@interactive-pseudo/parser';
+import { AdditiveContext, AlgorithmContext, ArrayexprContext, ArrayExprContext, AssignStatContext, AssignstatContext, BoolLiteralContext, BreakstatContext, BreakStatContext, ComparisonContext, ContinuestatContext, ContinueStatContext, DotAccessContext, DotAccessorContext, ExprContext, ExprIteratorContext, ExprStatContext, FloatLiteralContext, ForstatContext, ForStatContext, LexprContext, FunccallContext, FuncCallContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IndexAccessContext, IndexAccessorContext, InQueryContext, IntLiteralContext, IteratorContext, KeyvaluepairContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, NilLiteralContext, ObjectexprContext, ObjectExprContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RangeIteratorContext, RepeatStatContext, RepeatstatContext, ReturnStatContext, ReturnstatContext, SetDifferenceContext, SetexprContext, SetExprContext, SetIntersectContext, SetUnionContext, StatContext, StatlistContext, StringLiteralContext, UnaryMinusContext, WhileStatContext, WhilestatContext, Lexpr_partContext, TupleExprContext, TupleexprContext, DictExprContext, DictexprContext, DictpairContext } from '@interactive-pseudo/parser';
 import type Tree from './AST/Tree.js';
 import ProgramTree from './AST/ProgramTree.js';
 import AssignTree from './AST/AssignTree.js';
@@ -26,6 +26,8 @@ import SetTree from './AST/SetTree.js';
 import LexprPartTree from './AST/LexprPartTree.js';
 import LexprTree from './AST/LexprTree.js';
 import TupleTree from './AST/TupleTree.js';
+import DictPairTree from './AST/DictPairTree.js';
+import DictTree from './AST/DictTree.js';
 
 type BinaryContext 
     = AdditiveContext 
@@ -510,6 +512,31 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             });
             const token = ctx.LCURLY().symbol;
             const tree = new ObjectTree(kvps, token);
+            return tree;
+        }
+
+        this.visitDictExpr = (ctx: DictExprContext): Tree => {
+            return ctx.dictexpr().accept(this);
+        }
+
+        this.visitDictexpr = (ctx: DictexprContext): Tree => {
+            const kvps = ctx.dictpair_list().map(pair => {
+                const pairExpr = pair.accept(this);
+                if (!(pairExpr instanceof DictPairTree)) {
+                    throw new Error("Expected dict-key value pair");
+                }
+                return pairExpr 
+            });
+            console.log("building dict")
+            const token = ctx.LBRACK().symbol;
+            const tree = new DictTree(kvps, token);
+            return tree;
+        }
+
+        this.visitDictpair = (ctx: DictpairContext): Tree => {
+            const key = this.visit(ctx._key);
+            const value = this.visit(ctx._value);
+            const tree = new DictPairTree(key, value);
             return tree;
         }
 

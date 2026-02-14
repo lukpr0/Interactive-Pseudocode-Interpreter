@@ -5,13 +5,13 @@ import PseudoBoolean from "./PseudoBoolean"
 
 export default class PseudoSet {
     type: Type.Set = Type.Set
-    value: Map<string, Slot> 
+    values: Map<string, Slot> 
     constructor () {
-        this.value = new Map();
+        this.values = new Map();
     }
 
     toString(): string {
-        return `{${this.value.entries().map(([_, slot]) => {
+        return `{${this.values.entries().map(([_, slot]) => {
             switch (slot.value.type) {
                 case Type.Array:
                     return "Array"
@@ -28,21 +28,21 @@ export default class PseudoSet {
     }
 
     toDebugString(): string {
-        return `Set { value: ${this.value.keys().toArray().join(', ')} }`
+        return `Set { value: ${this.values.keys().toArray().join(', ')} }`
     }
 
     insert(value: Value) {
-        this.value.set(value.asKey() , new Slot(value));
+        this.values.set(value.asKey() , new Slot(value));
     }
 
     contains(value: Value): PseudoBoolean {
-        const contains = this.value.has(value.asKey());
+        const contains = this.values.has(value.asKey());
         return new PseudoBoolean(contains);
     }
 
     intersect(other: PseudoSet): PseudoSet {
         const intersection = new PseudoSet();
-        for (let [key, slot] of this.value.entries()) {
+        for (let [key, slot] of this.values.entries()) {
             if (other.contains(slot.value).value) {
                 intersection.insert(slot.value)
             }
@@ -52,10 +52,10 @@ export default class PseudoSet {
     
     union(other: PseudoSet): PseudoSet {
         const union = new PseudoSet();
-        for (let [key, slot] of this.value.entries()) {
+        for (let [key, slot] of this.values.entries()) {
             union.insert(slot.value)
         }
-        for (let [key, slot] of other.value.entries()) {
+        for (let [key, slot] of other.values.entries()) {
             union.insert(slot.value)
         }
         return union;
@@ -63,7 +63,7 @@ export default class PseudoSet {
     
     difference(other: PseudoSet): PseudoSet {
         const difference = new PseudoSet();
-        for (let [key, slot] of this.value.entries()) {
+        for (let [key, slot] of this.values.entries()) {
             if (!other.contains(slot.value).value) {
                 difference.insert(slot.value)
             }
@@ -74,7 +74,7 @@ export default class PseudoSet {
     asKey(): string {
         return JSON.stringify({
             type: Type.Set,
-            value: this.value.keys().toArray().sort()
+            value: this.values.keys().toArray().sort()
         });
     }
 
