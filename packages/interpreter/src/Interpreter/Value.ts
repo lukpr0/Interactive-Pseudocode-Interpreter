@@ -2,6 +2,7 @@ import type { PseudoFloat, PseudoInteger, PseudoBoolean, PseudoArray, PseudoObje
 import type Range from "./Range.js";
 import type ArrayIterator from "./ArrayIterator.js";
 import type SetIterator from "./SetIterator.js";
+import type DictIterator from "./DictIterator.js";
 
 export type Value 
     = PseudoInteger
@@ -17,4 +18,5 @@ export type Value
     | Range
     | ArrayIterator
     | SetIterator
+    | DictIterator
     ; 
