@@ -39,7 +39,10 @@ export default class PseudoObject {
     asKey(): string {
         return JSON.stringify({
             type: Type.Object,
-            value: this.values.entries().map(([key, value]) => `${key}:${value.value.asKey()}`)
+            value: this.values.entries()
+                .toArray()
+                .sort(([a, ar], [b, br]) => a.localeCompare(b))
+                .map(([key, value]) => `${key}:${value.value.asKey()}`)
         })
     }
 
