@@ -15,6 +15,7 @@ import { tokenToNodeLocation } from "../AST/NodeLocations.js";
 import type NodeLocation from "../AST/NodeLocations.js";
 import ArrayIterator from "./ArrayIterator.js";
 import SetIterator from "./SetIterator.js";
+import DictIterator from "./DictIterator.js";
 
 export default class InterpretingVisitor implements Visitor<void> {
     symbolTable: SymbolTable<Slot>;
@@ -520,8 +521,11 @@ export default class InterpretingVisitor implements Visitor<void> {
             } else if (value.type == Type.Set) {
                 const iterator = new SetIterator(value);
                 this.stack.push(iterator);
+            } else if (value.type == Type.Dict) {
+                const iterator = new DictIterator(value);
+                this.stack.push(iterator);
             } else {
-                throw new UnexpectedTypeError([Type.Array, Type.Set], value.type, expr.location)
+                throw new UnexpectedTypeError([Type.Array, Type.Set, Type.Dict], value.type, expr.location);
             }
         }
     }
