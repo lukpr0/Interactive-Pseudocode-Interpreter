@@ -82,6 +82,7 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
                 this.continuing = false;
                 break
             }
+            yield;
             yield* stat.accept(this)
             if (stat instanceof FunctionCallTree) {
                 this.stack.pop()
@@ -116,7 +117,7 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
         for (let i = 0; i < values.length; i++) {
             const id = assign.id.parts[i]!;
             const value = values[i]!;
-            this.assignValueToPart(id, value, assign.location)
+            yield* this.assignValueToPart(id, value, assign.location)
         }
     }
 
@@ -140,8 +141,8 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
         return values;
     }
 
-    private assignWithIndexAccessor(accessor: IndexAccessorTree, slot: Slot, location: NodeLocation): Slot {
-        accessor.index.accept(this);
+    private *assignWithIndexAccessor(accessor: IndexAccessorTree, slot: Slot, location: NodeLocation): Generator<void, Slot> {
+        yield* accessor.index.accept(this);
         const index = this.stack.pop()
         if (index === undefined) {
             throw new EmptyStackError(location);
@@ -185,7 +186,7 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
         }
     }
 
-    private assignValueToPart(part: LexprPartTree, value: Value, location: NodeLocation) {
+    private *assignValueToPart(part: LexprPartTree, value: Value, location: NodeLocation): Generator<void> {
         if (!(part instanceof LexprPartTree)) {
             throw new Error()
         }
@@ -201,7 +202,7 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
             }
             for (const accessor of part.accessors) {
                 if (accessor instanceof IndexAccessorTree) {
-                    slot = this.assignWithIndexAccessor(accessor, slot, location)
+                    slot = yield* this.assignWithIndexAccessor(accessor, slot, location)
                 } else if (accessor instanceof DotAccessorTree) {
                     slot = this.assignWithDotAccessor(accessor, slot, location)
                 }
@@ -245,10 +246,10 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
         if (this.isLazy(expr.operator)) {
             switch (expr.operator.type) {
                 case PseudoParser.AND:
-                    result = this.handleAnd(expr.left, expr.right, expr.operator);
+                    result = yield* this.handleAnd(expr.left, expr.right, expr.operator);
                     break;
                 case PseudoParser.OR:
-                    result = this.handleOr(expr.left, expr.right, expr.operator);
+                    result = yield* this.handleOr(expr.left, expr.right, expr.operator);
                     break;
                 default:
                     throw new FeatureNotImplementedError(expr.location)
@@ -457,7 +458,7 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
             if (fromStack.value) {
                 this.symbolTable.addChild(new SymbolTable());
                 branchExecuted = true;
-                list!.accept(this);
+                yield* list!.accept(this);
                 this.symbolTable.removeChild()
             }
         }
@@ -556,7 +557,7 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
         const name = expr.name.text;
         const builtin = this.builtInFunctions.getVariable(name);
         if (builtin !== undefined) {
-            this.handleBuiltInFunction(builtin, expr.args, expr.location)
+            yield* this.handleBuiltInFunction(builtin, expr.args, expr.location)
             return;
         }
         const user = this.functionTable.getVariable(name);
@@ -777,8 +778,8 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
         }
     }
 
-    private handleAnd(left: ExprTree, right: ExprTree, operator: Token): Value {
-        left.accept(this);
+    private *handleAnd(left: ExprTree, right: ExprTree, operator: Token): Generator<void, Value> {
+        yield* left.accept(this);
         const leftValue = this.stack.pop();
         if (!leftValue) {
             throw new EmptyStackError(tokenToNodeLocation(operator))
@@ -789,7 +790,7 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
         if (!leftValue.value) {
             return new PseudoBoolean(false);
         }
-        right.accept(this);
+        yield* right.accept(this);
         const rightValue = this.stack.pop();
         if (!rightValue) {
             throw new EmptyStackError(tokenToNodeLocation(operator))
@@ -800,8 +801,8 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
         return leftValue.and(rightValue);
     }
 
-    private handleOr(left: ExprTree, right: ExprTree, operator: Token): Value {
-        left.accept(this);
+    private *handleOr(left: ExprTree, right: ExprTree, operator: Token): Generator<void, Value> {
+        yield* left.accept(this);
         const leftValue = this.stack.pop();
         if (!leftValue) {
             throw new EmptyStackError(tokenToNodeLocation(operator))
@@ -812,7 +813,7 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
         if (leftValue.value) {
             return new PseudoBoolean(true);
         }
-        right.accept(this);
+        yield* right.accept(this);
         const rightValue = this.stack.pop();
         if (!rightValue) {
             throw new EmptyStackError(tokenToNodeLocation(operator))
@@ -931,19 +932,20 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
         return left.difference(right)
     }
 
-    private handleUserFunction(func: FunctionTree, args: ExprTree[], location: NodeLocation) {
+    private *handleUserFunction(func: FunctionTree, args: ExprTree[], location: NodeLocation): Generator<void> {
         if (args.length != func.args.length) {
             const message = `wrong number of parameters, ${func.name} expects ${func.args.length} paramters, got ${args.length}`
             throw new PseudoTypeError(message, location)
         }
-        const argValues = args.map(arg => {
-            arg.accept(this)
+        const argValues = []
+        for (const arg of args) {
+            yield* arg.accept(this)
             const value = this.stack.pop();
             if (value === undefined) {
                 throw new EmptyStackError(location);
             }
-            return value;
-        })
+            argValues.push(value)
+        }
         const prevReturn = this.canReturn;
         this.canReturn = true;
 
@@ -952,20 +954,20 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
         this.symbolTable = funcScope;
         this.setVariables(func.args, argValues)
 
-        func.stats.accept(this)
+        yield* func.stats.accept(this)
 
         this.symbolTable = currentScope
         this.canReturn = prevReturn;
     }
 
-    private handleBuiltInFunction(func: BuiltInFunction, args: ExprTree[], location: NodeLocation) {
+    private *handleBuiltInFunction(func: BuiltInFunction, args: ExprTree[], location: NodeLocation): Generator<void> {
         if (args.length != func.argsCount) {
             const message = `wrong number of parameters, ${func.name} expects ${func.argsCount} paramters, got ${args.length}`;
             throw new PseudoTypeError(message, location)
         }
         const argValues = [];
         for (const arg of args) {
-            arg.accept(this);
+            yield* arg.accept(this);
             const argValue = this.stack.pop();
             if (argValue === undefined) {
                 throw new EmptyStackError(location);
