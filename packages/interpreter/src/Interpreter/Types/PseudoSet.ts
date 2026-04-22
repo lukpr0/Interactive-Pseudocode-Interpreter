@@ -1,7 +1,7 @@
-import Slot from "../Slot"
-import Type from "../Type"
-import type { Value } from "../Value"
-import PseudoBoolean from "./PseudoBoolean"
+import Slot from "../Slot.js"
+import Type from "../Type.js"
+import type { Value } from "../Value.js"
+import PseudoBoolean from "./PseudoBoolean.js"
 
 export default class PseudoSet {
     type: Type.Set = Type.Set

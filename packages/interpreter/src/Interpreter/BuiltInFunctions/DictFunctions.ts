@@ -1,8 +1,9 @@
-import { BuiltInTypeError } from "../Errors";
-import Type from "../Type";
-import { PseudoArray, PseudoDict } from "../Types";
-import type { Value } from "../Value";
-import BuiltInFunction from "./BuiltInFunction";
+import { BuiltInTypeError } from "../Errors/BuiltInTypeError.js";
+import Type from "../Type.js";
+import PseudoArray from "../Types/PseudoArray.js";
+import PseudoDict from "../Types/PseudoDict.js";
+import type { Value } from "../Value.js";
+import BuiltInFunction from "./BuiltInFunction.js";
 
 export class DictConstructor extends BuiltInFunction {
     constructor() {
