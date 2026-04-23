@@ -562,7 +562,7 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
         }
         const user = this.functionTable.getVariable(name);
         if (user !== undefined) {
-            this.handleUserFunction(user, expr.args, expr.location);
+            yield* this.handleUserFunction(user, expr.args, expr.location);
             if (!this.returnsValue) {
                 this.stack.push(new PseudoNil())
             }
@@ -953,7 +953,6 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
         const funcScope = new SymbolTable<Slot>();
         this.symbolTable = funcScope;
         this.setVariables(func.args, argValues)
-
         yield* func.stats.accept(this)
 
         this.symbolTable = currentScope
