@@ -30,6 +30,7 @@ type ErrorMessage = {
 
 type ResultMessage = {
     type: "result",
+    finished: boolean
     message: string[][]
 }
 

@@ -90,8 +90,9 @@ function parse(parser: PseudoParser): Tree | null {
 }
 
 function stepInterpreter(iterator: Generator, interpreter: InterpretingVisitor) {
+    let res;
     try {
-        iterator.next()
+        res = iterator.next()
     } catch (e) {
         let error;
         if (e instanceof PseudoRuntimeError) {
@@ -114,7 +115,7 @@ function stepInterpreter(iterator: Generator, interpreter: InterpretingVisitor) 
         self.postMessage({type: 'error', message: error})
         return;
     }
-    postVariables(interpreter.symbolTable);
+    postVariables(interpreter.symbolTable, res.done ? res.done : false);
 }
 
 function runInterpreter(iterator: Generator, interpreter: InterpretingVisitor) {
@@ -143,14 +144,14 @@ function runInterpreter(iterator: Generator, interpreter: InterpretingVisitor) {
         self.postMessage({type: 'error', message: error})
         return;
     }
-    postVariables(interpreter.symbolTable);
+    postVariables(interpreter.symbolTable, true);
 }
 
-function postVariables(symbolTable: SymbolTable<Slot>) {
+function postVariables(symbolTable: SymbolTable<Slot>, finished: boolean) {
     //Convert to array of strings because worker messages serialize, losing methods
     let variables = symbolTable.getAllVariables()
         .entries()
         .map(([key, value]) => [key, value.toString()])
         .toArray();
-    self.postMessage({type: 'result', message: variables})
+    self.postMessage({type: 'result', message: variables, finished: finished})
 }

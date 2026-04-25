@@ -3,9 +3,13 @@
         <Option name="interpreter-active" bind:checked={shared.interpreterActive}>activate interpreter</Option>
         <Option name="vim-mode" bind:checked={shared.vimMode}>Enable vim mode</Option>
         <Option name="dark-mode" bind:checked={shared.darkMode}>Dark mode</Option>
-        <input type="button" value="terminate" onclick={ terminateInterpreter }>
+        <div>
+            <input type="button" value="terminate" onclick={ terminateInterpreter }>
+            <input type="number" bind:value={shared.stepDuration} step="100">
+        </div>
         <div class="flex">
-            <input type="button" value="share" onclick={share}><input type="text" bind:value={shared.shareLink}>
+            <input type="button" value="share" onclick={share}>
+            <input type="text" bind:value={shared.shareLink}>
         </div>
     </div>
     <div class="flex-item">
