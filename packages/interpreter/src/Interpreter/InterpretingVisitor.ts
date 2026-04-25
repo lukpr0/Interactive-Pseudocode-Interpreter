@@ -489,7 +489,7 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
             for (let i = 0; i < values.length; i++) {
                 const id = expr.cond.id.parts[i]!;
                 const value = values[i]!;
-                this.assignValueToPart(id, value, expr.location)
+                yield* this.assignValueToPart(id, value, expr.location)
             }
             //this.symbolTable.setVariable(variableName, new Slot(value));
 
