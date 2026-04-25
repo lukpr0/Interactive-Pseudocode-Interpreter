@@ -5,6 +5,7 @@ export const shared: {
     code: string,
     vimMode: boolean,
     interpreterActive: boolean,
+    interpreterFinished: boolean,
     debug: boolean,
     shareLink: string,
     displayedError: string,
@@ -14,11 +15,12 @@ export const shared: {
     markup: string,
     logs: string[],
     darkMode: boolean,
-
+    stepDuration: number
 } = $state({
     code: "",
     vimMode: false,
     interpreterActive: true,
+    interpreterFinished: false,
     debug: false,
     shareLink: "",
     displayedError: "",
@@ -27,5 +29,6 @@ export const shared: {
     headers: true,
     markup: "",
     logs: [],
-    darkMode: false
+    darkMode: false,
+    stepDuration: 0
 })

@@ -18,19 +18,21 @@
     import SettingsArea from "$lib/settings/SettingsArea.svelte";
 
     import { shared } from "$lib/shared/state.svelte";
+    import type { WorkerMessage } from '$lib/background/messages';
 
     shared.code = getCodeFromParam();
 
     let worker = new Worker()
 
     function workerOnMessage(event: MessageEvent) {
-        const result = event.data
+        const result = event.data as WorkerMessage
         switch (result.type) {
             case 'log':
                 shared.logs.push(result.message)
                 break;
             case 'result':
                 shared.variables = new Map(result.message)
+                shared.interpreterFinished = result.finished;
                 break;
             case 'error':
                 handleError(result.message);
@@ -65,10 +67,34 @@
         shared.logs = []
         shared.displayedError = "";
         while (shared.errorLocations.length > 0) shared.errorLocations.pop();
+        console.log("terminate worker")
         worker.terminate()
+        console.log("new worker")
         worker = new Worker()
         worker.onmessage = workerOnMessage;
-        worker.postMessage(shared.code)
+        worker.postMessage({
+            type: "code",
+            message: shared.code
+        });
+        if (!shared.interpreterActive) {
+            return;
+        }
+        shared.interpreterFinished = false;
+        if (shared.stepDuration == 0) {
+            worker.postMessage({
+                type: "run"
+            })
+        } else {
+            runWithTimeout()
+        }
+    }
+
+    function runWithTimeout() {
+        worker.postMessage({type: "next"})
+        //console.log("waiting for", shared.stepDuration)
+        if (!shared.interpreterFinished) {
+            setTimeout(runWithTimeout, shared.stepDuration)
+        }
     }
 
     function getCodeFromParam() {
