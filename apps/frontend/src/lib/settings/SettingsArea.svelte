@@ -1,11 +1,15 @@
 <div id="options" class="area border border-radius">
     <div class="flex-item">
-        <Option name="interpreter-active" bind:checked={shared.interpreterActive}>activate interpreter</Option>
-        <Option name="vim-mode" bind:checked={shared.vimMode}>Enable vim mode</Option>
-        <Option name="dark-mode" bind:checked={shared.darkMode}>Dark mode</Option>
+        <Option name="interpreter-active" bind:checked={shared.interpreterActive}>Run on code change</Option>
         <div>
+            <label for="in-steptime">Time per step</label>
+            <input id="in-steptime" type="number" bind:value={shared.stepDuration} step="100">
+        </div>
+        <div>
+            <input type="button" value="run" onclick={ runInterpreter }>
             <input type="button" value="terminate" onclick={ terminateInterpreter }>
-            <input type="number" bind:value={shared.stepDuration} step="100">
+            <input type="button" value="step" onclick={ stepInterpreter }>
+            <input type="button" value="reset" onclick={ resetInterpreter }>
         </div>
         <div class="flex">
             <input type="button" value="share" onclick={share}>
@@ -13,6 +17,8 @@
         </div>
     </div>
     <div class="flex-item">
+        <Option name="vim-mode" bind:checked={shared.vimMode}>Enable vim mode</Option>
+        <Option name="dark-mode" bind:checked={shared.darkMode}>Dark mode</Option>
         <span><a href="https://github.com/lukpr0/Interactive-Pseudocode-Interpreter">report bugs</a></span>
         {#if shared.debug}
         <span>Versions: Frontend: 2.0.0 Interpreter: 2.0.0 Parser: 2.0.0</span>
@@ -26,7 +32,17 @@
     import { shared } from "$lib/shared/state.svelte";
     import { Codeli } from "./codeli";
 
-    let { terminateInterpreter } = $props()
+    let {
+        terminateInterpreter = undefined,
+        runInterpreter = undefined,
+        stepInterpreter = undefined,
+        resetInterpreter = undefined
+    }: {
+        terminateInterpreter?: ((e: Event) => void),
+        runInterpreter?: ((e: Event) => void),
+        stepInterpreter?: ((e: Event) => void),
+        resetInterpreter?: ((e: Event) => void)
+     } = $props();
 
     function share(_: Event) {
         const url = new URL(page.url.href.replace(page.url.search, ''))
