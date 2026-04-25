@@ -115,7 +115,7 @@ function stepInterpreter(iterator: Generator, interpreter: InterpretingVisitor) 
         self.postMessage({type: 'error', message: error})
         return;
     }
-    postVariables(interpreter.symbolTable, res.done ? res.done : false);
+    postVariables(interpreter.symbolTables, res.done ? res.done : false);
 }
 
 function runInterpreter(iterator: Generator, interpreter: InterpretingVisitor) {
@@ -144,14 +144,16 @@ function runInterpreter(iterator: Generator, interpreter: InterpretingVisitor) {
         self.postMessage({type: 'error', message: error})
         return;
     }
-    postVariables(interpreter.symbolTable, true);
+    postVariables(interpreter.symbolTables, true);
 }
 
-function postVariables(symbolTable: SymbolTable<Slot>, finished: boolean) {
+function postVariables(symbolTables: SymbolTable<Slot>[], finished: boolean) {
     //Convert to array of strings because worker messages serialize, losing methods
-    let variables = symbolTable.getAllVariables()
-        .entries()
-        .map(([key, value]) => [key, value.toString()])
-        .toArray();
+    let variables = symbolTables.map(symbolTable =>
+        symbolTable.getAllVariables()
+            .entries()
+            .map(([key, value]) => [key, value.toString()])
+            .toArray()
+        );
     self.postMessage({type: 'result', message: variables, finished: finished})
 }

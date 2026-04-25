@@ -18,7 +18,7 @@ import SetIterator from "./SetIterator.js";
 import DictIterator from "./DictIterator.js";
 
 export default class InterpretingVisitor implements Visitor<Generator<void>> {
-    symbolTable: SymbolTable<Slot>;
+    symbolTables: SymbolTable<Slot>[];
     functionTable: SymbolTable<FunctionTree>
     builtInFunctions: SymbolTable<BuiltInFunction>
     stack: Value[]
@@ -33,7 +33,7 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
     continuing: boolean;
 
     constructor(symbolTable: SymbolTable<Slot>, functionTable: SymbolTable<FunctionTree>) {
-        this.symbolTable = symbolTable;
+        this.symbolTables = [symbolTable];
         this.functionTable = functionTable;
         this.stack = []
 
@@ -194,9 +194,9 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
             throw new Error();
         }
         if (part.accessors.length == 0) {
-            this.symbolTable.setVariable(part.name.text, new Slot(value));
+            this.symbolTables[this.symbolTables.length-1]!.setVariable(part.name.text, new Slot(value));
         } else {
-            let slot = this.symbolTable.getVariable(part.name.text);
+            let slot = this.symbolTables[this.symbolTables.length-1]!.getVariable(part.name.text);
             if (slot === undefined) {
                 throw new VariableError(part.name, tokenToNodeLocation(part.name));
             }
@@ -325,7 +325,7 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
         if (expr.operand instanceof ExprTree) {
             yield* expr.operand.accept(this);
         } else if (expr.operand.type == PseudoParser.IDENTIFIER) {
-            const slot = this.symbolTable.getVariable(expr.operand.text);
+            const slot = this.symbolTables[this.symbolTables.length-1]!.getVariable(expr.operand.text);
             if (slot === undefined) {
                 throw new VariableError(expr.operand, tokenToNodeLocation(expr.operand))
             }
@@ -376,7 +376,7 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
         this.canBreak = true;
         this.canContinue = true;
         while(true) {
-            this.symbolTable.addChild(new SymbolTable());
+            this.symbolTables[this.symbolTables.length-1]!.addChild(new SymbolTable());
             yield* expr.cond.accept(this);
             const fromStack = this.stack.pop();
             if (fromStack === undefined) {
@@ -395,10 +395,10 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
                     break;
                 }
             } else {
-                this.symbolTable.removeChild();
+                this.symbolTables[this.symbolTables.length-1]!.removeChild();
                 break;
             }
-            this.symbolTable.removeChild();
+            this.symbolTables[this.symbolTables.length-1]!.removeChild();
         }
         this.canBreak = prevBreak;
         this.canContinue = prevContinue;
@@ -410,8 +410,7 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
         this.canBreak = true;
         this.canContinue = true;
         while (true) {
-            const parent = this.symbolTable;
-            this.symbolTable.addChild(new SymbolTable());
+            this.symbolTables[this.symbolTables.length-1]!.addChild(new SymbolTable());
             yield* expr.list.accept(this);
             if (this.breaking) {
                 this.breaking = false;
@@ -431,10 +430,9 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
             }
 
             if (fromStack.value) {
-                this.symbolTable = parent;
                 break;
             }
-            this.symbolTable.removeChild();
+            this.symbolTables[this.symbolTables.length-1]!.removeChild();
         }
         this.canBreak = prevBreak;
         this.canContinue = prevContinue;
@@ -456,10 +454,10 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
             }
 
             if (fromStack.value) {
-                this.symbolTable.addChild(new SymbolTable());
+                this.symbolTables[this.symbolTables.length-1]!.addChild(new SymbolTable());
                 branchExecuted = true;
                 yield* list!.accept(this);
-                this.symbolTable.removeChild()
+                this.symbolTables[this.symbolTables.length-1]!.removeChild()
             }
         }
 
@@ -483,7 +481,7 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
         }
         //const variableName = expr.cond.id.text;
         while (iter.hasNext()) {
-            this.symbolTable.addChild(new SymbolTable());
+            this.symbolTables[this.symbolTables.length-1]!.addChild(new SymbolTable());
             const value = iter.next();
             const values = this.prepareAssign(value, expr.cond.id.parts.length, expr.location)
             for (let i = 0; i < values.length; i++) {
@@ -501,7 +499,7 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
             if (this.returning) {
                 break;
             }
-            this.symbolTable.removeChild();
+            this.symbolTables[this.symbolTables.length-1]!.removeChild();
         }
         this.canBreak = prevBreak;
         this.canContinue = prevContinue;
@@ -640,7 +638,7 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
 
     *visitLexprPart(expr: LexprPartTree): Generator<void> {
         const name = expr.name.text
-        let slot = this.symbolTable.getVariable(name);
+        let slot = this.symbolTables[this.symbolTables.length-1]!.getVariable(name);
         if (slot === undefined) {
             throw new VariableError(expr.name, expr.location);
         }
@@ -949,13 +947,12 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
         const prevReturn = this.canReturn;
         this.canReturn = true;
 
-        const currentScope = this.symbolTable
         const funcScope = new SymbolTable<Slot>();
-        this.symbolTable = funcScope;
+        this.symbolTables.push(funcScope)
         this.setVariables(func.args, argValues)
         yield* func.stats.accept(this)
 
-        this.symbolTable = currentScope
+        this.symbolTables.pop()
         this.canReturn = prevReturn;
     }
 
@@ -990,7 +987,7 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
     private setVariables(argNames: Token[], args: Value[]) {
         for (const [i, arg] of args.entries()) {
             const argName = argNames[i]!.text;
-            this.symbolTable.setVariable(argName, new Slot(arg))
+            this.symbolTables[this.symbolTables.length-1]!.setVariable(argName, new Slot(arg))
         }
     }
 

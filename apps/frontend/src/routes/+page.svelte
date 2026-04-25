@@ -31,7 +31,7 @@
                 shared.logs.push(result.message)
                 break;
             case 'result':
-                shared.variables = new Map(result.message)
+                setVariables(result.message);
                 shared.interpreterFinished = result.finished;
                 break;
             case 'error':
@@ -111,6 +111,10 @@
         } else {
             runWithTimeout()
         }
+    }
+
+    function setVariables(variables: string[][][]) {
+        shared.variables = variables;
     }
 
     function getCodeFromParam() {

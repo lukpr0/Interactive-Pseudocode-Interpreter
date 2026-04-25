@@ -31,7 +31,7 @@ type ErrorMessage = {
 type ResultMessage = {
     type: "result",
     finished: boolean
-    message: string[][]
+    message: string[][][]
 }
 
 type CodeMessage = {
