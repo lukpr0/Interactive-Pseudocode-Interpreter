@@ -2,7 +2,7 @@
     <EditorArea { changeCode } />
     <DebugArea />
     <OutputArea />
-    <SettingsArea { terminateInterpreter } />
+    <SettingsArea { terminateInterpreter } { runInterpreter } { stepInterpreter } { resetInterpreter }/>
 </div>
 
 <script lang="ts">
@@ -61,9 +61,6 @@
     }
 
     function changeCode() {
-        if (!shared.interpreterActive) {
-            return;
-        }
         shared.logs = []
         shared.displayedError = "";
         while (shared.errorLocations.length > 0) shared.errorLocations.pop();
@@ -94,6 +91,25 @@
         //console.log("waiting for", shared.stepDuration)
         if (!shared.interpreterFinished) {
             setTimeout(runWithTimeout, shared.stepDuration)
+        }
+    }
+
+    function stepInterpreter(_: Event) {
+        worker.postMessage({type: "next"})
+    }
+
+    function resetInterpreter(_: Event) {
+        changeCode()
+    }
+
+    function runInterpreter(_: Event) {
+        shared.interpreterFinished = false;
+        if (shared.stepDuration == 0) {
+            worker.postMessage({
+                type: "run"
+            })
+        } else {
+            runWithTimeout()
         }
     }
 
