@@ -1,8 +1,8 @@
 <div class="grid">
-    <EditorArea { changeCode } />
+    <EditorArea changeCode = { resetInterpreter } />
     <DebugArea />
     <OutputArea />
-    <SettingsArea { terminateInterpreter } { runInterpreter } { stepInterpreter } { resetInterpreter }/>
+    <SettingsArea { runInterpreter } { stepInterpreter } { resetInterpreter }/>
 </div>
 
 <script lang="ts">
@@ -19,10 +19,13 @@
 
     import { shared } from "$lib/shared/state.svelte";
     import type { WorkerMessage } from '$lib/background/messages';
+    import { InterpreterState } from '$lib/shared/interpreterState';
 
     shared.code = getCodeFromParam();
 
-    let worker = new Worker()
+    let worker = new Worker();
+    let timeout: NodeJS.Timeout;
+    resetInterpreter()
 
     function workerOnMessage(event: MessageEvent) {
         const result = event.data as WorkerMessage
@@ -32,7 +35,9 @@
                 break;
             case 'result':
                 setVariables(result.message);
-                shared.interpreterFinished = result.finished;
+                if (result.finished) {
+                    shared.interpreterState = InterpreterState.FINISHED;
+                }
                 break;
             case 'error':
                 handleError(result.message);
@@ -56,54 +61,48 @@
         }
     }
 
-    function terminateInterpreter(_: Event) {
-        worker.terminate()
-    }
-
-    function changeCode() {
+    function resetInterpreter() {
         shared.logs = []
         shared.displayedError = "";
+        shared.variables = []
+        shared.interpreterState = InterpreterState.READY;
         while (shared.errorLocations.length > 0) shared.errorLocations.pop();
-        console.log("terminate worker")
         worker.terminate()
-        console.log("new worker")
+        clearTimeout(timeout)
         worker = new Worker()
+        console.log("new worker")
         worker.onmessage = workerOnMessage;
         worker.postMessage({
             type: "code",
             message: shared.code
         });
-        if (!shared.interpreterActive) {
-            return;
-        }
-        shared.interpreterFinished = false;
-        if (shared.stepDuration == 0) {
-            worker.postMessage({
-                type: "run"
-            })
-        } else {
-            runWithTimeout()
+        if (shared.autorun) {
+            runInterpreter();
         }
     }
 
     function runWithTimeout() {
         worker.postMessage({type: "next"})
-        //console.log("waiting for", shared.stepDuration)
-        if (!shared.interpreterFinished) {
-            setTimeout(runWithTimeout, shared.stepDuration)
+        if (shared.interpreterState == InterpreterState.RUNNING) {
+            timeout = setTimeout(runWithTimeout, shared.stepDuration)
         }
     }
 
     function stepInterpreter(_: Event) {
-        worker.postMessage({type: "next"})
+        if (shared.interpreterState == InterpreterState.RUNNING) {
+            return;
+        }
+        worker.postMessage({type: "next"});
     }
 
-    function resetInterpreter(_: Event) {
-        changeCode()
-    }
-
-    function runInterpreter(_: Event) {
-        shared.interpreterFinished = false;
+    function runInterpreter() {
+        if (shared.interpreterState == InterpreterState.RUNNING) {
+            return;
+        }
+        if (shared.interpreterState == InterpreterState.FINISHED) {
+            resetInterpreter()
+        }
+        shared.interpreterState = InterpreterState.RUNNING;
         if (shared.stepDuration == 0) {
             worker.postMessage({
                 type: "run"
