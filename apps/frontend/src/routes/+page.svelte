@@ -1,8 +1,8 @@
 <div class="grid">
-    <EditorArea { changeCode } />
+    <EditorArea changeCode = { resetInterpreter } />
     <DebugArea />
     <OutputArea />
-    <SettingsArea { terminateInterpreter } />
+    <SettingsArea { runInterpreter } { stepInterpreter } { resetInterpreter }/>
 </div>
 
 <script lang="ts">
@@ -18,19 +18,26 @@
     import SettingsArea from "$lib/settings/SettingsArea.svelte";
 
     import { shared } from "$lib/shared/state.svelte";
+    import type { WorkerMessage } from '$lib/background/messages';
+    import { InterpreterState } from '$lib/shared/interpreterState';
 
     shared.code = getCodeFromParam();
 
-    let worker = new Worker()
+    let worker = new Worker();
+    let timeout: NodeJS.Timeout;
+    resetInterpreter()
 
     function workerOnMessage(event: MessageEvent) {
-        const result = event.data
+        const result = event.data as WorkerMessage
         switch (result.type) {
             case 'log':
                 shared.logs.push(result.message)
                 break;
             case 'result':
-                shared.variables = new Map(result.message)
+                setVariables(result.message);
+                if (result.finished) {
+                    shared.interpreterState = InterpreterState.FINISHED;
+                }
                 break;
             case 'error':
                 handleError(result.message);
@@ -54,21 +61,59 @@
         }
     }
 
-    function terminateInterpreter(_: Event) {
-        worker.terminate()
-    }
-
-    function changeCode() {
-        if (!shared.interpreterActive) {
-            return;
-        }
+    function resetInterpreter() {
         shared.logs = []
         shared.displayedError = "";
+        shared.variables = []
+        shared.interpreterState = InterpreterState.READY;
         while (shared.errorLocations.length > 0) shared.errorLocations.pop();
         worker.terminate()
+        clearTimeout(timeout)
         worker = new Worker()
+        console.log("new worker")
         worker.onmessage = workerOnMessage;
-        worker.postMessage(shared.code)
+        worker.postMessage({
+            type: "code",
+            message: shared.code
+        });
+        if (shared.autorun) {
+            runInterpreter();
+        }
+    }
+
+    function runWithTimeout() {
+        worker.postMessage({type: "next"})
+        if (shared.interpreterState == InterpreterState.RUNNING) {
+            timeout = setTimeout(runWithTimeout, shared.stepDuration)
+        }
+    }
+
+    function stepInterpreter(_: Event) {
+        if (shared.interpreterState == InterpreterState.RUNNING) {
+            return;
+        }
+        worker.postMessage({type: "next"});
+    }
+
+    function runInterpreter() {
+        if (shared.interpreterState == InterpreterState.RUNNING) {
+            return;
+        }
+        if (shared.interpreterState == InterpreterState.FINISHED) {
+            resetInterpreter()
+        }
+        shared.interpreterState = InterpreterState.RUNNING;
+        if (shared.stepDuration == 0) {
+            worker.postMessage({
+                type: "run"
+            })
+        } else {
+            runWithTimeout()
+        }
+    }
+
+    function setVariables(variables: string[][][]) {
+        shared.variables = variables;
     }
 
     function getCodeFromParam() {
