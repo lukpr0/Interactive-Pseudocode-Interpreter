@@ -1,11 +1,11 @@
-import type { Slot } from "@interactive-pseudo/interpreter";
 import type ErrorInformation from "./errorLocation";
+import { InterpreterState } from "./interpreterState";
 
 export const shared: {
     code: string,
     vimMode: boolean,
-    interpreterActive: boolean,
-    interpreterFinished: boolean,
+    autorun: boolean,
+    interpreterState: InterpreterState,
     debug: boolean,
     shareLink: string,
     displayedError: string,
@@ -19,8 +19,8 @@ export const shared: {
 } = $state({
     code: "",
     vimMode: false,
-    interpreterActive: true,
-    interpreterFinished: false,
+    autorun: true,
+    interpreterState: InterpreterState.READY,
     debug: false,
     shareLink: "",
     displayedError: "",
