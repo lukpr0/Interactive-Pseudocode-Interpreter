@@ -22,6 +22,10 @@ function makeInterpreter(): InterpretingVisitor {
     return interpreter;
 }
 
+function runInterpreter(tree: Tree, interpreter: InterpretingVisitor) {
+    for (const _ of tree.accept(interpreter)) {}
+}
+
 export function testOperatorCommutative(operator: string, correct: string[], wrong: string[]) {
     const cases = []
     for (const a of correct) {
@@ -47,9 +51,9 @@ export function testOperatorCommutative(operator: string, correct: string[], wro
         const ast = makeParser(code);
         const interpreter = makeInterpreter();
         if (e) {
-            expect(() => ast.accept(interpreter)).toThrow(e)
+            expect(() => runInterpreter(ast, interpreter)).toThrow(e)
         } else {
-            expect(() => ast.accept(interpreter)).not.toThrow()
+            expect(() => runInterpreter(ast, interpreter)).not.toThrow()
         }
     })
 }
@@ -67,9 +71,9 @@ export function testArgtype(name: string, template: (arg: string) => string, cor
         const ast = makeParser(code);
         const interpreter = makeInterpreter();
         if (e) {
-            expect(() => ast.accept(interpreter)).toThrow(e)
+            expect(() => runInterpreter(ast, interpreter)).toThrow(e)
         } else {
-            expect(() => ast.accept(interpreter)).not.toThrow()
+            expect(() => runInterpreter(ast, interpreter)).not.toThrow()
         }
     });
 }
