@@ -20,7 +20,7 @@
         <Option name="dark-mode" bind:checked={shared.darkMode}>Dark mode</Option>
         <span><a href="https://github.com/lukpr0/Interactive-Pseudocode-Interpreter">report bugs</a></span>
         {#if shared.debug}
-        <span>Versions: Frontend: 2.0.0 Interpreter: 2.0.0 Parser: 2.0.0</span>
+        <span>Versions: Frontend: 2.1.0 Interpreter: 3.0.0 Parser: 2.0.0</span>
         {/if}
     </div>
 </div>
