@@ -4,6 +4,15 @@
     <VariableTable variables={shared.variables}></VariableTable>
     {#if shared.debug}
     {printAst(shared.code)}
+    state:
+    {#if shared.interpreterState == InterpreterState.READY}
+    ready
+    {:else if shared.interpreterState == InterpreterState.RUNNING}
+    running
+    {:else if shared.interpreterState == InterpreterState.FINISHED}
+    finished
+    {/if}
+    autorun: {shared.autorun}
     {/if}
 </div>
 
@@ -13,6 +22,7 @@
     import { shared } from "$lib/shared/state.svelte";
     import { parserChain } from "$lib/shared/ParserChain";
     import { ASTPrinter } from "@interactive-pseudo/interpreter";
+    import { InterpreterState } from "$lib/shared/interpreterState";
 
     function printAst(code: string) {
         const ast = parserChain(code);

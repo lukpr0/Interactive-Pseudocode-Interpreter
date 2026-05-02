@@ -5,7 +5,7 @@ import { PseudoLexer, PseudoParser } from '@interactive-pseudo/parser';
 import { AstBuilderVisitor, ASTPrinter, FunctionTree, InterpretingVisitor, Slot, SymbolTable, Type } from '@interactive-pseudo/interpreter';
 
 //Read file
-const file = await fs.readFile('../../test.pseudo', 'utf8');
+const file = await fs.readFile('../../Algorithms/BinarySearch.pseudo', 'utf8');
 const quiet = process.argv.findIndex(pred => pred == '-q')
 
 if (!quiet) console.log(file)
@@ -42,7 +42,12 @@ const astString = ast.accept(astPrinter);
 if (!quiet) console.log(astString);
 
 //Run program
-ast.accept(interpreter)
+let i = 0;
+for (const _ of ast.accept(interpreter)) {
+    console.log("i: ", i);
+    i++;
+}
+console.log("i: ", i);
 if (!quiet) console.log("stack: ", interpreter.stack)
 
 //Print all variables

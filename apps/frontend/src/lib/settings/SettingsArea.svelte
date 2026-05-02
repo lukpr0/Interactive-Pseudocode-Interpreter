@@ -1,28 +1,46 @@
 <div id="options" class="area border border-radius">
     <div class="flex-item">
-        <Option name="interpreter-active" bind:checked={shared.interpreterActive}>activate interpreter</Option>
-        <Option name="vim-mode" bind:checked={shared.vimMode}>Enable vim mode</Option>
-        <Option name="dark-mode" bind:checked={shared.darkMode}>Dark mode</Option>
-        <input type="button" value="terminate" onclick={ terminateInterpreter }>
+        <Option name="interpreter-active" bind:checked={shared.autorun}>Run on code change</Option>
+        <div>
+            <label for="in-steptime">Time per step</label>
+            <input id="in-steptime" type="number" bind:value={shared.stepDuration} step="100" min="0">
+        </div>
+        <div>
+            <input type="button" value="run" onclick={ runInterpreter } disabled={shared.interpreterState == InterpreterState.RUNNING}>
+            <input type="button" value="step" onclick={ stepInterpreter } disabled={shared.interpreterState != InterpreterState.READY}>
+            <input type="button" value="reset" onclick={ resetInterpreter }>
+        </div>
         <div class="flex">
-            <input type="button" value="share" onclick={share}><input type="text" bind:value={shared.shareLink}>
+            <input type="button" value="share" onclick={share}>
+            <input type="text" bind:value={shared.shareLink}>
         </div>
     </div>
     <div class="flex-item">
+        <Option name="vim-mode" bind:checked={shared.vimMode}>Enable vim mode</Option>
+        <Option name="dark-mode" bind:checked={shared.darkMode}>Dark mode</Option>
         <span><a href="https://github.com/lukpr0/Interactive-Pseudocode-Interpreter">report bugs</a></span>
         {#if shared.debug}
-        <span>Versions: Frontend: 2.0.0 Interpreter: 2.0.0 Parser: 2.0.0</span>
+        <span>Versions: Frontend: 2.1.0 Interpreter: 3.0.0 Parser: 2.0.0</span>
         {/if}
     </div>
 </div>
 
 <script lang="ts">
     import { page } from "$app/state";
+    import { InterpreterState } from "$lib/shared/interpreterState";
     import Option from "$lib/shared/Option.svelte";
     import { shared } from "$lib/shared/state.svelte";
     import { Codeli } from "./codeli";
 
-    let { terminateInterpreter } = $props()
+    let {
+        runInterpreter = undefined,
+        stepInterpreter = undefined,
+        resetInterpreter = undefined
+    }: {
+        runInterpreter?: ((e: Event) => void),
+        stepInterpreter?: ((e: Event) => void),
+        resetInterpreter?: ((e: Event) => void)
+     } = $props();
 
     function share(_: Event) {
         const url = new URL(page.url.href.replace(page.url.search, ''))
