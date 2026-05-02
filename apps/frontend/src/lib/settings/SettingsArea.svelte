@@ -3,7 +3,7 @@
         <Option name="interpreter-active" bind:checked={shared.autorun}>Run on code change</Option>
         <div>
             <label for="in-steptime">Time per step</label>
-            <input id="in-steptime" type="number" bind:value={shared.stepDuration} step="100">
+            <input id="in-steptime" type="number" bind:value={shared.stepDuration} step="100" min="0">
         </div>
         <div>
             <input type="button" value="run" onclick={ runInterpreter } disabled={shared.interpreterState == InterpreterState.RUNNING}>
