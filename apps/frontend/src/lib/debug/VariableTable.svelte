@@ -9,26 +9,23 @@
             <th>Value</th>
         </tr>
     </thead>
-    <tbody>
-        {#if showVariables}
-            {#each variables as [name, value] }
-                <tr>
-                    <td>
-                        { name }
-                    </td>
-                    <td>
-                        { value }
-                    </td>
-                </tr>
+        {#each variables as scope }
+        <tbody>
+            {#if scope.length == 0}
+            <tr><td colspan="2"></td></tr>
+            {/if}
+            {#each scope as [name, value] }
+            <tr>
+                <td>{ name }</td>
+                <td>{ value }</td>
+            </tr>
             {/each}
-        {/if}
-    </tbody>
+        </tbody>
+        {/each}
 </table>
 </div>
 <script lang="ts">
-    import type { Slot } from "@interactive-pseudo/interpreter";
-
-    let { variables }: { variables: Map<string, Slot> } = $props();
+    let { variables }: { variables: string[][][] } = $props();
     let showVariables = $state(true)
 </script>
 
@@ -37,5 +34,13 @@
         flex: 1;
         min-height: 0;
         overflow: auto;
+    }
+
+    table {
+        border-collapse: collapse;
+    }
+
+    tbody tr:last-child td {
+        border-bottom: 1px solid;
     }
 </style>

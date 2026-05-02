@@ -10,10 +10,10 @@ export default interface ErrorInformation {
 
 export function tokenToErrorInformation(error: PseudoRuntimeError): ErrorInformation {
     return {
-    line: error.location.line,
-    start: error.location.from,
-    stop: error.location.to,
-    text: error.message,
-    name: error.name,
-}
+        line: error.location.line,
+        start: error.location.from,
+        stop: error.location.to,
+        text: error.message,
+        name: error.name,
+    }
 }
