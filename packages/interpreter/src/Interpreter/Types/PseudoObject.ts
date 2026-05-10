@@ -1,5 +1,5 @@
 import Slot from "../Slot.js";
-import Type, { toSimpleString } from "../Type.js";
+import Type, { asKey, toSimpleString } from "../Type.js";
 import type { Value } from "../Value.js";
 
 export default class PseudoObject {
@@ -12,13 +12,7 @@ export default class PseudoObject {
     }
     
     toString(): string {
-        return `{${this.values.keys()
-            .map(key => {
-            const value = this.values.get(key)!.value;
-            const valueStr = toSimpleString(value);
-            return `${key}: ${valueStr}`;
-        }).toArray()
-        .join(", ")}}`
+        return toSimpleString(this);
     }
 
     toDebugString(): string {
@@ -43,13 +37,7 @@ export default class PseudoObject {
     }
     
     asKey(): string {
-        return JSON.stringify({
-            type: Type.Object,
-            value: this.values.entries()
-                .toArray()
-                .sort(([a, ar], [b, br]) => a.localeCompare(b))
-                .map(([key, value]) => `${key}:${value.value.asKey()}`)
-        })
+        return asKey(this);
     }
 
 }
