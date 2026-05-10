@@ -1,5 +1,5 @@
 import Slot from "../Slot.js";
-import Type from "../Type.js";
+import Type, { asKey, toSimpleString } from "../Type.js";
 import type { Value } from "../Value.js";
 
 export default class PseudoArray {
@@ -10,16 +10,7 @@ export default class PseudoArray {
     }
 
     toString(): string {
-        return `[${this.value.map(slot => {
-            switch (slot.value.type) {
-                case Type.Array:
-                    return "Array"
-                case Type.Object:
-                    return "Object"
-                default:
-                    return slot.value.toString()
-            }
-        }).join(", ")}]`
+        return toSimpleString(this);
     }
 
     toDebugString(): string {
@@ -76,10 +67,7 @@ export default class PseudoArray {
     }
 
     asKey(): string {
-        return JSON.stringify({
-            type: Type.Array,
-            value: this.value.map(v => v.value.asKey())
-        }) 
+        return asKey(this);
     }
 
 }
