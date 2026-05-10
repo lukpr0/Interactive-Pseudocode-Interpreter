@@ -5,7 +5,7 @@ import { PseudoLexer, PseudoParser } from '@interactive-pseudo/parser';
 import { AstBuilderVisitor, ASTPrinter, FunctionTree, InterpretingVisitor, Slot, SymbolTable, Type } from '@interactive-pseudo/interpreter';
 
 //Read file
-const file = await fs.readFile('../../Algorithms/BinarySearch.pseudo', 'utf8');
+const file = await fs.readFile('../../Algorithms/rest/test1.pseudo', 'utf8');
 const quiet = process.argv.findIndex(pred => pred == '-q')
 
 if (!quiet) console.log(file)
