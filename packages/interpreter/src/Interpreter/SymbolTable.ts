@@ -41,6 +41,14 @@ export default class SymbolTable<T> {
         return this.table;
     }
 
+    public getNames(): Set<string> {
+        let names = new Set(this.table.keys());
+        if (this.child) {
+            names = names.union(this.child.getNames());
+        }
+        return names;
+    }
+
     public addChild(table: SymbolTable<T>) {
         if (this.child !== undefined) {
             this.child.addChild(table);

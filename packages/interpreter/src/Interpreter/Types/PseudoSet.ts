@@ -1,5 +1,5 @@
 import Slot from "../Slot.js"
-import Type from "../Type.js"
+import Type, { asKey, toSimpleString } from "../Type.js"
 import type { Value } from "../Value.js"
 import PseudoBoolean from "./PseudoBoolean.js"
 
@@ -11,20 +11,7 @@ export default class PseudoSet {
     }
 
     toString(): string {
-        return `{${this.values.entries().map(([_, slot]) => {
-            switch (slot.value.type) {
-                case Type.Array:
-                    return "Array"
-                case Type.Object:
-                    return "Object"
-                case Type.Set:
-                    return "Set"
-                default:
-                    return slot.value.toString()
-            }
-        })
-        .toArray()
-        .join(", ")}}`
+        return toSimpleString(this);
     }
 
     toDebugString(): string {
@@ -72,10 +59,7 @@ export default class PseudoSet {
     }
 
     asKey(): string {
-        return JSON.stringify({
-            type: Type.Set,
-            value: this.values.keys().toArray().sort()
-        });
+        return asKey(this);
     }
 
 }

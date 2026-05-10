@@ -149,11 +149,11 @@ function runInterpreter(iterator: Generator, interpreter: InterpretingVisitor) {
 
 function postVariables(symbolTables: SymbolTable<Slot>[], finished: boolean) {
     //Convert to array of strings because worker messages serialize, losing methods
-    let variables = symbolTables.map(symbolTable =>
-        symbolTable.getAllVariables()
-            .entries()
-            .map(([key, value]) => [key, value.toString()])
+    let variables = symbolTables.map(symbolTable => 
+        symbolTable.getNames()
+            .keys()
+            .map(key => [key, symbolTable.getVariable(key)?.toString()])
             .toArray()
-        );
+        )
     self.postMessage({type: 'result', message: variables, finished: finished})
 }
