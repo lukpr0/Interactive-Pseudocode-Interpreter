@@ -1,5 +1,5 @@
 import Slot from "../Slot.js";
-import Type, { toSimpleString } from "../Type.js";
+import Type, { asKey, toSimpleString } from "../Type.js";
 import type { Value } from "../Value.js";
 import PseudoNil from "./PseudoNil.js";
 
@@ -15,15 +15,7 @@ export default class PseudoDict {
     }
     
     toString(): string {
-        return `[${this.values.keys()
-            .map(key => {
-            const keyObj = this.keys.get(key)!.value;
-            const value = this.values.get(key)!.value;
-            const keyStr = toSimpleString(keyObj);
-            const valueStr = toSimpleString(value);
-            return `${keyStr}: ${valueStr}`;
-        }).toArray()
-        .join(", ")}]`
+        return toSimpleString(this);
     }
 
     toDebugString(): string {
@@ -59,11 +51,7 @@ export default class PseudoDict {
     }
     
     asKey(): string {
-        return JSON.stringify({
-            type: Type.Set,
-            value: this.values.keys().toArray().sort(),
-            keys: this.keys.keys().toArray().sort()
-        });
+        return asKey(this);
     }
 
 }
