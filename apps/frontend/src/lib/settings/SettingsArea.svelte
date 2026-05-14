@@ -57,7 +57,7 @@
 
 <style>
     #options {
-        grid-column: span 4;
+        grid-column: span 5;
         grid-row: span 2;
         display: flex;
     }

@@ -20,7 +20,7 @@
 
 <style>
     #outputs {
-        grid-column: span 8;
+        grid-column: span 7;
         grid-row: span 2;
         overflow: auto;
     }

@@ -33,7 +33,7 @@
 
 <style>
     #variable-table {
-        grid-column: span 4;
+        grid-column: span 5;
         grid-row: span 6;
         min-height: 0;
         box-sizing: border-box;
