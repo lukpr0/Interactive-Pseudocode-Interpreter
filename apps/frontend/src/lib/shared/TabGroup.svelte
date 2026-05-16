@@ -30,8 +30,6 @@
 </script>
 
 <style>
-
-
     .tab {
         font-size: 1rem;
         border-radius: 3px 3px 0 0;
@@ -48,5 +46,4 @@
     .tab-content {
         overflow: auto;
     }
-
 </style>
