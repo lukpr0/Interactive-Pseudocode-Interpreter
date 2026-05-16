@@ -1,49 +1,64 @@
 import type { Graph } from "./Graph.js";
 import type { Node } from "./Node.js";
+import { Solver } from "./Solver.js";
 import { Vector } from "./Vector.js";
 
-export class Positions {
-    graph: Graph;
-    positions: Map<Node, Vector>;
+export class SimulatedAnnealingSolver extends Solver {
+
+    iterations = 1000;
+    feather = 1;
+    electric = 1;
+    startTemp = 500;
+    coolingRate = 0.99;
+    stepSize = 1;
 
     constructor(graph: Graph) {
-        this.graph = graph;
-        this.positions = new Map();
-
-        let i = 0;
-        const N = graph.nodes.size;
-        for (const node of graph.nodes) {
-            const z = i/N * 2 * Math.PI;
-            const position = new Vector(Math.sin(z), Math.cos(z));
-            this.positions.set(node, position);
-            i++;
-        }
+        super(graph);
+        this.initCircle()
     }
 
-    anneal() {
+    get(node: Node): Vector | undefined {
+        return this.positions.get(node);
+    }
+
+    solve() {
         let approx = this.positions;
         let fa = this.energy(approx);
         let x = this.positions;
-        for (let t = 0; t < 1000; t++) {
-            let y = this.neighbour(x)
+        //console.log("start energy", fa);
+        let acceptWorseCounter = 0;
+        let betterCounter = 0;
+        for (let t = 0; t < this.iterations; t++) {
+            let y = this.neighbour(x);
             const fx = this.energy(x);
             const fy = this.energy(y);
-            if (fy <= fx || this.temp(fx, fy, t) > Math.random()) {
+            let tmp = this.temp(fx, fy, t);
+            let r = Math.random()
+            if (t % 100 == 99) {
+                //console.log("acceptance worse", acceptWorseCounter/t*100, "improve", betterCounter/t*100)
+                acceptWorseCounter = 0;
+                betterCounter = 0;
+            }
+            if (fy <= fx || tmp > r) {
+                if (tmp > r) acceptWorseCounter++;
                 x = y;
             }  
             if (fx < fa) {
                 approx = x;
                 fa = fx;
+                betterCounter++;
             }
         }
+        //console.log("end energy", fa);
+        this.positions = approx;
     }
 
     neighbour(old: Map<Node, Vector>): Map<Node, Vector> {
         let newPositions = new Map();
         for (const entry of old) {
             let [node, position] = entry;
-            let rx = Math.random()
-            let ry = Math.random()
+            let rx = (Math.random() - 1/2) * this.stepSize;
+            let ry = (Math.random() - 1/2) * this.stepSize;
             let v = new Vector(rx, ry)
             newPositions.set(node, position.add(v))
         }
@@ -66,11 +81,11 @@ export class Positions {
                 We += 1/fromPostion.diff(toPosition).abs();
             }
         }
-        return Wf + We;
+        return Wf * this.feather + We * this.electric;
     }
 
     temp(fx: number, fy: number, k: number): number {
-        const T = 1000 - k;
-        return Math.E ** (-(fx-fy)/T)
+        const T = this.startTemp * this.coolingRate ** k;
+        return Math.E ** (-(fy-fx)/T)
     }
 }
