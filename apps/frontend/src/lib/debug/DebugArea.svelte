@@ -1,7 +1,7 @@
 
 
 <div id="variable-table" class="area border border-radius">
-    <VariableTable variables={shared.variables}></VariableTable>
+    <TabGroup {items}/>
     {#if shared.debug}
     {printAst(shared.code)}
     state:
@@ -16,6 +16,14 @@
     {/if}
 </div>
 
+{#snippet variables()}
+    <VariableTable variables={shared.variables}></VariableTable>
+{/snippet}
+
+{#snippet graph()}
+    <GraphComponent graph={example}/>
+{/snippet}
+
 <script lang="ts">
     import VariableTable from "./VariableTable.svelte";
 
@@ -23,6 +31,72 @@
     import { parserChain } from "$lib/shared/ParserChain";
     import { ASTPrinter } from "@interactive-pseudo/interpreter";
     import { InterpreterState } from "$lib/shared/interpreterState";
+    import TabGroup from "$lib/shared/TabGroup.svelte";
+    import GraphComponent from "./GraphComponent.svelte";
+    import { Graph, Node, Edge } from "@interactive-pseudo/graph";
+
+    let [A, B, C, D, E, F] = [
+        new Node("A"),
+        new Node("B"),
+        new Node("C"),
+        new Node("D"),
+        new Node("E"),
+        new Node("F"),
+    ]
+    let edges = [
+        new Edge(A, B, 1),
+        new Edge(B, E, 2),
+        new Edge(B, F, 1),
+        new Edge(D, E, 1),
+        new Edge(C, D, 2),
+        new Edge(E, C, 1),
+        new Edge(C, F, 2),
+        new Edge(F, A, 2),
+    ]
+    /*let nodes = [
+        new Node("0"),
+        new Node("1"),
+        new Node("2"),
+        new Node("3"),
+        new Node("4"),
+        new Node("5"),
+        new Node("6"),
+        new Node("7"),
+    ]
+
+    let edges = [
+        new Edge(nodes[0], nodes[2]),
+        new Edge(nodes[0], nodes[3]),
+        new Edge(nodes[0], nodes[5]),
+        new Edge(nodes[1], nodes[0]),
+        new Edge(nodes[1], nodes[5]),
+        new Edge(nodes[2], nodes[6]),
+        new Edge(nodes[3], nodes[5]),
+        new Edge(nodes[4], nodes[3]),
+        new Edge(nodes[4], nodes[6]),
+        new Edge(nodes[5], nodes[2]),
+        new Edge(nodes[5], nodes[6]),
+        new Edge(nodes[7], nodes[2]),
+        new Edge(nodes[7], nodes[5]),
+        new Edge(nodes[7], nodes[6]),
+    ]
+    let example = new Graph(nodes)*/
+
+    let example = new Graph([A, B, C, D, E, F]);
+    example.addEdges(edges);
+
+    const items = [
+        {
+            id: 0,
+            label: "Variables",
+            component: variables
+        },
+        {
+            id: 1,
+            label: "Graph",
+            component: graph 
+        }
+    ]
 
     function printAst(code: string) {
         const ast = parserChain(code);
