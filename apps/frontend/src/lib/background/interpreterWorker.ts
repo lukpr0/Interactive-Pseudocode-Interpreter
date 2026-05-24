@@ -6,9 +6,11 @@ import { tokenToErrorInformation } from "../shared/errorLocation";
 import { PseudoSyntaxError } from "./pseudoSyntaxError";
 import { PseudoLexerErrorListener, PseudoParserErrorListener } from "./ErrorHandler";
 import { type FrontendMessage } from "./messages"
+import { findGraph } from "./GraphConverter";
 
 let iterator: Generator;
 let interpreter: InterpretingVisitor;
+let graphInitialized = false;
 
 self.onmessage = (event) => {
     let data = event.data as FrontendMessage
@@ -155,5 +157,16 @@ function postVariables(symbolTables: SymbolTable<Slot>[], finished: boolean) {
             .map(key => [key, symbolTable.getVariable(key)?.toString()])
             .toArray()
         )
-    self.postMessage({type: 'result', message: variables, finished: finished})
+    self.postMessage({type: 'result', message: variables, finished: finished});
+    if (!graphInitialized) {
+        let graph;
+        for (const table of symbolTables) {
+            graph = findGraph(table);
+            if (graph) {
+                self.postMessage({type: 'graph', message: graph})
+                break;
+            }
+        }
+        graphInitialized = true;
+    }
 }

@@ -1,3 +1,4 @@
+import type { Graph } from "@interactive-pseudo/graph";
 import type ErrorInformation from "./errorLocation";
 import { InterpreterState } from "./interpreterState";
 
@@ -15,7 +16,8 @@ export const shared: {
     markup: string,
     logs: string[],
     darkMode: boolean,
-    stepDuration: number
+    stepDuration: number,
+    graph: Graph | undefined
 } = $state({
     code: "",
     vimMode: false,
@@ -30,5 +32,6 @@ export const shared: {
     markup: "",
     logs: [],
     darkMode: false,
-    stepDuration: 0
+    stepDuration: 0,
+    graph: undefined
 })

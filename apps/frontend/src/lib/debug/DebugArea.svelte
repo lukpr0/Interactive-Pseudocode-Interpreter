@@ -21,7 +21,9 @@
 {/snippet}
 
 {#snippet graph()}
+    {#if example}
     <GraphComponent graph={example}/>
+    {/if}
 {/snippet}
 
 <script lang="ts">
@@ -34,25 +36,31 @@
     import TabGroup from "$lib/shared/TabGroup.svelte";
     import GraphComponent from "./GraphComponent.svelte";
     import { Graph, Node, Edge } from "@interactive-pseudo/graph";
+    import { findGraph } from "$lib/background/GraphConverter";
 
-    let [A, B, C, D, E, F] = [
+    /*let [A, B, C, D, E, F, G] = [
         new Node("A"),
         new Node("B"),
         new Node("C"),
         new Node("D"),
         new Node("E"),
         new Node("F"),
+        new Node("G"),
     ]
     let edges = [
         new Edge(A, B, 1),
-        new Edge(B, E, 2),
+        new Edge(B, E, 1),
         new Edge(B, F, 1),
         new Edge(D, E, 1),
-        new Edge(C, D, 2),
+        new Edge(C, D, 1),
         new Edge(E, C, 1),
-        new Edge(C, F, 2),
-        new Edge(F, A, 2),
-    ]
+        new Edge(C, F, 1),
+        new Edge(F, A, 1),
+        new Edge(A, G, 1),
+        new Edge(G, D, 1),
+        new Edge(B, G, 1),
+        new Edge(G, F, 1),
+    ]*/
     /*let nodes = [
         new Node("0"),
         new Node("1"),
@@ -82,8 +90,11 @@
     ]
     let example = new Graph(nodes)*/
 
-    let example = new Graph([A, B, C, D, E, F]);
-    example.addEdges(edges);
+    //let example = new Graph([A, B, C, D, E, F, G]);
+    //example.addEdges(edges);
+    let example: Graph | undefined = $state(undefined);
+
+    $effect(() => {example = shared.graph; console.log("new graph")})
 
     const items = [
         {

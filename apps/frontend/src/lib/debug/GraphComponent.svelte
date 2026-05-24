@@ -15,9 +15,13 @@
     onMount(() => {
         canvas = document.querySelector<HTMLCanvasElement>("#canvas")!
         ctx = canvas.getContext("2d")!
-
         draw();
-    })
+    });
+
+    $effect(() => {
+        graph;
+        draw();
+    });
 
     function draw() {
         let positions = new SimulatedAnnealingSolver(graph);
@@ -28,7 +32,6 @@
         positions.stepSize = 0.31
         positions.solve()
         let rescaled = positions.rescale(WIDTH, HEIGHT);
-        //drawGraph(graph, rescaled);
         ctx.fillStyle = "white"
         ctx.fillRect(0, 0, WIDTH, HEIGHT)
         drawGraph(graph, rescaled)

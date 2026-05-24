@@ -20,6 +20,7 @@
     import { shared } from "$lib/shared/state.svelte";
     import type { WorkerMessage } from '$lib/background/messages';
     import { InterpreterState } from '$lib/shared/interpreterState';
+    import { Edge, Graph, Node } from '@interactive-pseudo/graph';
 
     shared.code = getCodeFromParam();
 
@@ -42,6 +43,9 @@
             case 'error':
                 handleError(result.message);
                 break;
+            case 'graph':
+                handleGraphMessage(result.message);
+                break;
         }
     }
 
@@ -59,6 +63,19 @@
                 shared.displayedError = error.error;
                 break
         }
+    }
+
+    function handleGraphMessage(graph: Graph) {
+        Object.setPrototypeOf(graph, Graph.prototype);
+        for (const node of graph.nodes) {
+            Object.setPrototypeOf(node, Node);
+            for (const edge of node.edges) {
+                Object.setPrototypeOf(node, Edge);
+            }
+        }
+        console.log(graph)
+        shared.graph = graph;
+
     }
 
     function resetInterpreter() {

@@ -1,4 +1,5 @@
 import type ErrorInformation from "$lib/shared/errorLocation"
+import type { Graph } from "@interactive-pseudo/graph"
 
 
 type LocatedError = {
@@ -47,5 +48,10 @@ type RunMessage = {
     type: "run"
 }
 
-export type WorkerMessage = LogMessage | ErrorMessage | ResultMessage;
+type GraphMessage = {
+    type: "graph",
+    message: Graph
+}
+
+export type WorkerMessage = LogMessage | ErrorMessage | ResultMessage | GraphMessage;
 export type FrontendMessage =  CodeMessage | NextMessage | RunMessage;
