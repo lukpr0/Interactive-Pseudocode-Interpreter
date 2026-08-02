@@ -1,6 +1,6 @@
 <canvas id="canvas" width={WIDTH} height={HEIGHT} bind:this={canvas}></canvas>
 
-<button onclick={draw}>Redraw</button>
+<button onclick={() => draw(true)}>Redraw</button>
 
 <script lang="ts">
     import { onMount } from "svelte";
@@ -25,8 +25,8 @@
     });
 
 
-    function draw() {
-        if (!solver) {
+    function draw(reset?: boolean) {
+        if (!solver || shared.resetGraph || reset) {
             const config = {
                 iterations: 1000,
                 electric: 10,
