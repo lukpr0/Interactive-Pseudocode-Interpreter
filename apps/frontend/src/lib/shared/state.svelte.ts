@@ -17,7 +17,8 @@ export const shared: {
     logs: string[],
     darkMode: boolean,
     stepDuration: number,
-    graph: Graph | undefined
+    graph: Graph | undefined,
+    updateGraph: () => void;
 } = $state({
     code: "",
     vimMode: false,
@@ -33,5 +34,6 @@ export const shared: {
     logs: [],
     darkMode: false,
     stepDuration: 0,
-    graph: undefined
+    graph: undefined,
+    updateGraph: () => {}
 })

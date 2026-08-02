@@ -18,7 +18,7 @@ export class PhysicalSolver extends Solver {
         this.accelerations = new Map();
 
         this.initCircle()
-        for (const node of graph.nodes) {
+        for (const node of graph.nodes.values()) {
             const position = this.positions.get(node)!;
             const velocity = new Vector(0, 0);
             const acceleration = new Vector(0, 0);
@@ -71,8 +71,18 @@ export class PhysicalSolver extends Solver {
             this.positions.set(node, oldPosition.add(positionUpdate));
         }
     }
-
     solve() {
+        const newNodes = this.detectNewNodes();
+        this.makeRandomPositions(newNodes);
+        for (const node of newNodes) {
+            const position = this.positions.get(node)!;
+            const velocity = new Vector(0, 0);
+            const acceleration = new Vector(0, 0);
+            this.positions.set(node, position);
+            this.velocities.set(node, velocity)
+            this.accelerations.set(node, acceleration)
+        }
+
         for (let i = 0; i < this.iterations; i++) {
             //console.log("pos", this.positions.values().toArray())
             //console.log("vel", this.velocities.values().toArray())

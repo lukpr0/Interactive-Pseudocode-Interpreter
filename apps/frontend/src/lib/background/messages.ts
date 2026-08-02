@@ -1,5 +1,5 @@
 import type ErrorInformation from "$lib/shared/errorLocation"
-import type { Graph } from "@interactive-pseudo/graph"
+import type { GraphConfig } from "@interactive-pseudo/graph"
 
 
 type LocatedError = {
@@ -50,7 +50,7 @@ type RunMessage = {
 
 type GraphMessage = {
     type: "graph",
-    message: Graph
+    message: GraphConfig
 }
 
 export type WorkerMessage = LogMessage | ErrorMessage | ResultMessage | GraphMessage;

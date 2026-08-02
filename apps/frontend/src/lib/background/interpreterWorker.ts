@@ -10,7 +10,6 @@ import { findGraph } from "./GraphConverter";
 
 let iterator: Generator;
 let interpreter: InterpretingVisitor;
-let graphInitialized = false;
 
 self.onmessage = (event) => {
     let data = event.data as FrontendMessage
@@ -158,15 +157,12 @@ function postVariables(symbolTables: SymbolTable<Slot>[], finished: boolean) {
             .toArray()
         )
     self.postMessage({type: 'result', message: variables, finished: finished});
-    if (!graphInitialized) {
-        let graph;
-        for (const table of symbolTables) {
-            graph = findGraph(table);
-            if (graph) {
-                self.postMessage({type: 'graph', message: graph})
-                break;
-            }
+    let graph;
+    for (const table of symbolTables) {
+        graph = findGraph(table);
+        if (graph) {
+            self.postMessage({type: 'graph', message: graph})
+            break;
         }
-        graphInitialized = true;
     }
 }

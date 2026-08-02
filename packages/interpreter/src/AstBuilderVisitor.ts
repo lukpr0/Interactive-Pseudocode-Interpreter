@@ -527,7 +527,6 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
                 }
                 return pairExpr 
             });
-            console.log("building dict")
             const token = ctx.LBRACK().symbol;
             const tree = new DictTree(kvps, token);
             return tree;

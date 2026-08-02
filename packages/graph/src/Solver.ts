@@ -37,23 +37,42 @@ export abstract class Solver {
         return rescaled;
     }
 
-    initCircle() {
+    protected makeCirclePositions(nodes: Iterable<Node>, count: number) {
         let i = 0;
-        const N = this.graph.nodes.size;
-        for (const node of this.graph.nodes) {
-            const z = i/N * 2 * Math.PI;
+        for (const node of nodes) {
+            console.log("circle for", node.label)
+            const z = i/count * 2 * Math.PI;
             const position = new Vector(Math.sin(z), Math.cos(z));
             this.positions.set(node, position);
             i++;
         }
     }
 
-    initRandom() {
-        for (const node of this.graph.nodes) {
+    initCircle() {
+        this.makeCirclePositions(this.graph.nodes.values(), this.graph.nodes.size);
+    }
+
+    protected makeRandomPositions(nodes: Iterable<Node>) {
+        for (const node of nodes) {
+            console.log("random for", node.label)
             const x = 2 * (Math.random() - 1/2);
             const y = 2 * (Math.random() - 1/2);
             const position = new Vector(x, y);
             this.positions.set(node, position);
         }
+    }
+
+    initRandom() {
+        this.makeRandomPositions(this.graph.nodes.values());
+    }
+
+    protected detectNewNodes(): Node[] {
+        const newNodes = [];
+        for (const node of this.graph.nodes.values()) {
+            if (!this.positions.has(node)) {
+                newNodes.push(node);
+            }
+        }
+        return newNodes;
     }
 }

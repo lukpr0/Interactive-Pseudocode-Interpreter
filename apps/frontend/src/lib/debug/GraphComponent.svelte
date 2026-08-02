@@ -4,7 +4,9 @@
 
 <script lang="ts">
     import { onMount } from "svelte";
-    import { Graph, SimulatedAnnealingSolver, Vector, Node, PhysicalSolver } from "@interactive-pseudo/graph";
+    import { Graph, SimulatedAnnealingSolver, Vector, Node } from "@interactive-pseudo/graph";
+    import { shared } from "$lib/shared/state.svelte";
+    import type { Solver } from "@interactive-pseudo/graph/dist/Solver";
 
     let { graph }: { graph: Graph } = $props()
 
@@ -12,26 +14,30 @@
 
     let canvas: HTMLCanvasElement;
     let ctx: CanvasRenderingContext2D;
+    let solver: Solver | undefined;
+
+
     onMount(() => {
         canvas = document.querySelector<HTMLCanvasElement>("#canvas")!
         ctx = canvas.getContext("2d")!
+        shared.updateGraph = draw;
         draw();
     });
 
-    $effect(() => {
-        graph;
-        draw();
-    });
 
     function draw() {
-        let positions = new SimulatedAnnealingSolver(graph);
-        positions.iterations = 1000;
-        positions.electric = 10;
-        positions.startTemp = 50
-        positions.coolingRate = 0.99
-        positions.stepSize = 0.31
-        positions.solve()
-        let rescaled = positions.rescale(WIDTH, HEIGHT);
+        if (!solver) {
+            const config = {
+                iterations: 1000,
+                electric: 10,
+                startTemp: 5,
+                coolingRate: 0.9,
+                stepSize: 0.3,
+            }
+            solver = new SimulatedAnnealingSolver(graph, config);
+        }
+        solver.solve()
+        let rescaled = solver.rescale(WIDTH, HEIGHT);
         ctx.fillStyle = "white"
         ctx.fillRect(0, 0, WIDTH, HEIGHT)
         drawGraph(graph, rescaled)
@@ -83,7 +89,7 @@
             let toY = toPosition.y
             arrow(fromX, fromY, toX, toY);
         }
-        for (const node of G.nodes) {
+        for (const node of G.nodes.values()) {
             let position = positions.get(node)!;
             let x = position.x;
             let y = position.y;

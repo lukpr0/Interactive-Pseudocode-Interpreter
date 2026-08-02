@@ -3,17 +3,31 @@ import type { Node } from "./Node.js";
 import { Solver } from "./Solver.js";
 import { Vector } from "./Vector.js";
 
+export type SimulatedAnnealingConfig = {
+    iterations: number;
+    feather?: number;
+    electric?: number;
+    startTemp?: number;
+    coolingRate?: number;
+    stepSize?: number;
+
+}
+
 export class SimulatedAnnealingSolver extends Solver {
 
-    iterations = 1000;
-    feather = 1;
-    electric = 1;
-    startTemp = 500;
-    coolingRate = 0.99;
-    stepSize = 1;
+    config = {
+        iterations: 1000,
+        feather: 1,
+        electric: 1,
+        startTemp: 500,
+        coolingRate: 0.99,
+        stepSize: 1,
 
-    constructor(graph: Graph) {
+    };
+
+    constructor(graph: Graph, config: SimulatedAnnealingConfig) {
         super(graph);
+        this.config = { ...this.config, ...config };
         this.initCircle()
     }
 
@@ -22,13 +36,15 @@ export class SimulatedAnnealingSolver extends Solver {
     }
 
     solve() {
+        const newNodes = this.detectNewNodes();
+        this.makeRandomPositions(newNodes);
         let approx = this.positions;
         let fa = this.energy(approx);
         let x = this.positions;
         //console.log("start energy", fa);
         let acceptWorseCounter = 0;
         let betterCounter = 0;
-        for (let t = 0; t < this.iterations; t++) {
+        for (let t = 0; t < this.config.iterations; t++) {
             let y = this.neighbour(x);
             const fx = this.energy(x);
             const fy = this.energy(y);
@@ -57,8 +73,8 @@ export class SimulatedAnnealingSolver extends Solver {
         let newPositions = new Map();
         for (const entry of old) {
             let [node, position] = entry;
-            let rx = (Math.random() - 1/2) * this.stepSize;
-            let ry = (Math.random() - 1/2) * this.stepSize;
+            let rx = (Math.random() - 1/2) * this.config.stepSize;
+            let ry = (Math.random() - 1/2) * this.config.stepSize;
             let v = new Vector(rx, ry)
             newPositions.set(node, position.add(v))
         }
@@ -73,19 +89,19 @@ export class SimulatedAnnealingSolver extends Solver {
             Wf += (edge.distance - fromPostion.diff(toPosition).abs())**2;
         }
         let We = 0;
-        for (const x of this.graph.nodes) {
-            for (const y of this.graph.nodes) {
+        for (const x of this.graph.nodes.values()) {
+            for (const y of this.graph.nodes.values()) {
                 if (x == y) continue;
                 let fromPostion = nodes.get(x)!;
                 let toPosition = nodes.get(y)!;
                 We += 1/fromPostion.diff(toPosition).abs();
             }
         }
-        return Wf * this.feather + We * this.electric;
+        return Wf * this.config.feather + We * this.config.electric;
     }
 
     temp(fx: number, fy: number, k: number): number {
-        const T = this.startTemp * this.coolingRate ** k;
+        const T = this.config.startTemp * this.config.coolingRate ** k;
         return Math.E ** (-(fy-fx)/T)
     }
 }
