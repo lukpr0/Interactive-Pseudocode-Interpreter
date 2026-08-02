@@ -61,6 +61,24 @@ export class Graph {
             const newEdge = new Edge(fromNode, toNode, edge.distance);
             fromNode.edges.push(newEdge);
         }
+        
+        for (const node of this.nodes.values()) {
+            node.color = undefined;
+        }
+
+        for (const edge of this.allEdges()) {
+            edge.color = undefined; 
+        }
+
+        for (const [nodeLabel, color] of config.nodeColors) {
+            const node = this.nodes.get(nodeLabel)!;
+            node.color = color;
+        }
+
+        for (const edge of this.allEdges()) {
+            edge.color = config.getEdgeColor(edge.from.label, edge.to.label);
+        }
+
 
     }
 

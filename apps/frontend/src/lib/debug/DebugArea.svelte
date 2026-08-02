@@ -15,7 +15,6 @@
     autorun: {shared.autorun}
     {/if}
 </div>
-
 {#snippet variables()}
     <VariableTable variables={shared.variables}></VariableTable>
 {/snippet}
@@ -36,7 +35,6 @@
     import TabGroup from "$lib/shared/TabGroup.svelte";
     import GraphComponent from "./GraphComponent.svelte";
     import { Graph, Node, Edge } from "@interactive-pseudo/graph";
-    import { findGraph } from "$lib/background/GraphConverter";
 
     /*let [A, B, C, D, E, F, G] = [
         new Node("A"),

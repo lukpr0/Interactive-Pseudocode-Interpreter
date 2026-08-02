@@ -1,9 +1,13 @@
-import { PseudoDict, Type, type Slot, type SymbolTable } from "@interactive-pseudo/interpreter";
+import { PseudoDict, PseudoFloat, PseudoInteger, PseudoString, PseudoTuple, Type, type Slot, type SymbolTable } from "@interactive-pseudo/interpreter";
 import DictIterator from "@interactive-pseudo/interpreter/dist/Interpreter/DictIterator";
 import { GraphConfig } from "@interactive-pseudo/graph/src/GraphConfig";
 
-export function findGraph(table: SymbolTable<Slot>): GraphConfig | null {
+type KeyType = PseudoInteger | PseudoString;
+type NumericType = PseudoInteger | PseudoFloat
+
+export function getGraphConfig(table: SymbolTable<Slot>): GraphConfig | null {
     let graphSlot = table.getVariable("graph");
+    let colorSlot = table.getVariable("colors");
     if (graphSlot == undefined) { 
         return null; 
     }
@@ -11,6 +15,33 @@ export function findGraph(table: SymbolTable<Slot>): GraphConfig | null {
     if (graph.type != Type.Dict) {
         return null; 
     }
+
+    let graphConfig = findGraph(graph)
+    if (!graphConfig) {
+        return null
+    }
+
+    if (colorSlot == undefined) {
+        return graphConfig;
+    }
+    let colorDict = colorSlot.value;
+    if (colorDict.type != Type.Dict) {
+        return graphConfig;
+    }
+
+    let colors = findColors(colorDict);
+    if (!colors) {
+        return graphConfig;
+    }
+
+    graphConfig.nodeColors = colors.nodeColors;
+    graphConfig.edgeColors = colors.edgeColors;
+
+    return graphConfig;
+
+}
+
+function findGraph(graph: PseudoDict): GraphConfig | null {
     let result = findAdjacencyDict(graph);
     if (result) {
         return result;
@@ -20,6 +51,7 @@ export function findGraph(table: SymbolTable<Slot>): GraphConfig | null {
         return result;
     }
     return null;
+
 }
 
 function findAdjacencyDict(graph: PseudoDict): GraphConfig | null {
@@ -31,21 +63,18 @@ function findAdjacencyDict(graph: PseudoDict): GraphConfig | null {
     while (iter.hasNext()) {
         let entryTuple = iter.next()
         if (entryTuple.type != Type.Tuple) { return null; }
-        let key = entryTuple.value[0].value;
-        let value = entryTuple.value[1].value;
-        if (key.type != Type.String || value.type != Type.Dict) { return null; }
-        let from = key.value;
+        let [key, value] = entryTuple.value.map(v => v.value);
+        if (!isIntOrString(key.type) || value.type != Type.Dict) { return null; }
+        let from = (key as KeyType).value;
         let iterAdjacents = new DictIterator(value);
         while (iterAdjacents.hasNext()) {
             let adjacentTuple = iterAdjacents.next();
-            console.log(adjacentTuple)
             if (adjacentTuple.type != Type.Tuple) { continue; }
-            let otherKey = adjacentTuple.value[0].value;
-            let distance = adjacentTuple.value[1].value;
-            if (otherKey.type != Type.String || (distance.type != Type.Integer && distance.type != Type.Float)) { console.log(otherKey, distance); continue; }
-            let to = otherKey.value;
-            let distanceValue = Number(distance.value);
-            result.addEdge(from, to, distanceValue)
+            let [otherKey, distance] = adjacentTuple.value.map(v => v.value);
+            if (!isIntOrString(otherKey.type) || !isNumber(distance.type)) { continue; }
+            let to = (otherKey as KeyType).value;
+            let distanceValue = Number((distance as NumericType).value);
+            result.addEdge(String(from), String(to), distanceValue)
         }
     }
     return result;
@@ -60,23 +89,21 @@ function findAdjacencyList(graph: PseudoDict): GraphConfig | null {
     while (iter.hasNext()) {
         let entryTuple = iter.next()
         if (entryTuple.type != Type.Tuple) { return null; }
-        let from = entryTuple.value[0].value;
-        let value = entryTuple.value[1].value;
-        if (from.type != Type.String || value.type != Type.Array) { return null; }
+        let [from, value] = entryTuple.value.map(v => v.value);
+        if (!isIntOrString(from.type) || value.type != Type.Array) { return null; }
         for (const slot of value.value) {
             let to = slot.value;
             let distanceValue;
             switch (to.type) {
                 case Type.Tuple:
-                    let toName = to.value[0].value
-                    let distance = to.value[1].value
-                    if (toName.type != Type.String || (distance.type != Type.Integer && distance.type != Type.Float) ) { return null; }
-                    distanceValue = distance.value
-                    result.addEdge(from.value, toName.value, Number(distanceValue));
+                    let [toName, distance] = to.value.map(v => v.value)
+                    if (toName.type != Type.String || !isNumber(distance.type) ) { return null; }
+                    distanceValue = (distance as PseudoInteger || PseudoFloat).value
+                    result.addEdge(String((from as KeyType).value), String((toName as KeyType).value), Number(distanceValue));
                     break;
                 case Type.String:
                     distanceValue = 1;
-                    result.addEdge(from.value, to.value, distanceValue);
+                    result.addEdge(String((from as KeyType).value), String((to as KeyType).value), distanceValue);
                     break;
                 default:
                     return null;
@@ -96,4 +123,32 @@ function getNodes(graph: PseudoDict): string[] {
         }
     }
     return names;
+}
+
+function findColors(colors: PseudoDict): GraphConfig | null {
+    const config = new GraphConfig();
+    const iterator = new DictIterator(colors);
+    while (iterator.hasNext()) {
+        const entryTuple = iterator.next()
+        if (entryTuple.type != Type.Tuple) { return null; }
+        let [key, color] = entryTuple.value.map(v => v.value);
+        if (color.type != Type.String) { continue; }
+        if (isIntOrString(key.type)) {
+            config.setNodeColor(String((key as KeyType).value), color.value);
+        }
+        if (key.type != Type.Tuple) { continue; }
+        let [from, to] = key.value.map(v => v.value);
+        if (isIntOrString(from.type) || isIntOrString(to.type)) {
+            config.setEdgeColor(String((from as KeyType).value), String((to as KeyType).value), color.value);
+        }
+    }
+    return config;
+}
+
+function isIntOrString(key: Type) {
+    return key == Type.String || key == Type.Integer;
+}
+
+function isNumber(type: Type) {
+    return type == Type.Integer || type == Type.Float;
 }

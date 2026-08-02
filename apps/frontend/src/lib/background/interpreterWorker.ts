@@ -1,16 +1,15 @@
 import { AstBuilderVisitor, FunctionTree, InterpretingVisitor, Slot, SymbolTable, type Tree } from "@interactive-pseudo/interpreter";
 import { PseudoRuntimeError } from "@interactive-pseudo/interpreter";
-import { FuncCallContext, PseudoLexer, PseudoParser } from "@interactive-pseudo/parser";
+import { PseudoLexer, PseudoParser } from "@interactive-pseudo/parser";
 import { CharStream, CommonTokenStream } from "antlr4";
 import { tokenToErrorInformation } from "../shared/errorLocation";
 import { PseudoSyntaxError } from "./pseudoSyntaxError";
 import { PseudoLexerErrorListener, PseudoParserErrorListener } from "./ErrorHandler";
 import { type FrontendMessage } from "./messages"
-import { findGraph } from "./GraphConverter";
+import { getGraphConfig } from "./GraphConverter";
 
 let iterator: Generator;
 let interpreter: InterpretingVisitor;
-
 self.onmessage = (event) => {
     let data = event.data as FrontendMessage
     switch (data.type) {
@@ -159,7 +158,7 @@ function postVariables(symbolTables: SymbolTable<Slot>[], finished: boolean) {
     self.postMessage({type: 'result', message: variables, finished: finished});
     let graph;
     for (const table of symbolTables) {
-        graph = findGraph(table);
+        graph = getGraphConfig(table);
         if (graph) {
             self.postMessage({type: 'graph', message: graph})
             break;

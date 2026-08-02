@@ -21,7 +21,7 @@
     import type { WorkerMessage } from '$lib/background/messages';
     import { InterpreterState } from '$lib/shared/interpreterState';
     import { Graph } from '@interactive-pseudo/graph';
-    import type { GraphConfig } from '@interactive-pseudo/graph/src/GraphConfig';
+    import { GraphConfig } from '@interactive-pseudo/graph/src/GraphConfig';
 
     shared.code = getCodeFromParam();
 
@@ -70,6 +70,7 @@
         if (!shared.graph) {
             shared.graph = new Graph([])
         }
+        Object.setPrototypeOf(graph, GraphConfig.prototype);
         console.log(graph)
         shared.graph.update(graph);
         shared.updateGraph();

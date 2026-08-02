@@ -3,7 +3,8 @@ import type { Node } from "./Node.js";
 export class Edge {
     from: Node;
     to: Node;
-    distance: number
+    distance: number;
+    color: string | undefined;
 
     constructor(from: Node, to: Node, distance: number = 1) {
         this.from = from;

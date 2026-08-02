@@ -32,4 +32,8 @@ export class GraphConfig {
     setEdgeColor(from: string, to: string, color: string) {
         this.edgeColors.set(`${from}-${to}`, color);
     }
+
+    getEdgeColor(from: string, to: string): string {
+        return this.edgeColors.get(`${from}-${to}`) ?? "black"
+    }
 }

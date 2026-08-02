@@ -87,18 +87,20 @@
             let fromY = fromPosition.y
             let toX = toPosition.x
             let toY = toPosition.y
+            ctx.strokeStyle = edge.color ?? "black"
             arrow(fromX, fromY, toX, toY);
         }
         for (const node of G.nodes.values()) {
             let position = positions.get(node)!;
             let x = position.x;
             let y = position.y;
+            ctx.strokeStyle = node.color ?? "black";
             filledCircle(x, y, 30);
+            ctx.fillStyle = node.color ?? "black";
             ctx.lineWidth = 1;
-            ctx.font = "25px sans-serif"
-            ctx.fillStyle = "black"
-            let text = ctx.measureText(node.label)
-            ctx.fillText(node.label, position.x - text.width/2, position.y + text.emHeightAscent/2)
+            ctx.font = "25px sans-serif";
+            let text = ctx.measureText(node.label);
+            ctx.fillText(node.label, position.x - text.width/2, position.y + text.emHeightAscent/2);
             ctx.lineWidth = 3;
         }
     }
