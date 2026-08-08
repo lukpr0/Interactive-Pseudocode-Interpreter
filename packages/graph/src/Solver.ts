@@ -25,6 +25,15 @@ export abstract class Solver {
             if (position.y > yMax) yMax = position.y;
             if (position.y < yMin) yMin = position.y;
         }
+        //space out boundaries if only one node exists
+        if (xMax == xMin) {
+            xMax++;
+            xMin--;
+        }
+        if (yMax == yMin) {
+            yMax++;
+            yMin--;
+        }
         let deltaX = xMax - xMin;
         let deltaY = yMax - yMin;
         let rescaled = new Map();
