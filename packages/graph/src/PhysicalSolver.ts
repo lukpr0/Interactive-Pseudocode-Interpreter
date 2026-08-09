@@ -3,19 +3,30 @@ import type { Node } from "./Node.js";
 import { Solver } from "./Solver.js";
 import { Vector } from "./Vector.js";
 
+export type PhysicalConfig = {
+    electric?: number,
+    feather?: number
+    deltaTime?: number
+    iterations?: number
+}
+
 export class PhysicalSolver extends Solver {
     velocities: Map<Node, Vector>;
     accelerations: Map<Node, Vector>;
 
-    electric = 1;
-    feather = 1;
-    deltaTime = 0.01;
-    iterations = 1000;
+    config = {
+        electric: 1,
+        feather: 1,
+        deltaTime: 0.01,
+        iterations: 1000,
+    }
     
-    constructor(graph: Graph) {
+    constructor(graph: Graph, config: PhysicalConfig) {
         super(graph)
         this.velocities = new Map();
         this.accelerations = new Map();
+
+        this.config = { ...this.config, ...config };
 
         this.initCircle()
         for (const node of graph.nodes.values()) {
@@ -53,7 +64,7 @@ export class PhysicalSolver extends Solver {
                 if (nodeX == nodeY) continue;
                 let direction = positionX.diff(positionY);
                 let length = direction.abs();
-                let newDirection = direction.mult(this.electric/length**2)
+                let newDirection = direction.mult(this.config.electric/length**2)
                 let oldAcceleration = this.accelerations.get(nodeX)!
                 //console.log(direction, length, newDirection)
                 this.accelerations.set(nodeX, oldAcceleration.add(newDirection));
@@ -62,12 +73,12 @@ export class PhysicalSolver extends Solver {
         //console.log("acc-electric", this.accelerations.values().toArray());
         for (const [node, acceleration] of this.accelerations) {
             let oldVelocity = this.velocities.get(node)!;
-            let velocityUpdate = acceleration.mult(this.deltaTime).mult(0.97);
+            let velocityUpdate = acceleration.mult(this.config.deltaTime).mult(0.97);
             this.velocities.set(node, oldVelocity.add(velocityUpdate));
         }
         for (const [node, velocity] of this.velocities) {
             let oldPosition = this.positions.get(node)!;
-            let positionUpdate = velocity.mult(this.deltaTime).mult(0.97);
+            let positionUpdate = velocity.mult(this.config.deltaTime).mult(0.97);
             this.positions.set(node, oldPosition.add(positionUpdate));
         }
     }
@@ -83,7 +94,7 @@ export class PhysicalSolver extends Solver {
             this.accelerations.set(node, acceleration)
         }
 
-        for (let i = 0; i < this.iterations; i++) {
+        for (let i = 0; i < this.config.iterations; i++) {
             //console.log("pos", this.positions.values().toArray())
             //console.log("vel", this.velocities.values().toArray())
             //console.log("acc", this.accelerations.values().toArray())
