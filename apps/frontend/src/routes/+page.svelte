@@ -72,8 +72,8 @@
         }
         Object.setPrototypeOf(graph, GraphConfig.prototype);
         console.log(graph)
-        shared.graph.update(graph);
-        shared.updateGraph();
+        const hasUpdates = shared.graph.update(graph);
+        shared.updateGraph(hasUpdates);
     }
 
     function resetInterpreter() {

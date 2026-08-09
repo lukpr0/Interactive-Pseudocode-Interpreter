@@ -18,7 +18,7 @@ export const shared: {
     darkMode: boolean,
     stepDuration: number,
     graph: Graph | undefined,
-    updateGraph: () => void,
+    updateGraph: (hasUpdates: boolean) => void,
     resetGraph: boolean
 } = $state({
     code: "",
@@ -36,6 +36,6 @@ export const shared: {
     darkMode: false,
     stepDuration: 0,
     graph: undefined,
-    updateGraph: () => {},
+    updateGraph: (_) => {},
     resetGraph: false
 })

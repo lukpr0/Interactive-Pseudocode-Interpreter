@@ -29,14 +29,14 @@ export class Graph {
         return this.nodes.values().find(node => node.label == label);
     }
 
-    update(config: GraphConfig) {
-        let newNodes = new Set(config.nodes);
-
+    update(config: GraphConfig): boolean {
+        let hasChanges = false;
         //add new nodes
         for (const node of config.nodes) {
             if (!this.nodes.has(node)) {
                 const newNode = new Node(node);
                 this.nodes.set(node, newNode)
+                hasChanges = true;
                 console.log("added node: ", node)
             }
         }
@@ -46,12 +46,17 @@ export class Graph {
             if (!config.nodes.find(configNode => configNode == node)) {
                 console.log("removed node", node);
                 this.nodes.delete(node);
+                hasChanges = true;
             } else {
                 console.log("kept node: ", node);
             } 
         }
 
+        const oldEdges = new Set();
         for (const node of this.nodes.values()) {
+            for (const edge of node.edges) {
+                oldEdges.add(`${edge.from.label}-${edge.to.label}`);
+            }
             node.edges = [];
         }
 
@@ -59,6 +64,11 @@ export class Graph {
             const fromNode = this.nodes.get(edge.from)!;
             const toNode = this.nodes.get(edge.to)!;
             const newEdge = new Edge(fromNode, toNode, edge.distance);
+            if (oldEdges.has(`${edge.from}-${edge.to}`)) {
+                oldEdges.delete(`${edge.from}-${edge.to}`);
+            } else {
+                hasChanges = true;
+            }
             fromNode.edges.push(newEdge);
         }
         
@@ -79,6 +89,7 @@ export class Graph {
             edge.color = config.getEdgeColor(edge.from.label, edge.to.label);
         }
 
+        return hasChanges;
 
     }
 

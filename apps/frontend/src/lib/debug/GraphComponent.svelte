@@ -1,6 +1,6 @@
 <canvas id="canvas" width={WIDTH} height={HEIGHT} bind:this={canvas}></canvas>
 
-<button onclick={() => draw(true)}>Redraw</button>
+<button onclick={() => draw(true, true)}>Redraw</button>
 
 <script lang="ts">
     import { onMount } from "svelte";
@@ -21,11 +21,11 @@
         canvas = document.querySelector<HTMLCanvasElement>("#canvas")!
         ctx = canvas.getContext("2d")!
         shared.updateGraph = draw;
-        draw();
+        draw(true);
     });
 
 
-    function draw(reset?: boolean) {
+    function draw(update: boolean, reset?: boolean) {
         if (!solver || shared.resetGraph || reset) {
             const config = {
                 iterations: 15000,
@@ -36,7 +36,11 @@
             }
             solver = new SimulatedAnnealingSolver(graph, config);
         }
-        solver.solve()
+
+        if (update) {
+            solver.solve();
+        }
+
         let rescaled = solver.rescale(WIDTH, HEIGHT);
         ctx.fillStyle = "white"
         ctx.fillRect(0, 0, WIDTH, HEIGHT)
