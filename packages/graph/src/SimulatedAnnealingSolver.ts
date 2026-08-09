@@ -28,7 +28,7 @@ export class SimulatedAnnealingSolver extends Solver {
     constructor(graph: Graph, config: SimulatedAnnealingConfig) {
         super(graph);
         this.config = { ...this.config, ...config };
-        this.initRandom()
+        this.initRandom();
     }
 
     get(node: Node): Vector | undefined {
@@ -56,6 +56,7 @@ export class SimulatedAnnealingSolver extends Solver {
                 Ebest = Ex;
             }
         }
+        this.positions = best;
     }
 
     neighbour(old: Map<Node, Vector>): Map<Node, Vector> {
