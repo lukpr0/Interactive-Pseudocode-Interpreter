@@ -28,10 +28,10 @@
     function draw(reset?: boolean) {
         if (!solver || shared.resetGraph || reset) {
             const config = {
-                iterations: 1000,
+                iterations: 15000,
                 electric: 10,
-                startTemp: 5,
-                coolingRate: 0.9,
+                startTemp: 500,
+                coolingRate: 0.997,
                 stepSize: 0.3,
             }
             solver = new SimulatedAnnealingSolver(graph, config);

@@ -28,7 +28,7 @@ export class SimulatedAnnealingSolver extends Solver {
     constructor(graph: Graph, config: SimulatedAnnealingConfig) {
         super(graph);
         this.config = { ...this.config, ...config };
-        this.initCircle()
+        this.initRandom()
     }
 
     get(node: Node): Vector | undefined {
@@ -38,35 +38,24 @@ export class SimulatedAnnealingSolver extends Solver {
     solve() {
         const newNodes = this.detectNewNodes();
         this.makeRandomPositions(newNodes);
-        let approx = this.positions;
-        let fa = this.energy(approx);
+        let best = this.positions;
+        let Ebest = this.energy(best);
         let x = this.positions;
-        //console.log("start energy", fa);
-        let acceptWorseCounter = 0;
-        let betterCounter = 0;
         for (let t = 0; t < this.config.iterations; t++) {
-            let y = this.neighbour(x);
-            const fx = this.energy(x);
-            const fy = this.energy(y);
-            let tmp = this.temp(fx, fy, t);
-            let r = Math.random()
-            if (t % 100 == 99) {
-                //console.log("acceptance worse", acceptWorseCounter/t*100, "improve", betterCounter/t*100)
-                acceptWorseCounter = 0;
-                betterCounter = 0;
-            }
-            if (fy <= fx || tmp > r) {
-                if (tmp > r) acceptWorseCounter++;
+            const y = this.neighbour(x);
+            let Ex = this.energy(x);
+            const Ey = this.energy(y);
+            const P = this.temp(Ex, Ey, t);
+            const r = Math.random()
+            if (Ey <= Ex || r < P) {
                 x = y;
-            }  
-            if (fx < fa) {
-                approx = x;
-                fa = fx;
-                betterCounter++;
+                Ex = Ey
+            } 
+            if (Ex < Ebest) {
+                best = x;
+                Ebest = Ex;
             }
         }
-        //console.log("end energy", fa);
-        this.positions = approx;
     }
 
     neighbour(old: Map<Node, Vector>): Map<Node, Vector> {
@@ -100,8 +89,10 @@ export class SimulatedAnnealingSolver extends Solver {
         return Wf * this.config.feather + We * this.config.electric;
     }
 
-    temp(fx: number, fy: number, k: number): number {
+    temp(Ex: number, Ey: number, k: number): number {
         const T = this.config.startTemp * this.config.coolingRate ** k;
-        return Math.E ** (-(fy-fx)/T)
+        const deltaE = Ey-Ex;
+        const P = Math.E ** (-deltaE/T);
+        return P;
     }
 }

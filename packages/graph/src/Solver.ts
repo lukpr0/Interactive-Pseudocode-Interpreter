@@ -49,7 +49,6 @@ export abstract class Solver {
     protected makeCirclePositions(nodes: Iterable<Node>, count: number) {
         let i = 0;
         for (const node of nodes) {
-            console.log("circle for", node.label)
             const z = i/count * 2 * Math.PI;
             const position = new Vector(Math.sin(z), Math.cos(z));
             this.positions.set(node, position);
@@ -63,7 +62,6 @@ export abstract class Solver {
 
     protected makeRandomPositions(nodes: Iterable<Node>) {
         for (const node of nodes) {
-            console.log("random for", node.label)
             const x = 2 * (Math.random() - 1/2);
             const y = 2 * (Math.random() - 1/2);
             const position = new Vector(x, y);
