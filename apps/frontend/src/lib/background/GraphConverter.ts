@@ -1,4 +1,4 @@
-import { PseudoDict, PseudoFloat, PseudoInteger, PseudoString, PseudoTuple, Type, type Slot, type SymbolTable } from "@interactive-pseudo/interpreter";
+import { PseudoArray, PseudoDict, PseudoFloat, PseudoInteger, PseudoSet, PseudoString, PseudoTuple, Type, type Slot, type SymbolTable, type Value } from "@interactive-pseudo/interpreter";
 import DictIterator from "@interactive-pseudo/interpreter/dist/Interpreter/DictIterator";
 import { GraphConfig } from "@interactive-pseudo/graph/src/GraphConfig";
 
@@ -12,13 +12,19 @@ export function getGraphConfig(table: SymbolTable<Slot>): GraphConfig | null {
         return null; 
     }
     let graph = graphSlot.value;
-    if (graph.type != Type.Dict) {
-        return null; 
+    
+    let graphConfig;
+    switch (graph.type) {
+        case Type.Dict:
+            graphConfig = findGraphFromDict(graph);
+            break;
+        case Type.Array:
+        case Type.Set:
+            graphConfig = findEdgelistOrSet(graph);
     }
 
-    let graphConfig = findGraph(graph)
     if (!graphConfig) {
-        return null
+        return null;
     }
 
     if (colorSlot == undefined) {
@@ -41,12 +47,12 @@ export function getGraphConfig(table: SymbolTable<Slot>): GraphConfig | null {
 
 }
 
-function findGraph(graph: PseudoDict): GraphConfig | null {
+function findGraphFromDict(graph: PseudoDict): GraphConfig | null {
     let result = findAdjacencyDict(graph);
     if (result) {
         return result;
     }
-    result = findAdjacencyList(graph);
+    result = findAdjacencyListOrSet(graph);
     if (result) {
         return result;
     }
@@ -80,7 +86,7 @@ function findAdjacencyDict(graph: PseudoDict): GraphConfig | null {
     return result;
 }
 
-function findAdjacencyList(graph: PseudoDict): GraphConfig | null {
+function findAdjacencyListOrSet(graph: PseudoDict): GraphConfig | null {
     let iter = new DictIterator(graph);
     let result = new GraphConfig();
     for (const node of getNodes(graph)) {
@@ -90,27 +96,66 @@ function findAdjacencyList(graph: PseudoDict): GraphConfig | null {
         let entryTuple = iter.next()
         if (entryTuple.type != Type.Tuple) { return null; }
         let [from, value] = entryTuple.value.map(v => v.value);
-        if (!isIntOrString(from.type) || value.type != Type.Array) { return null; }
-        for (const slot of value.value) {
-            let to = slot.value;
-            let distanceValue;
-            switch (to.type) {
-                case Type.Tuple:
-                    let [toName, distance] = to.value.map(v => v.value)
-                    if (toName.type != Type.String || !isNumber(distance.type) ) { return null; }
-                    distanceValue = (distance as PseudoInteger || PseudoFloat).value
-                    result.addEdge(String((from as KeyType).value), String((toName as KeyType).value), Number(distanceValue));
-                    break;
-                case Type.String:
-                    distanceValue = 1;
-                    result.addEdge(String((from as KeyType).value), String((to as KeyType).value), distanceValue);
-                    break;
-                default:
-                    return null;
+        if (!isIntOrString(from.type) || value.type != Type.Array && value.type != Type.Set) { return null; }
+        for (const slot of getIterFromArrayOrSet(value)) {
+            let keyResult = getKey(slot.value);
+            if (keyResult) {
+                let [to, distanceValue] = keyResult;
+                result.addEdge(String((from as KeyType).value), String(to), distanceValue)
             }
         }
     }
     return result;
+}
+
+function findEdgelistOrSet(graph: PseudoArray | PseudoSet): GraphConfig | null {
+    let result = new GraphConfig()
+    let nodes = new Set();
+    for (const slot of getIterFromArrayOrSet(graph)) {
+        const value = slot.value;
+        if (value.type != Type.Tuple) { return null; }
+        let [from, to, distance] = value.value.map(v => v.value);
+        if (!isIntOrString(from.type) || !isIntOrString(to.type) || distance ?  !isNumber(distance.type) : false) { return null; }
+        const fromLabel = String((from as KeyType).value);
+        const toLabel = String((to as KeyType).value);
+        if (!nodes.has(fromLabel)) {
+            result.addNode(fromLabel);
+        }
+        nodes.add(fromLabel);
+        if (!nodes.has(toLabel)) {
+            result.addNode(toLabel);
+        }
+        nodes.add(toLabel);
+        const distanceValue = distance ? Number((distance as PseudoInteger | PseudoFloat).value) : 1;
+        result.addEdge(fromLabel, toLabel, distanceValue); 
+    }
+    return result;
+}
+
+function getKey(value: Value): [KeyType, number] | null {
+    let distanceValue;
+    switch (value.type) {
+        case Type.Tuple:
+            let [toName, distance] = value.value.map(v => v.value)
+            if (!isIntOrString(toName.type) || !isNumber(distance.type) ) { return null; }
+            distanceValue = (distance as PseudoInteger || PseudoFloat).value
+            return [(toName as KeyType), Number(distanceValue)]
+        case Type.String:
+        case Type.Integer:
+            distanceValue = 1;
+            return [(value as KeyType), distanceValue]
+        default:
+            return null;
+    }
+    
+}
+
+function getIterFromArrayOrSet(object: PseudoArray | PseudoSet): Iterable<Slot> {
+    if (object instanceof PseudoArray) {
+        return object.value;
+    } else {
+        return object.values.values();
+    }
 }
 
 function getNodes(graph: PseudoDict): string[] {
