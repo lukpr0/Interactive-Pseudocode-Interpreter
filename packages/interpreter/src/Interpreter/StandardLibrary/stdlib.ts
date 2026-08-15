@@ -4,7 +4,7 @@ import { ArrayConstructor, ConcatFunction, DequeueFunction, JoinFunction, Length
 import { DictConstructor, DictKeys, DictValues } from "./DictFunctions";
 import { CeilFunction, FloorFunction, MaxFunction, MinFunction, PowFunction, SquarerootFunction } from "./MathFunctions";
 import PrintFunction from "./PrintFunction";
-import { CharFunction, CodepointFunction } from "./StringFunctions";
+import { CharFunction, CodepointFunction, SubstringFunction } from "./StringFunctions";
 
 export const StandardFunctions = [
     new PrintFunction(),
@@ -25,6 +25,7 @@ export const StandardFunctions = [
 
     new CodepointFunction(),
     new CharFunction(),
+    new SubstringFunction(),
 
     new DictConstructor(),
     new DictKeys(),
