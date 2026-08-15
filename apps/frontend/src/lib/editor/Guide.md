@@ -259,7 +259,7 @@ end
 
 ## Jump-Statements
 
-There are break and continue statements
+There are break and continue statements.
 With break the loop is ended.
 With continue the program will skip the rest of the current loop iteration
 
@@ -404,8 +404,67 @@ Creates an array with the keys from a dictionary d.
 print(x)
 ```
 Outputs the given argument x
-</div>
 
+# Graphs
+Graphs can be drawn in the panel right of the code editor.
+A graph gets automatically drawn, if the root scope contains a variable called graph, that follows a specific layout.
+Possible layouts are:
+- dictionary of dictionaries
+- dictionary of arrays (adjacency list)
+- dictionary of sets (adjacency set)
+- arrays of tuples (edge list)
+- set of tuples (edge set)
+- array of arrays (adjacency matrix)
+
+The nodes must be identified with a string.
+Edge list and set have to contain tuples of the node names. A third entry to the tuple can be used for edge weights.
+In an adjacency matrix, 0-values get interpreted as no edge.
+```
+// dictionary of dictionaries
+graph := [
+    "A": ["B": 1, "D": 2],
+    "B": ["C": 2],
+    "C": ["A": 1],
+    "D": Dict()
+]
+
+// adjacency list
+graph := [
+    "A": ["B", "D"],
+    "B": ["C"],
+    "C": ["A"],
+    "D": Dict()
+]
+// adjacency set
+graph := [
+    "A": {"B", "D"},
+    "B": {"C"},
+    "C": {"A"},
+    "D": Dict()
+]
+
+// edge list
+graph := [("A", "B"), ("A", "D"), ("B", "C"), ("C", "A")]
+
+// weighted edge list
+graph := [("A", "B", 1), ("A", "D", 2), ("B", "C", 2), ("C", "A", 1)]
+
+// edge set
+graph := {("A", "B"), ("A", "D"), ("B", "C"), ("C", "A")}
+
+// weighted edge set
+graph := {("A", "B", 1), ("A", "D", 2), ("B", "C", 2), ("C", "A", 1)}
+
+// adjacency matrix
+graph := [
+    [0, 1, 0, 2],
+    [0, 0, 2, 0],
+    [2, 0, 0, 0],
+    [0, 0, 0, 0]
+]
+```
+
+</div>
 <style>
     #guide-container {
         margin: 2vh;
