@@ -21,7 +21,7 @@
         <Option name="reset-graph" bind:checked={shared.resetGraph}>Reset graph on new run</Option>
         <span><a href="https://github.com/lukpr0/Interactive-Pseudocode-Interpreter">report bugs</a></span>
         {#if shared.debug}
-        <span>Versions: Frontend: 2.1.1 Interpreter: 3.0.1 Parser: 2.0.0</span>
+        <span>Versions: Frontend: {__FRONTEND_VERSION__} Interpreter: {__INTERPRETER_VERSION__} Parser: {__PARSER_VERSION__}</span>
         {/if}
     </div>
 </div>
