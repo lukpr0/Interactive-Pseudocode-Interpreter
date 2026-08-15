@@ -19,6 +19,8 @@ export function getGraphConfig(table: SymbolTable<Slot>): GraphConfig | null {
             graphConfig = findGraphFromDict(graph);
             break;
         case Type.Array:
+            graphConfig = findAdjacencyMatrix(graph);
+            if (graphConfig) break;
         case Type.Set:
             graphConfig = findEdgelistOrSet(graph);
     }
@@ -129,6 +131,32 @@ function findEdgelistOrSet(graph: PseudoArray | PseudoSet): GraphConfig | null {
         const distanceValue = distance ? Number((distance as PseudoInteger | PseudoFloat).value) : 1;
         result.addEdge(fromLabel, toLabel, distanceValue); 
     }
+    return result;
+}
+
+function findAdjacencyMatrix(graph: PseudoArray): GraphConfig | null {
+    const result = new GraphConfig();
+    const numNodes = graph.value.length;
+
+    for (let i = 0; i < graph.value.length; i++) {
+        result.addNode(String(i));
+    }
+
+    for (let i = 0; i < graph.value.length; i++) {
+        const slot = graph.value[i];
+        const innerArray = slot.value
+        if (innerArray.type != Type.Array) { return null; }
+        if (innerArray.value.length > numNodes) { return null; }
+        for (let j = 0; j < innerArray.value.length; j++) {
+            let value = innerArray.value[j].value;
+            if (!isNumber(value.type)) { return null; }
+            value = (value as NumericType);
+            if (value.value != 0 && value.value != Infinity) {
+                result.addEdge(String(i), String(j), Number(value.value));
+            }
+        }
+    }
+
     return result;
 }
 
