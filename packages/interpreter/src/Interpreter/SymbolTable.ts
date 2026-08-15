@@ -1,10 +1,16 @@
+import { PseudoFloat } from "./Types";
 
 export default class SymbolTable<T> {
     table: Map<string, T>;
     child: SymbolTable<T> | undefined;
-    constructor() {
+    unchangedDefaults: Set<string>;
+    constructor(defaults: {name: string, value: T}[]) {
         this.table = new Map();
         this.child = undefined;
+        for (const { name, value } of defaults) {
+            this.table.set(name, value);
+        }
+        this.unchangedDefaults = new Set(defaults.map(d => d.name))
     }
 
     public getVariable(name: string): T | undefined {
@@ -28,6 +34,7 @@ export default class SymbolTable<T> {
     public setVariable(name: string, value: T) {
         if (this.table.has(name)) {
             this.table.set(name, value);
+            this.unchangedDefaults.delete(name);
         } else {
             if (this.child !== undefined) {
                 this.child.setVariable(name, value);
@@ -42,7 +49,7 @@ export default class SymbolTable<T> {
     }
 
     public getNames(): Set<string> {
-        let names = new Set(this.table.keys());
+        let names = new Set(this.table.keys().filter(name => !this.unchangedDefaults.has(name)));
         if (this.child) {
             names = names.union(this.child.getNames());
         }

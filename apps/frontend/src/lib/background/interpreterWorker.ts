@@ -51,9 +51,7 @@ function setupInterpreter(parser: PseudoParser): InterpretingVisitor {
             self.postMessage({type: 'log', message: message})
         }
     }
-    const symbolTable = new SymbolTable<Slot>();
-    const functionTable = new SymbolTable<FunctionTree>();
-    const interpreter = new InterpretingVisitor(symbolTable, functionTable);
+    const interpreter = new InterpretingVisitor();
     interpreter.addPrintObserver(observer);
     return interpreter;
 }

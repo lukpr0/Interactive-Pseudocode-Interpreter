@@ -28,9 +28,8 @@ const visitor = new AstBuilderVisitor()
 const ast = tree.accept(visitor);
 
 //setup Interpreter
-const symbols = new SymbolTable<Slot>()
-const functions = new SymbolTable<FunctionTree>()
-const interpreter = new InterpretingVisitor(symbols, functions);
+const interpreter = new InterpretingVisitor();
+const symbols = interpreter.getSymbolTable();
 interpreter.addPrintObserver({
     update(message) {
         console.log(message);
