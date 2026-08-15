@@ -37,20 +37,16 @@ export class Graph {
                 const newNode = new Node(node);
                 this.nodes.set(node, newNode)
                 hasChanges = true;
-                console.log("added node: ", node)
             }
         }
         
         //remove old nodes
         for (const node of this.nodes.keys()) {
             if (!config.nodes.find(configNode => configNode == node)) {
-                console.log("removed node", node);
                 this.nodes.delete(node);
                 hasChanges = true;
-            } else {
-                console.log("kept node: ", node);
-            } 
-        }
+            }  
+       }
 
         const oldEdges = new Set();
         for (const node of this.nodes.values()) {

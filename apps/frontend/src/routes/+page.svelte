@@ -68,10 +68,9 @@
 
     function handleGraphMessage(graph: GraphConfig) {
         if (!shared.graph) {
-            shared.graph = new Graph([])
+            shared.graph = new Graph([]);
         }
         Object.setPrototypeOf(graph, GraphConfig.prototype);
-        console.log(graph)
         const hasUpdates = shared.graph.update(graph);
         shared.updateGraph(hasUpdates);
     }
@@ -85,7 +84,6 @@
         worker.terminate()
         clearTimeout(timeout)
         worker = new Worker()
-        console.log("new worker")
         worker.onmessage = workerOnMessage;
         worker.postMessage({
             type: "code",

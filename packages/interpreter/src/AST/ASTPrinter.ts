@@ -193,7 +193,6 @@ export default class ASTPrinter implements Visitor<string> {
     }
 
     visitDict(expr: DictTree): string {
-        console.log("visiting dict")
         const pairs = expr.elements
             .map(e => e.accept(this))
             .join(' ') 
