@@ -38,6 +38,8 @@
 
     let example: Graph | undefined = $state(undefined);
 
+    $effect(() => {example = shared.graph; })
+
     const items = [
         {
             id: 0,
