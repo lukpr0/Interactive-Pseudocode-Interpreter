@@ -20,6 +20,8 @@
     import { shared } from "$lib/shared/state.svelte";
     import type { WorkerMessage } from '$lib/background/messages';
     import { InterpreterState } from '$lib/shared/interpreterState';
+    import { Graph } from '@interactive-pseudo/graph';
+    import { GraphConfig } from '@interactive-pseudo/graph/src/GraphConfig';
 
     shared.code = getCodeFromParam();
 
@@ -42,6 +44,9 @@
             case 'error':
                 handleError(result.message);
                 break;
+            case 'graph':
+                handleGraphMessage(result.message);
+                break;
         }
     }
 
@@ -61,6 +66,15 @@
         }
     }
 
+    function handleGraphMessage(graph: GraphConfig) {
+        if (!shared.graph) {
+            shared.graph = new Graph([]);
+        }
+        Object.setPrototypeOf(graph, GraphConfig.prototype);
+        const hasUpdates = shared.graph.update(graph);
+        shared.updateGraph(hasUpdates);
+    }
+
     function resetInterpreter() {
         shared.logs = []
         shared.displayedError = "";
@@ -70,7 +84,6 @@
         worker.terminate()
         clearTimeout(timeout)
         worker = new Worker()
-        console.log("new worker")
         worker.onmessage = workerOnMessage;
         worker.postMessage({
             type: "code",

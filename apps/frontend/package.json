@@ -1,7 +1,7 @@
 {
 	"name": "@interactive-pseudo/frontend",
 	"private": true,
-	"version": "2.1.0",
+	"version": "2.2.0",
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
@@ -21,6 +21,7 @@
 		"@codemirror/view": "^6.38.6",
 		"@interactive-pseudo/interpreter": "*",
 		"@interactive-pseudo/parser": "*",
+		"@interactive-pseudo/graph": "*",
 		"@replit/codemirror-vim": "^6.3.0",
 		"antlr4": "4.13.2",
 		"codemirror": "^6.0.2"

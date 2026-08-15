@@ -22,7 +22,7 @@
 <script lang="ts">
     import Codemirror from "./Codemirror.svelte";
     import { shared } from "$lib/shared/state.svelte";
-    import TabGroup from "./TabGroup.svelte";
+    import TabGroup from "../shared/TabGroup.svelte";
     import MarkupArea from "./MarkupArea.svelte";
     import { TypstVisitor } from "./typstVisitor";
     import { LatexVisitor } from "./latexVisitor";
@@ -58,7 +58,7 @@
 <style>
     .editor-wrapper {
         --height: 60vh;
-        grid-column: span 8;
+        grid-column: span 7;
         grid-row: span 6;
         overflow: auto;
     }
