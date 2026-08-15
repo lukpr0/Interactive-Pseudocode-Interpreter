@@ -1,7 +1,7 @@
 
 
 <div id="variable-table" class="area border border-radius">
-    <VariableTable variables={shared.variables}></VariableTable>
+    <TabGroup {items}/>
     {#if shared.debug}
     {printAst(shared.code)}
     state:
@@ -15,6 +15,15 @@
     autorun: {shared.autorun}
     {/if}
 </div>
+{#snippet variables()}
+    <VariableTable variables={shared.variables}></VariableTable>
+{/snippet}
+
+{#snippet graph()}
+    {#if example}
+    <GraphComponent graph={example}/>
+    {/if}
+{/snippet}
 
 <script lang="ts">
     import VariableTable from "./VariableTable.svelte";
@@ -23,6 +32,24 @@
     import { parserChain } from "$lib/shared/ParserChain";
     import { ASTPrinter } from "@interactive-pseudo/interpreter";
     import { InterpreterState } from "$lib/shared/interpreterState";
+    import TabGroup from "$lib/shared/TabGroup.svelte";
+    import GraphComponent from "./GraphComponent.svelte";
+    import { Graph } from "@interactive-pseudo/graph";
+
+    let example: Graph | undefined = $state(undefined);
+
+    const items = [
+        {
+            id: 0,
+            label: "Variables",
+            component: variables
+        },
+        {
+            id: 1,
+            label: "Graph",
+            component: graph 
+        }
+    ]
 
     function printAst(code: string) {
         const ast = parserChain(code);
@@ -33,7 +60,7 @@
 
 <style>
     #variable-table {
-        grid-column: span 4;
+        grid-column: span 5;
         grid-row: span 6;
         min-height: 0;
         box-sizing: border-box;

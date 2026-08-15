@@ -1,0 +1,85 @@
+import type { Graph } from "./Graph.js";
+import type { Node } from "./Node.js";
+import { Vector } from "./Vector.js";
+
+export abstract class Solver {
+
+    graph: Graph;
+    positions: Map<Node, Vector>;
+
+    constructor(graph: Graph) {
+        this.graph = graph;
+        this.positions = new Map();
+    }
+
+    abstract solve(): void;
+
+    rescale(width: number, height: number): Map<Node, Vector> {
+        let xMin = Infinity;
+        let xMax = -Infinity;
+        let yMin = Infinity;
+        let yMax = -Infinity;
+        for (const position of this.positions.values()) {
+            if (position.x > xMax) xMax = position.x;
+            if (position.x < xMin) xMin = position.x;
+            if (position.y > yMax) yMax = position.y;
+            if (position.y < yMin) yMin = position.y;
+        }
+        //space out boundaries if only one node exists
+        if (xMax == xMin) {
+            xMax++;
+            xMin--;
+        }
+        if (yMax == yMin) {
+            yMax++;
+            yMin--;
+        }
+        const deltaX = xMax - xMin;
+        const deltaY = yMax - yMin;
+        const rescaled = new Map();
+        for (const [node, vector] of this.positions) {
+            const newX = (vector.x - xMin) / deltaX * width * 0.8 + width * 0.1;
+            const newY = (vector.y - yMin) / deltaY * height * 0.8 + height * 0.1;
+            const position = new Vector(newX, newY);
+            rescaled.set(node, position);
+        }
+        return rescaled;
+    }
+
+    protected makeCirclePositions(nodes: Iterable<Node>, count: number) {
+        let i = 0;
+        for (const node of nodes) {
+            const z = i/count * 2 * Math.PI;
+            const position = new Vector(Math.sin(z), Math.cos(z));
+            this.positions.set(node, position);
+            i++;
+        }
+    }
+
+    initCircle() {
+        this.makeCirclePositions(this.graph.nodes.values(), this.graph.nodes.size);
+    }
+
+    protected makeRandomPositions(nodes: Iterable<Node>) {
+        for (const node of nodes) {
+            const x = 2 * (Math.random() - 1/2);
+            const y = 2 * (Math.random() - 1/2);
+            const position = new Vector(x, y);
+            this.positions.set(node, position);
+        }
+    }
+
+    initRandom() {
+        this.makeRandomPositions(this.graph.nodes.values());
+    }
+
+    protected detectNewNodes(): Node[] {
+        const newNodes = [];
+        for (const node of this.graph.nodes.values()) {
+            if (!this.positions.has(node)) {
+                newNodes.push(node);
+            }
+        }
+        return newNodes;
+    }
+}
