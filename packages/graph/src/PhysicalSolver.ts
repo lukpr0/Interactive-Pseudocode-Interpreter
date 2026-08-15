@@ -41,19 +41,19 @@ export class PhysicalSolver extends Solver {
 
     iteration() {
         for (const node of this.accelerations.keys()) {
-            let acceleration = new Vector(0, 0);
+            const acceleration = new Vector(0, 0);
             this.accelerations.set(node, acceleration)
         }
         //console.log("acc-new", this.accelerations.values().toArray());
-        for (const [node, position] of this.positions) {
+        for (const [node, _] of this.positions) {
             for (const edge of node.edges) {
-                let from = this.positions.get(edge.from)!;
-                let to = this.positions.get(edge.to)!;
-                let diff = to.diff(from);
-                let direction = diff.dir();
-                let displacement = diff.abs() - edge.distance;
-                let accelerationFrom = this.accelerations.get(node)!.add(direction.mult(displacement));
-                let accelerationTo = this.accelerations.get(edge.to)!.add(direction.mult(-displacement));
+                const from = this.positions.get(edge.from)!;
+                const to = this.positions.get(edge.to)!;
+                const diff = to.diff(from);
+                const direction = diff.dir();
+                const displacement = diff.abs() - edge.distance;
+                const accelerationFrom = this.accelerations.get(node)!.add(direction.mult(displacement));
+                const accelerationTo = this.accelerations.get(edge.to)!.add(direction.mult(-displacement));
                 this.accelerations.set(node, accelerationFrom);
                 this.accelerations.set(edge.to, accelerationTo);
             }
@@ -62,23 +62,23 @@ export class PhysicalSolver extends Solver {
         for (const [nodeX, positionX] of this.positions) {
             for (const [nodeY, positionY] of this.positions) {
                 if (nodeX == nodeY) continue;
-                let direction = positionX.diff(positionY);
-                let length = direction.abs();
-                let newDirection = direction.mult(this.config.electric/length**2)
-                let oldAcceleration = this.accelerations.get(nodeX)!
+                const direction = positionX.diff(positionY);
+                const length = direction.abs();
+                const newDirection = direction.mult(this.config.electric/length**2)
+                const oldAcceleration = this.accelerations.get(nodeX)!
                 //console.log(direction, length, newDirection)
                 this.accelerations.set(nodeX, oldAcceleration.add(newDirection));
             }
         }
         //console.log("acc-electric", this.accelerations.values().toArray());
         for (const [node, acceleration] of this.accelerations) {
-            let oldVelocity = this.velocities.get(node)!;
-            let velocityUpdate = acceleration.mult(this.config.deltaTime).mult(0.97);
+            const oldVelocity = this.velocities.get(node)!;
+            const velocityUpdate = acceleration.mult(this.config.deltaTime).mult(0.97);
             this.velocities.set(node, oldVelocity.add(velocityUpdate));
         }
         for (const [node, velocity] of this.velocities) {
-            let oldPosition = this.positions.get(node)!;
-            let positionUpdate = velocity.mult(this.config.deltaTime).mult(0.97);
+            const oldPosition = this.positions.get(node)!;
+            const positionUpdate = velocity.mult(this.config.deltaTime).mult(0.97);
             this.positions.set(node, oldPosition.add(positionUpdate));
         }
     }

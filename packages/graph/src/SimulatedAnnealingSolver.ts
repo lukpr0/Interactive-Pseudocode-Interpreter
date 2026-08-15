@@ -60,13 +60,13 @@ export class SimulatedAnnealingSolver extends Solver {
     }
 
     neighbour(old: Map<Node, Vector>): Map<Node, Vector> {
-        let newPositions = new Map();
+        const newPositions = new Map();
         for (const entry of old) {
-            let [node, position] = entry;
-            let rx = (Math.random() - 1/2) * this.config.stepSize;
-            let ry = (Math.random() - 1/2) * this.config.stepSize;
-            let v = new Vector(rx, ry)
-            newPositions.set(node, position.add(v))
+            const [node, position] = entry;
+            const rx = (Math.random() - 1/2) * this.config.stepSize;
+            const ry = (Math.random() - 1/2) * this.config.stepSize;
+            const v = new Vector(rx, ry);
+            newPositions.set(node, position.add(v));
         }
         return newPositions;
     }
@@ -74,16 +74,16 @@ export class SimulatedAnnealingSolver extends Solver {
     energy(nodes: Map<Node, Vector>): number {
         let Wf = 0;
         for (const edge of this.graph.allEdges()) {
-            let fromPostion = nodes.get(edge.from)!;
-            let toPosition = nodes.get(edge.to)!;
+            const fromPostion = nodes.get(edge.from)!;
+            const toPosition = nodes.get(edge.to)!;
             Wf += (edge.distance - fromPostion.diff(toPosition).abs())**2;
         }
         let We = 0;
         for (const x of this.graph.nodes.values()) {
             for (const y of this.graph.nodes.values()) {
                 if (x == y) continue;
-                let fromPostion = nodes.get(x)!;
-                let toPosition = nodes.get(y)!;
+                const fromPostion = nodes.get(x)!;
+                const toPosition = nodes.get(y)!;
                 We += 1/fromPostion.diff(toPosition).abs();
             }
         }

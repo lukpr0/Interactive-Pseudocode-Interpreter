@@ -34,7 +34,7 @@
     import { InterpreterState } from "$lib/shared/interpreterState";
     import TabGroup from "$lib/shared/TabGroup.svelte";
     import GraphComponent from "./GraphComponent.svelte";
-    import { Graph, Node, Edge } from "@interactive-pseudo/graph";
+    import { Graph } from "@interactive-pseudo/graph";
 
     let example: Graph | undefined = $state(undefined);
 

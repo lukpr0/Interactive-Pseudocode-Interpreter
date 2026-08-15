@@ -34,9 +34,9 @@ export abstract class Solver {
             yMax++;
             yMin--;
         }
-        let deltaX = xMax - xMin;
-        let deltaY = yMax - yMin;
-        let rescaled = new Map();
+        const deltaX = xMax - xMin;
+        const deltaY = yMax - yMin;
+        const rescaled = new Map();
         for (const [node, vector] of this.positions) {
             const newX = (vector.x - xMin) / deltaX * width * 0.8 + width * 0.1;
             const newY = (vector.y - yMin) / deltaY * height * 0.8 + height * 0.1;
