@@ -79,7 +79,7 @@ export class MaxFunction extends BuiltInFunction {
         }
         const a = args[0]
         const b = args[1]
-        if (a.greaterEqual(b)) {
+        if (a.greaterEqual(b).value) {
             return a
         } else {
             return b
@@ -101,7 +101,7 @@ export class MinFunction extends BuiltInFunction {
         }
         const a = args[0]
         const b = args[1]
-        if (a.less(b)) {
+        if (a.less(b).value) {
             return a
         } else {
             return b
