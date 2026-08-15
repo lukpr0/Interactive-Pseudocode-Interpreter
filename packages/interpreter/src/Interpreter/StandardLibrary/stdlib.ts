@@ -1,6 +1,6 @@
 import Slot from "../Slot";
 import { PseudoFloat } from "../Types";
-import { ArrayConstructor, DequeueFunction, LengthFunction, PopFunction, PushFunction } from "./ArrayFunctions";
+import { ArrayConstructor, ConcatFunction, DequeueFunction, JoinFunction, LengthFunction, PopFunction, PushFunction } from "./ArrayFunctions";
 import { DictConstructor, DictKeys, DictValues } from "./DictFunctions";
 import { CeilFunction, FloorFunction, MaxFunction, MinFunction, PowFunction, SquarerootFunction } from "./MathFunctions";
 import PrintFunction from "./PrintFunction";
@@ -13,14 +13,19 @@ export const StandardFunctions = [
     new PushFunction(),
     new PopFunction(),
     new DequeueFunction(),
+    new ConcatFunction(),
+    new JoinFunction(),
+
     new FloorFunction(),
     new CeilFunction(),
     new SquarerootFunction(),
     new PowFunction(),
     new MaxFunction(),
     new MinFunction(),
+
     new CodepointFunction(),
     new CharFunction(),
+
     new DictConstructor(),
     new DictKeys(),
     new DictValues(),

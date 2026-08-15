@@ -1,7 +1,7 @@
 import Type from "../Type.js";
 import type { Value } from "../Value.js";
 import BuiltInFunction from "./BuiltInFunction.js";
-import { PseudoArray, PseudoInteger, PseudoNil } from '../Types/index.js'
+import { PseudoArray, PseudoInteger, PseudoNil, PseudoString } from '../Types/index.js'
 import { BuiltInTypeError } from "../Errors/BuiltInTypeError.js";
 import { InternalError } from "../Errors/InternalError.js";
 
@@ -83,5 +83,51 @@ export class DequeueFunction extends BuiltInFunction {
             throw new BuiltInTypeError([Type.Array], args[0]!.type)
         }
         return args[0].dequeue()
+    }
+}
+
+export class ConcatFunction extends BuiltInFunction {
+    constructor() {
+        super(2, 'concat');
+    }
+
+    eval(args: Value[]): Value {
+        if (args[0]?.type != Type.Array) {
+            throw new BuiltInTypeError([Type.Array], args[0]!.type)
+        }
+        if (args[1]?.type != Type.Array) {
+            throw new BuiltInTypeError([Type.Array], args[1]!.type)
+        }
+        const result = new PseudoArray();
+        for (const slot of args[0].value) {
+            const value = slot.value;
+            result.push(value);
+        }
+        for (const slot of args[1].value) {
+            const value = slot.value;
+            result.push(value);
+        }
+
+        return result;
+    }
+}
+
+export class JoinFunction extends BuiltInFunction {
+    constructor() {
+        super(2, 'join');
+    }
+
+    eval(args: Value[]): Value {
+        if (args[0]?.type != Type.Array) {
+            throw new BuiltInTypeError([Type.Array], args[0]!.type)
+        }
+        if (args[1]?.type != Type.String) {
+            throw new BuiltInTypeError([Type.String], args[1]!.type)
+        }
+        const result = args[0].value
+            .map(slot => slot.value.toString())
+            .join(args[1].value);
+
+        return new PseudoString(result);
     }
 }
