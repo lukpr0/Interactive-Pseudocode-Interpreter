@@ -1,4 +1,4 @@
-import { BinaryOperationTree, ExprTree, type ArrayTree, type AssignTree, type BreakTree, type ContinueTree, type DotAccessorTree, type ForTree, type FunctionCallTree, type FunctionTree, type IfTree, type IndexAccessorTree, type IteratorTree, type KeyValueTree, type ObjectTree, type ProgramTree, type RangeTree, type RepeatUntilTree, type ReturnTree, type StatListTree, UnaryOperationTree, type Visitor, type WhileTree, SetTree, LexprTree, LexprPartTree, TupleTree, DictPairTree } from "@interactive-pseudo/interpreter";
+import { BinaryOperationTree, ExprTree, type ArrayTree, type AssignTree, type BreakTree, type ContinueTree, type DotAccessorTree, type ForTree, type FunctionCallTree, type FunctionTree, type IfTree, type IndexAccessorTree, type IteratorTree, type KeyValueTree, type ObjectTree, type ProgramTree, type RangeTree, type RepeatUntilTree, type ReturnTree, type StatListTree, UnaryOperationTree, type Visitor, type WhileTree, SetTree, LexprTree, LexprPartTree, TupleTree, DictPairTree, UniformFunctionCallTree } from "@interactive-pseudo/interpreter";
 import { PseudoLexer } from '@interactive-pseudo/parser'
 import { MarkupGenerationVisitor } from "./markupGenerationVisitor.js";
 
@@ -237,4 +237,9 @@ export class LatexVisitor extends MarkupGenerationVisitor {
         return `${key}: ${value}`
     }
 
+    visitUniformFunctionCall(expr: UniformFunctionCallTree): string {
+        const object = expr.object.accept(this);
+        const functionCall = expr.functionCall.accept(this);
+        return `${object}.${functionCall}`;
+    }
 }

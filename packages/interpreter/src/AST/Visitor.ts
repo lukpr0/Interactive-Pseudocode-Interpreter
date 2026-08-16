@@ -23,6 +23,7 @@ import type LexprPartTree from "./LexprPartTree.js";
 import type TupleTree from "./TupleTree.js";
 import type DictPairTree from "./DictPairTree.js";
 import type DictTree from "./DictTree.js";
+import type UniformFunctionCallTree from "./UniformFunctionCallTree.js";
 
 export default interface Visitor<T> {
     visitProgram(program: ProgramTree): T;
@@ -39,6 +40,7 @@ export default interface Visitor<T> {
     visitRange(expr: RangeTree): T;
     visitFunction(expr: FunctionTree): T;
     visitFunctionCall(expr: FunctionCallTree): T;
+    visitUniformFunctionCall(expr: UniformFunctionCallTree): T;
     visitArray(expr: ArrayTree): T;
     visitTuple(expr: TupleTree): T;
     visitSet(expr: SetTree): T;

@@ -25,6 +25,7 @@ import type LexprTree from "./LexprTree.js";
 import type TupleTree from "./TupleTree.js";
 import type DictTree from "./DictTree.js";
 import type DictPairTree from "./DictPairTree.js";
+import type UniformFunctionCallTree from "./UniformFunctionCallTree.js";
 
 export default class ASTPrinter implements Visitor<string> {
 
@@ -201,6 +202,10 @@ export default class ASTPrinter implements Visitor<string> {
 
     visitDictPair(expr: DictPairTree): string {
         return `(${expr.key.accept(this)} ${expr.value.accept(this)})`
+    }
+
+    visitUniformFunctionCall(expr: UniformFunctionCallTree): string {
+        return `(. ${expr.object.accept(this)} ${expr.functionCall.accept(this)})`;
     }
 
 }
