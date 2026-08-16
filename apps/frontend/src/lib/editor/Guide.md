@@ -405,6 +405,29 @@ print(x)
 ```
 Outputs the given argument x
 
+# Constants
+
+There are two constants available:
+- `pi` the mathematical constant 3.1415926535...
+- `infinity`
+
+These constants technically aren't constants, you're allowed to overwrite them.
+However, these are not global values. The root scope and every function has their own instance.
+
+```
+function indiana()
+    pi := 3.2
+    print(pi)
+end
+
+indiana()
+print(pi)
+
+// prints:
+// 3.2
+// 3.141592653589793
+```
+
 # Graphs
 Graphs can be drawn in the panel right of the code editor.
 A graph gets automatically drawn, if the root scope contains a variable called graph, that follows a specific layout.
@@ -461,6 +484,18 @@ graph := [
     [0, 0, 2, 0],
     [2, 0, 0, 0],
     [0, 0, 0, 0]
+]
+```
+
+Nodes and edges can be colored. This can be done using a dictionary named `colors`.
+The keys to this dictionary are either names of nodes or tuples of names of nodes for edges.
+The value for the color can be any CSS color value.
+
+```
+colors := [
+    "A": "red",
+    "B": "#4040FF"
+    ("A", "B"): "#0F7"
 ]
 ```
 

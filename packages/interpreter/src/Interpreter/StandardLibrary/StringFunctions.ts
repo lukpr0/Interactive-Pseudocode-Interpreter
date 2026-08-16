@@ -39,3 +39,29 @@ export class CharFunction extends BuiltInFunction {
     }
 
 }
+
+export class SubstringFunction extends BuiltInFunction {
+
+    constructor() {
+        super(3, 'substring');
+    }
+
+    eval(args: Value[]): Value {
+        if (args[0]?.type != Type.String) {
+            throw new BuiltInTypeError([Type.String], args[0]!.type)
+        }
+        if (args[1]?.type != Type.Integer) {
+            throw new BuiltInTypeError([Type.Integer], args[1]!.type)
+        }
+        if (args[2]?.type != Type.Integer) {
+            throw new BuiltInTypeError([Type.Integer], args[2]!.type)
+        }
+        const start = Number(args[1].value);
+        const end = Number(args[2].value);
+
+        const result = args[0].value.substring(start, end);
+
+        return new PseudoString(result);
+    }
+
+}
