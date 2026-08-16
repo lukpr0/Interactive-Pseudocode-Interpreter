@@ -1,5 +1,5 @@
 import Slot from "../Slot";
-import { PseudoFloat } from "../Types";
+import { PseudoFloat, PseudoFunction } from "../Types";
 import { ArrayConstructor, ConcatFunction, DequeueFunction, JoinFunction, LengthFunction, PopFunction, PushFunction } from "./ArrayFunctions";
 import { DictConstructor, DictKeys, DictValues } from "./DictFunctions";
 import { ArcCosFunction, ArcSinFunction, ArcTanFunction, CeilFunction, CosFunction, FloorFunction, MaxFunction, MinFunction, PowFunction, SinFunction, SquarerootFunction, TanFunction } from "./MathFunctions";
@@ -36,9 +36,9 @@ export const StandardFunctions = [
     new DictConstructor(),
     new DictKeys(),
     new DictValues(),
-].map(f => { return { name: f.name, value: f }; });
+].map(f => { return { name: f.name, value: new Slot(new PseudoFunction(f)) }; });
 
 export const StandardConstants = [
     { name: 'infinity', value: new PseudoFloat(Infinity) },
     { name: 'pi', value: new PseudoFloat(Math.PI) }
-].map(f => { return { name: f.name, value: new Slot(f.value)}});
+].map(f => { return { name: f.name, value: new Slot(f.value)}}).concat(StandardFunctions);

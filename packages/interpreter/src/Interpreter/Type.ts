@@ -90,6 +90,8 @@ export function toSimpleString(value: Value, seen: Set<object> = new Set()): str
                 return `${key}: ${valueStr}`;
             }).toArray()
             .join(", ")}}`
+        case Type.Function:
+            return "function"
     }
 }
 
@@ -158,6 +160,8 @@ export function asKey(value: Value, seen: Set<object> = new Set()): string {
                     .sort(([a, ar], [b, br]) => a.localeCompare(b))
                     .map(([key, slot]) => `${key}:${asKey(slot.value, seen)}`)
             });
+        case Type.Function:
+            return "function";
     }
 }
 

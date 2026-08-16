@@ -2,12 +2,12 @@ import { Token } from "antlr4";
 import { PseudoParser } from "@interactive-pseudo/parser";
 import { type WhileTree, type StatListTree, type RepeatUntilTree, type IfTree, type ForTree, type IteratorTree, RangeTree, type KeyValueTree, type ObjectTree, type BreakTree, type ReturnTree, type ContinueTree, type AssignTree, type ProgramTree, type Visitor, type ArrayTree, type LexprTree, type SetTree, LexprPartTree, TupleTree, DictPairTree, DictTree } from "../AST/index.js";
 import type { Value } from "./Value.js";
-import type BuiltInFunction from "./StandardLibrary/BuiltInFunction.js";
+import BuiltInFunction from "./StandardLibrary/BuiltInFunction.js";
 import type PrintObserver from "./PrintObserver.js";
 
 import { BinaryOperationTree, UnaryOperationTree, FunctionCallTree, FunctionTree, ExprTree, DotAccessorTree, IndexAccessorTree } from "../AST/index.js"
-import { PseudoInteger, PseudoFloat, PseudoBoolean, PseudoArray, PseudoObject, PseudoNil, PseudoString, PseudoSet, PseudoTuple, PseudoDict } from "./Types/index.js";
-import { ArrayConstructor, DequeueFunction, LengthFunction, PopFunction, PushFunction, CeilFunction, FloorFunction, PowFunction, SquarerootFunction, PrintFunction, CharFunction, CodepointFunction, MaxFunction, MinFunction, DictConstructor, DictKeys, DictValues } from "./StandardLibrary/index.js";
+import { PseudoInteger, PseudoFloat, PseudoBoolean, PseudoArray, PseudoObject, PseudoNil, PseudoString, PseudoSet, PseudoTuple, PseudoDict, PseudoFunction } from "./Types/index.js";
+import { PrintFunction } from "./StandardLibrary/index.js";
 import { Slot, SymbolTable, Type, Range} from "./index.js"
 import { PseudoTypeError, EmptyStackError, VariableError, UnexpectedTypeError, FeatureNotImplementedError, IncompatibleTypesError, BuiltInTypeError, InternalError, LocatedInternalError, PseudoRuntimeError, UnexpectedStatementError } from "./Errors/index.js";
 import { typeToString } from "./Type.js";
@@ -21,8 +21,6 @@ import type UniformFunctionCallTree from "../AST/UniformFunctionCallTree.js";
 
 export default class InterpretingVisitor implements Visitor<Generator<void>> {
     symbolTables: SymbolTable<Slot>[];
-    functionTable: SymbolTable<FunctionTree>
-    builtInFunctions: SymbolTable<BuiltInFunction>
     stack: Value[]
 
     canReturn: boolean;
@@ -36,7 +34,6 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
 
     constructor() {
         this.symbolTables = [new SymbolTable<Slot>(StandardConstants)];
-        this.functionTable = new SymbolTable<FunctionTree>([]);
         this.stack = []
 
         this.canBreak = false;
@@ -47,7 +44,6 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
         this.returnsValue = false;
         this.breaking = false;
         this.continuing = false;
-        this.builtInFunctions = new SymbolTable(StandardFunctions);
 
     }
 
@@ -75,7 +71,8 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
         for (const tree of program.children) {
             if (tree instanceof FunctionTree) {
                 const name = tree.name.text;
-                this.functionTable.setVariable(name, tree);
+                const func = new PseudoFunction(tree);
+                this.symbolTables[0]!.setVariable(name, new Slot(func));
             }
         }
         for (const tree of program.children) {
@@ -534,14 +531,20 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
 
     *visitFunctionCall(expr: FunctionCallTree): Generator<void> {
         const name = expr.name.text;
-        const builtin = this.builtInFunctions.getVariable(name);
-        if (builtin !== undefined) {
-            yield* this.handleBuiltInFunction(builtin, expr.args, expr.location)
+        const builtin = this.symbolTables[0]?.getVariable(name)?.value;
+        if (builtin && builtin.type != Type.Function) {
+            throw new PseudoTypeError(`${name} is not a builtin-function`, expr.location)
+        }
+        if (builtin && builtin.value instanceof BuiltInFunction) {
+            yield* this.handleBuiltInFunction(builtin.value, expr.args, expr.location)
             return;
         }
-        const user = this.functionTable.getVariable(name);
-        if (user !== undefined) {
-            yield* this.handleUserFunction(user, expr.args, expr.location);
+        const user = this.symbolTables[this.symbolTables.length-1]?.getVariable(name)?.value;
+        if (!user || user.type != Type.Function) {
+            throw new PseudoTypeError(`${name} is not a user-function`, expr.location)
+        }
+        if (user.value instanceof FunctionTree) {
+            yield* this.handleUserFunction(user.value, expr.args, expr.location);
             if (!this.returnsValue) {
                 this.stack.push(new PseudoNil())
             }
@@ -985,8 +988,10 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
     }
 
     addPrintObserver(observer: PrintObserver) {
-        const print = this.builtInFunctions.getVariable('print') as PrintFunction
-        print.addObserver(observer)
+        const print = this.symbolTables[0]!.getVariable('print')!.value
+        if (print.type == Type.Function && print.value instanceof PrintFunction) {
+            print.value.addObserver(observer);
+        }
     }
 
 }
