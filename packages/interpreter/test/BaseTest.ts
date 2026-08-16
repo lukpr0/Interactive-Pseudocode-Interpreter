@@ -16,9 +16,7 @@ function makeParser(code: string): Tree {
 }
 
 function makeInterpreter(): InterpretingVisitor {
-    const symbolTable = new SymbolTable<Slot>();
-    const functionTable = new SymbolTable<FunctionTree>();
-    const interpreter = new InterpretingVisitor(symbolTable, functionTable);
+    const interpreter = new InterpretingVisitor();
     return interpreter;
 }
 

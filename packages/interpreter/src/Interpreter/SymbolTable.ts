@@ -1,16 +1,19 @@
-import { PseudoFloat } from "./Types";
 
 export default class SymbolTable<T> {
     table: Map<string, T>;
     child: SymbolTable<T> | undefined;
     unchangedDefaults: Set<string>;
-    constructor(defaults: {name: string, value: T}[]) {
+    constructor(defaults?: {name: string, value: T}[]) {
         this.table = new Map();
         this.child = undefined;
-        for (const { name, value } of defaults) {
-            this.table.set(name, value);
+        if (defaults) {
+            for (const { name, value } of defaults) {
+                this.table.set(name, value);
+            }
+            this.unchangedDefaults = new Set(defaults.map(d => d.name))
+        } else {
+            this.unchangedDefaults = new Set();
         }
-        this.unchangedDefaults = new Set(defaults.map(d => d.name))
     }
 
     public getVariable(name: string): T | undefined {
