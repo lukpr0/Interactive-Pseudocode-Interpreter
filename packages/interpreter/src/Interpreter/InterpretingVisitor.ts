@@ -17,6 +17,7 @@ import ArrayIterator from "./ArrayIterator.js";
 import SetIterator from "./SetIterator.js";
 import DictIterator from "./DictIterator.js";
 import { StandardConstants, StandardFunctions } from "./StandardLibrary/stdlib.js";
+import type UniformFunctionCallTree from "../AST/UniformFunctionCallTree.js";
 
 export default class InterpretingVisitor implements Visitor<Generator<void>> {
     symbolTables: SymbolTable<Slot>[];
@@ -697,6 +698,14 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
             object.set(key, value);
         }
         this.stack.push(object)
+    }
+
+    *visitUniformFunctionCall(expr: UniformFunctionCallTree): Generator<void> {
+        const object = expr.object;
+        const functionCall = expr.functionCall;
+        functionCall.args.unshift(object);
+        yield* functionCall.accept(this);
+        functionCall.args.shift();
     }
 
     getSymbolTable(): SymbolTable<Slot> {
