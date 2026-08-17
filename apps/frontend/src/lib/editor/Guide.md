@@ -365,6 +365,19 @@ computes the square root of x
 pow(b, e)
 ```
 computes b exponentiated with e (b<sup>e</sup>)
+
+### Trigonometrics
+
+The trigonometric functions sin, cos and tan as well as their inverse functions arcsin, arccos, arctan.
+```
+sin(x)
+cos(x)
+tan(x)
+arcsin(x)
+arccos(x)
+arctan(x)
+```
+
 ## Array
 ### Array-constructor
 ```
@@ -394,6 +407,13 @@ Removes the last element of array a and returns it.
 dequeue(a)
 ```
 Removes the first element of array a and returns it.
+
+### join
+```
+join(array, separator)
+```
+Returns a string of the arrays elements concatenated separated by the separator string.
+
 ## String
 ### codepoint
 ```
@@ -405,6 +425,19 @@ Returns the Unicode-codepoint of the first character of the given string s
 char(c)
 ```
 Returns the character encoded by a given Unicode-codepoint c
+
+### substring
+```
+substring(string, start, end)
+```
+Returns the substring of parameter string within start and end index.
+
+### split
+```
+split(string, delimiter)
+```
+Returns an array of substrings between occurences of the delimiter string.
+
 ## Dictionary
 
 ### Dict
