@@ -1,6 +1,6 @@
 import { BuiltInTypeError } from "../Errors/index.js";
 import Type from "../Type.js";
-import { PseudoInteger, PseudoString as PseudoString } from "../Types/index.js";
+import { PseudoArray, PseudoInteger, PseudoString as PseudoString } from "../Types/index.js";
 import type { Value } from "../Value.js";
 import BuiltInFunction from "./BuiltInFunction.js";
 
@@ -62,6 +62,32 @@ export class SubstringFunction extends BuiltInFunction {
         const result = args[0].value.substring(start, end);
 
         return new PseudoString(result);
+    }
+
+}
+
+export class SplitFunction extends BuiltInFunction {
+
+    constructor() {
+        super(2, 'split');
+    }
+
+    eval(args: Value[]): Value {
+        if (args[0]?.type != Type.String) {
+            throw new BuiltInTypeError([Type.String], args[0]!.type)
+        }
+        if (args[1]?.type != Type.String) {
+            throw new BuiltInTypeError([Type.String], args[1]!.type)
+        }
+        const splitBy = args[1].value;
+        const splits = args[0].value.split(splitBy);
+
+        const result =  new PseudoArray();
+        for (const split of splits) {
+            result.push(new PseudoString(split));
+        }
+
+        return result;
     }
 
 }

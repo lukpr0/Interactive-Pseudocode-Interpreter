@@ -4,7 +4,7 @@ import { ArrayConstructor, ConcatFunction, DequeueFunction, JoinFunction, Length
 import { DictConstructor, DictKeys, DictValues } from "./DictFunctions";
 import { ArcCosFunction, ArcSinFunction, ArcTanFunction, CeilFunction, CosFunction, FloorFunction, MaxFunction, MinFunction, PowFunction, SinFunction, SquarerootFunction, TanFunction } from "./MathFunctions";
 import PrintFunction from "./PrintFunction";
-import { CharFunction, CodepointFunction, SubstringFunction } from "./StringFunctions";
+import { CharFunction, CodepointFunction, SplitFunction, SubstringFunction } from "./StringFunctions";
 
 export const StandardFunctions = [
     new PrintFunction(),
@@ -32,6 +32,7 @@ export const StandardFunctions = [
     new CodepointFunction(),
     new CharFunction(),
     new SubstringFunction(),
+    new SplitFunction(),
 
     new DictConstructor(),
     new DictKeys(),
