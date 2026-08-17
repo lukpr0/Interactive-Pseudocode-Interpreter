@@ -301,6 +301,32 @@ end
 x := myFunction(1, 2) // x = nil
 ```
 
+Functions support uniform function call syntax (UFCS). This means functions can be called like methods of their first argument.
+
+```
+x.f()
+// is the same as
+f(x)
+```
+
+This feature is useful for thing like this.
+
+```
+array := []
+array.push(1)
+```
+
+Functions can be passed as arguments.
+```
+function twice(f, x)
+  return f(f(x))
+end
+
+function f(x)
+  return x*x
+end
+```
+
 Functions create their own scope for variables and can not use variables from outside.
 Functions themselves are global an can be used anywhere, even before they are defined.
 If no value is returned, a function will evaluate to nil.
