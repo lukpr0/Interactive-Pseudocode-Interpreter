@@ -531,28 +531,26 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
 
     *visitFunctionCall(expr: FunctionCallTree): Generator<void> {
         const name = expr.name.text;
-        const builtin = this.symbolTables[0]?.getVariable(name)?.value;
-        if (builtin && builtin.type != Type.Function) {
-            throw new PseudoTypeError(`${name} is not a builtin-function`, expr.location)
-        }
-        if (builtin && builtin.value instanceof BuiltInFunction) {
-            yield* this.handleBuiltInFunction(builtin.value, expr.args, expr.location)
-            return;
-        }
         const user = this.symbolTables[this.symbolTables.length-1]?.getVariable(name)?.value;
+
         if (!user || user.type != Type.Function) {
-            throw new PseudoTypeError(`${name} is not a user-function`, expr.location)
+            throw new PseudoTypeError(`${name} is not a function`, expr.location);
         }
-        if (user.value instanceof FunctionTree) {
+
+        if (user.value instanceof BuiltInFunction) {
+            yield* this.handleBuiltInFunction(user.value, expr.args, expr.location);
+            return;
+        } else if (user.value instanceof FunctionTree) {
             yield* this.handleUserFunction(user.value, expr.args, expr.location);
             if (!this.returnsValue) {
-                this.stack.push(new PseudoNil())
+                this.stack.push(new PseudoNil());
             }
             this.returning = false;
-            this.returnsValue = false
+            this.returnsValue = false;
             return;
         }
-        throw new PseudoTypeError(`${name} is not a function`, expr.location)
+
+        throw new PseudoTypeError(`${name} is not a function`, expr.location);
     }
 
     *visitArray(expr: ArrayTree): Generator<void> {
