@@ -1,10 +1,10 @@
 import Slot from "../Slot";
-import { PseudoFloat } from "../Types";
+import { PseudoFloat, PseudoFunction } from "../Types";
 import { ArrayConstructor, ConcatFunction, DequeueFunction, JoinFunction, LengthFunction, PopFunction, PushFunction } from "./ArrayFunctions";
 import { DictConstructor, DictKeys, DictValues } from "./DictFunctions";
 import { ArcCosFunction, ArcSinFunction, ArcTanFunction, CeilFunction, CosFunction, FloorFunction, MaxFunction, MinFunction, PowFunction, SinFunction, SquarerootFunction, TanFunction } from "./MathFunctions";
 import PrintFunction from "./PrintFunction";
-import { CharFunction, CodepointFunction, SubstringFunction } from "./StringFunctions";
+import { CharFunction, CodepointFunction, SplitFunction, SubstringFunction } from "./StringFunctions";
 
 export const StandardFunctions = [
     new PrintFunction(),
@@ -32,13 +32,14 @@ export const StandardFunctions = [
     new CodepointFunction(),
     new CharFunction(),
     new SubstringFunction(),
+    new SplitFunction(),
 
     new DictConstructor(),
     new DictKeys(),
     new DictValues(),
-].map(f => { return { name: f.name, value: f }; });
+].map(f => { return { name: f.name, value: new Slot(new PseudoFunction(f)) }; });
 
 export const StandardConstants = [
     { name: 'infinity', value: new PseudoFloat(Infinity) },
     { name: 'pi', value: new PseudoFloat(Math.PI) }
-].map(f => { return { name: f.name, value: new Slot(f.value)}});
+].map(f => { return { name: f.name, value: new Slot(f.value)}}).concat(StandardFunctions);
