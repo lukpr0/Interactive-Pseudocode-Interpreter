@@ -1,4 +1,4 @@
-import { AstBuilderVisitor, FunctionTree, InterpretingVisitor, Slot, SymbolTable, type Tree } from "@interactive-pseudo/interpreter";
+import { AstBuilderVisitor, FunctionTree, InterpretingVisitor, Slot, SymbolTable, Type, type Tree } from "@interactive-pseudo/interpreter";
 import { PseudoRuntimeError } from "@interactive-pseudo/interpreter";
 import { PseudoLexer, PseudoParser } from "@interactive-pseudo/parser";
 import { CharStream, CommonTokenStream } from "antlr4";
@@ -150,7 +150,9 @@ function postVariables(symbolTables: SymbolTable<Slot>[], finished: boolean) {
     let variables = symbolTables.map(symbolTable => 
         symbolTable.getNames()
             .keys()
-            .map(key => [key, symbolTable.getVariable(key)?.toString()])
+            .map(key => [key, symbolTable.getVariable(key)])
+            .filter(([_, slot]) => slot && slot instanceof Slot && slot.value.type != Type.Function)
+            .map(([key, value]) => [key, value?.toString()])
             .toArray()
         )
     self.postMessage({type: 'result', message: variables, finished: finished});
