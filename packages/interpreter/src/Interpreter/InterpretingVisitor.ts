@@ -2,12 +2,12 @@ import { Token } from "antlr4";
 import { PseudoParser } from "@interactive-pseudo/parser";
 import { type WhileTree, type StatListTree, type RepeatUntilTree, type IfTree, type ForTree, type IteratorTree, RangeTree, type KeyValueTree, type ObjectTree, type BreakTree, type ReturnTree, type ContinueTree, type AssignTree, type ProgramTree, type Visitor, type ArrayTree, type LexprTree, type SetTree, LexprPartTree, TupleTree, DictPairTree, DictTree } from "../AST/index.js";
 import type { Value } from "./Value.js";
-import type BuiltInFunction from "./BuiltInFunctions/BuiltInFunction.js";
+import BuiltInFunction from "./StandardLibrary/BuiltInFunction.js";
 import type PrintObserver from "./PrintObserver.js";
 
 import { BinaryOperationTree, UnaryOperationTree, FunctionCallTree, FunctionTree, ExprTree, DotAccessorTree, IndexAccessorTree } from "../AST/index.js"
-import { PseudoInteger, PseudoFloat, PseudoBoolean, PseudoArray, PseudoObject, PseudoNil, PseudoString, PseudoSet, PseudoTuple, PseudoDict } from "./Types/index.js";
-import { ArrayConstructor, DequeueFunction, LengthFunction, PopFunction, PushFunction, CeilFunction, FloorFunction, PowFunction, SquarerootFunction, PrintFunction, CharFunction, CodepointFunction, MaxFunction, MinFunction, DictConstructor, DictKeys, DictValues } from "./BuiltInFunctions/index.js";
+import { PseudoInteger, PseudoFloat, PseudoBoolean, PseudoArray, PseudoObject, PseudoNil, PseudoString, PseudoSet, PseudoTuple, PseudoDict, PseudoFunction } from "./Types/index.js";
+import { PrintFunction } from "./StandardLibrary/index.js";
 import { Slot, SymbolTable, Type, Range} from "./index.js"
 import { PseudoTypeError, EmptyStackError, VariableError, UnexpectedTypeError, FeatureNotImplementedError, IncompatibleTypesError, BuiltInTypeError, InternalError, LocatedInternalError, PseudoRuntimeError, UnexpectedStatementError } from "./Errors/index.js";
 import { typeToString } from "./Type.js";
@@ -16,11 +16,11 @@ import type NodeLocation from "../AST/NodeLocations.js";
 import ArrayIterator from "./ArrayIterator.js";
 import SetIterator from "./SetIterator.js";
 import DictIterator from "./DictIterator.js";
+import { StandardConstants, StandardFunctions } from "./StandardLibrary/stdlib.js";
+import type UniformFunctionCallTree from "../AST/UniformFunctionCallTree.js";
 
 export default class InterpretingVisitor implements Visitor<Generator<void>> {
     symbolTables: SymbolTable<Slot>[];
-    functionTable: SymbolTable<FunctionTree>
-    builtInFunctions: SymbolTable<BuiltInFunction>
     stack: Value[]
 
     canReturn: boolean;
@@ -32,9 +32,8 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
     breaking: boolean;
     continuing: boolean;
 
-    constructor(symbolTable: SymbolTable<Slot>, functionTable: SymbolTable<FunctionTree>) {
-        this.symbolTables = [symbolTable];
-        this.functionTable = functionTable;
+    constructor() {
+        this.symbolTables = [new SymbolTable<Slot>(StandardConstants)];
         this.stack = []
 
         this.canBreak = false;
@@ -45,29 +44,7 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
         this.returnsValue = false;
         this.breaking = false;
         this.continuing = false;
-        this.builtInFunctions = new SymbolTable();
 
-        this.builtInFunctions.setVariable('print', new PrintFunction());
-
-        this.builtInFunctions.setVariable('len', new LengthFunction());
-        this.builtInFunctions.setVariable('Array', new ArrayConstructor());
-        this.builtInFunctions.setVariable('push', new PushFunction());
-        this.builtInFunctions.setVariable('pop', new PopFunction());
-        this.builtInFunctions.setVariable('dequeue', new DequeueFunction())
-
-        this.builtInFunctions.setVariable('floor', new FloorFunction());
-        this.builtInFunctions.setVariable('ceil', new CeilFunction());
-        this.builtInFunctions.setVariable('sqrt', new SquarerootFunction());
-        this.builtInFunctions.setVariable('pow', new PowFunction());
-        this.builtInFunctions.setVariable('max', new MaxFunction());
-        this.builtInFunctions.setVariable('min', new MinFunction());
-
-        this.builtInFunctions.setVariable('codepoint', new CodepointFunction());
-        this.builtInFunctions.setVariable('char', new CharFunction());
-
-        this.builtInFunctions.setVariable('Dict', new DictConstructor());
-        this.builtInFunctions.setVariable('keys', new DictKeys());
-        this.builtInFunctions.setVariable('values', new DictValues());
     }
 
     *visitStatlist(expr: StatListTree): Generator<void> {
@@ -94,7 +71,8 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
         for (const tree of program.children) {
             if (tree instanceof FunctionTree) {
                 const name = tree.name.text;
-                this.functionTable.setVariable(name, tree);
+                const func = new PseudoFunction(tree);
+                this.symbolTables[0]!.setVariable(name, new Slot(func));
             }
         }
         for (const tree of program.children) {
@@ -376,7 +354,7 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
         this.canBreak = true;
         this.canContinue = true;
         while(true) {
-            this.symbolTables[this.symbolTables.length-1]!.addChild(new SymbolTable());
+            this.symbolTables[this.symbolTables.length-1]!.addChild(new SymbolTable([]));
             yield* expr.cond.accept(this);
             const fromStack = this.stack.pop();
             if (fromStack === undefined) {
@@ -410,7 +388,7 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
         this.canBreak = true;
         this.canContinue = true;
         while (true) {
-            this.symbolTables[this.symbolTables.length-1]!.addChild(new SymbolTable());
+            this.symbolTables[this.symbolTables.length-1]!.addChild(new SymbolTable([]));
             yield* expr.list.accept(this);
             if (this.breaking) {
                 this.breaking = false;
@@ -454,7 +432,7 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
             }
 
             if (fromStack.value) {
-                this.symbolTables[this.symbolTables.length-1]!.addChild(new SymbolTable());
+                this.symbolTables[this.symbolTables.length-1]!.addChild(new SymbolTable([]));
                 branchExecuted = true;
                 yield* list!.accept(this);
                 this.symbolTables[this.symbolTables.length-1]!.removeChild()
@@ -481,7 +459,7 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
         }
         //const variableName = expr.cond.id.text;
         while (iter.hasNext()) {
-            this.symbolTables[this.symbolTables.length-1]!.addChild(new SymbolTable());
+            this.symbolTables[this.symbolTables.length-1]!.addChild(new SymbolTable([]));
             const value = iter.next();
             const values = this.prepareAssign(value, expr.cond.id.parts.length, expr.location)
             for (let i = 0; i < values.length; i++) {
@@ -553,22 +531,26 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
 
     *visitFunctionCall(expr: FunctionCallTree): Generator<void> {
         const name = expr.name.text;
-        const builtin = this.builtInFunctions.getVariable(name);
-        if (builtin !== undefined) {
-            yield* this.handleBuiltInFunction(builtin, expr.args, expr.location)
-            return;
+        const user = this.symbolTables[this.symbolTables.length-1]?.getVariable(name)?.value;
+
+        if (!user || user.type != Type.Function) {
+            throw new PseudoTypeError(`${name} is not a function`, expr.location);
         }
-        const user = this.functionTable.getVariable(name);
-        if (user !== undefined) {
-            yield* this.handleUserFunction(user, expr.args, expr.location);
+
+        if (user.value instanceof BuiltInFunction) {
+            yield* this.handleBuiltInFunction(user.value, expr.args, expr.location);
+            return;
+        } else if (user.value instanceof FunctionTree) {
+            yield* this.handleUserFunction(user.value, expr.args, expr.location);
             if (!this.returnsValue) {
-                this.stack.push(new PseudoNil())
+                this.stack.push(new PseudoNil());
             }
             this.returning = false;
-            this.returnsValue = false
+            this.returnsValue = false;
             return;
         }
-        throw new PseudoTypeError(`${name} is not a function`, expr.location)
+
+        throw new PseudoTypeError(`${name} is not a function`, expr.location);
     }
 
     *visitArray(expr: ArrayTree): Generator<void> {
@@ -717,6 +699,18 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
             object.set(key, value);
         }
         this.stack.push(object)
+    }
+
+    *visitUniformFunctionCall(expr: UniformFunctionCallTree): Generator<void> {
+        const object = expr.object;
+        const functionCall = expr.functionCall;
+        functionCall.args.unshift(object);
+        yield* functionCall.accept(this);
+        functionCall.args.shift();
+    }
+
+    getSymbolTable(): SymbolTable<Slot> {
+        return this.symbolTables[0]!;
     }
 
     private isLazy(token: Token): boolean {
@@ -947,7 +941,7 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
         const prevReturn = this.canReturn;
         this.canReturn = true;
 
-        const funcScope = new SymbolTable<Slot>();
+        const funcScope = new SymbolTable<Slot>(StandardConstants);
         this.symbolTables.push(funcScope)
         this.setVariables(func.args, argValues)
         yield* func.stats.accept(this)
@@ -992,8 +986,10 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
     }
 
     addPrintObserver(observer: PrintObserver) {
-        const print = this.builtInFunctions.getVariable('print') as PrintFunction
-        print.addObserver(observer)
+        const print = this.symbolTables[0]!.getVariable('print')!.value
+        if (print.type == Type.Function && print.value instanceof PrintFunction) {
+            print.value.addObserver(observer);
+        }
     }
 
 }

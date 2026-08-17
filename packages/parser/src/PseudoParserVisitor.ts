@@ -31,6 +31,7 @@ import { LogicalAndContext } from "./PseudoParser.js";
 import { IntLiteralContext } from "./PseudoParser.js";
 import { DictExprContext } from "./PseudoParser.js";
 import { ParenthesesContext } from "./PseudoParser.js";
+import { UniformFunctionCallContext } from "./PseudoParser.js";
 import { IdLiteralContext } from "./PseudoParser.js";
 import { FloatLiteralContext } from "./PseudoParser.js";
 import { IndexAccessContext } from "./PseudoParser.js";
@@ -270,6 +271,13 @@ export default class PseudoParserVisitor<Result> extends ParseTreeVisitor<Result
 	 * @return the visitor result
 	 */
 	visitParentheses?: (ctx: ParenthesesContext) => Result;
+	/**
+	 * Visit a parse tree produced by the `UniformFunctionCall`
+	 * labeled alternative in `PseudoParser.expr`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitUniformFunctionCall?: (ctx: UniformFunctionCallContext) => Result;
 	/**
 	 * Visit a parse tree produced by the `IdLiteral`
 	 * labeled alternative in `PseudoParser.expr`.

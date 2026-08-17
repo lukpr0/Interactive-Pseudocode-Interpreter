@@ -35,6 +35,7 @@ expr
     | NIL                               # NilLiteral
     | IDENTIFIER                        # IdLiteral
     | funccall                          # FuncCall
+    | expr '.' funccall                 # UniformFunctionCall
     | '(' expr ')'                      # Parentheses
     | arrayexpr                         # ArrayExpr
     | setexpr                           # SetExpr

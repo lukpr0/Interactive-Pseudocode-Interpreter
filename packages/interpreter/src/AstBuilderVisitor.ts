@@ -1,5 +1,5 @@
 import type { Token } from 'antlr4';
-import { AdditiveContext, AlgorithmContext, ArrayexprContext, ArrayExprContext, AssignStatContext, AssignstatContext, BoolLiteralContext, BreakstatContext, BreakStatContext, ComparisonContext, ContinuestatContext, ContinueStatContext, DotAccessContext, DotAccessorContext, ExprContext, ExprIteratorContext, ExprStatContext, FloatLiteralContext, ForstatContext, ForStatContext, LexprContext, FunccallContext, FuncCallContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IndexAccessContext, IndexAccessorContext, InQueryContext, IntLiteralContext, IteratorContext, KeyvaluepairContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, NilLiteralContext, ObjectexprContext, ObjectExprContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RangeIteratorContext, RepeatStatContext, RepeatstatContext, ReturnStatContext, ReturnstatContext, SetDifferenceContext, SetexprContext, SetExprContext, SetIntersectContext, SetUnionContext, StatContext, StatlistContext, StringLiteralContext, UnaryMinusContext, WhileStatContext, WhilestatContext, Lexpr_partContext, TupleExprContext, TupleexprContext, DictExprContext, DictexprContext, DictpairContext } from '@interactive-pseudo/parser';
+import { AdditiveContext, AlgorithmContext, ArrayexprContext, ArrayExprContext, AssignStatContext, AssignstatContext, BoolLiteralContext, BreakstatContext, BreakStatContext, ComparisonContext, ContinuestatContext, ContinueStatContext, DotAccessContext, DotAccessorContext, ExprContext, ExprIteratorContext, ExprStatContext, FloatLiteralContext, ForstatContext, ForStatContext, LexprContext, FunccallContext, FuncCallContext, IdLiteralContext, IfheadContext, IfStatContext, IfstatContext, IndexAccessContext, IndexAccessorContext, InQueryContext, IntLiteralContext, IteratorContext, KeyvaluepairContext, LogicalAndContext, LogicalOrContext, MultiplicativeContext, NegationContext, NilLiteralContext, ObjectexprContext, ObjectExprContext, ParenthesesContext, ProgramContext, ProgramstatContext, PseudoParser, PseudoParserVisitor, RangeIteratorContext, RepeatStatContext, RepeatstatContext, ReturnStatContext, ReturnstatContext, SetDifferenceContext, SetexprContext, SetExprContext, SetIntersectContext, SetUnionContext, StatContext, StatlistContext, StringLiteralContext, UnaryMinusContext, WhileStatContext, WhilestatContext, Lexpr_partContext, TupleExprContext, TupleexprContext, DictExprContext, DictexprContext, DictpairContext, UniformFunctionCallContext } from '@interactive-pseudo/parser';
 import type Tree from './AST/Tree.js';
 import ProgramTree from './AST/ProgramTree.js';
 import AssignTree from './AST/AssignTree.js';
@@ -28,6 +28,7 @@ import LexprTree from './AST/LexprTree.js';
 import TupleTree from './AST/TupleTree.js';
 import DictPairTree from './AST/DictPairTree.js';
 import DictTree from './AST/DictTree.js';
+import UniformFunctionCallTree from './AST/UniformFunctionCallTree.js';
 
 type BinaryContext 
     = AdditiveContext 
@@ -433,6 +434,16 @@ export default class AstBuilderVisitor extends PseudoParserVisitor<Tree> {
             }
             const funccall = new FunctionCallTree(name, args, name);
             return funccall;
+        }
+
+        this.visitUniformFunctionCall = (ctx: UniformFunctionCallContext): Tree => {
+            const expr = this.visit(ctx.expr());
+            const funccall = ctx.funccall().accept(this);
+            if (!(funccall instanceof FunctionCallTree)) {
+                throw new Error("unexpected tree type");
+            }
+            const uniformFunctionCall = new UniformFunctionCallTree(expr, funccall);
+            return uniformFunctionCall;
         }
 
         this.visitArrayExpr = (ctx: ArrayExprContext): Tree => {

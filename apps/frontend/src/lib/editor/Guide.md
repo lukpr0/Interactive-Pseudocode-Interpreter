@@ -301,6 +301,32 @@ end
 x := myFunction(1, 2) // x = nil
 ```
 
+Functions support uniform function call syntax (UFCS). This means functions can be called like methods of their first argument.
+
+```
+x.f()
+// is the same as
+f(x)
+```
+
+This feature is useful for thing like this.
+
+```
+array := []
+array.push(1)
+```
+
+Functions can be passed as arguments.
+```
+function twice(f, x)
+  return f(f(x))
+end
+
+function f(x)
+  return x*x
+end
+```
+
 Functions create their own scope for variables and can not use variables from outside.
 Functions themselves are global an can be used anywhere, even before they are defined.
 If no value is returned, a function will evaluate to nil.
@@ -339,6 +365,19 @@ computes the square root of x
 pow(b, e)
 ```
 computes b exponentiated with e (b<sup>e</sup>)
+
+### Trigonometrics
+
+The trigonometric functions sin, cos and tan as well as their inverse functions arcsin, arccos, arctan.
+```
+sin(x)
+cos(x)
+tan(x)
+arcsin(x)
+arccos(x)
+arctan(x)
+```
+
 ## Array
 ### Array-constructor
 ```
@@ -368,6 +407,13 @@ Removes the last element of array a and returns it.
 dequeue(a)
 ```
 Removes the first element of array a and returns it.
+
+### join
+```
+join(array, separator)
+```
+Returns a string of the arrays elements concatenated separated by the separator string.
+
 ## String
 ### codepoint
 ```
@@ -379,6 +425,19 @@ Returns the Unicode-codepoint of the first character of the given string s
 char(c)
 ```
 Returns the character encoded by a given Unicode-codepoint c
+
+### substring
+```
+substring(string, start, end)
+```
+Returns the substring of parameter string within start and end index.
+
+### split
+```
+split(string, delimiter)
+```
+Returns an array of substrings between occurences of the delimiter string.
+
 ## Dictionary
 
 ### Dict
@@ -404,6 +463,29 @@ Creates an array with the keys from a dictionary d.
 print(x)
 ```
 Outputs the given argument x
+
+# Constants
+
+There are two constants available:
+- `pi` the mathematical constant 3.1415926535...
+- `infinity`
+
+These constants technically aren't constants, you're allowed to overwrite them.
+However, these are not global values. The root scope and every function has their own instance.
+
+```
+function indiana()
+    pi := 3.2
+    print(pi)
+end
+
+indiana()
+print(pi)
+
+// prints:
+// 3.2
+// 3.141592653589793
+```
 
 # Graphs
 Graphs can be drawn in the panel right of the code editor.
@@ -461,6 +543,18 @@ graph := [
     [0, 0, 2, 0],
     [2, 0, 0, 0],
     [0, 0, 0, 0]
+]
+```
+
+Nodes and edges can be colored. This can be done using a dictionary named `colors`.
+The keys to this dictionary are either names of nodes or tuples of names of nodes for edges.
+The value for the color can be any CSS color value.
+
+```
+colors := [
+    "A": "red",
+    "B": "#4040FF"
+    ("A", "B"): "#0F7"
 ]
 ```
 

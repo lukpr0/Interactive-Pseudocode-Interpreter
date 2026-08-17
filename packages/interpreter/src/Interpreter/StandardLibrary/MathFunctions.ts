@@ -79,7 +79,7 @@ export class MaxFunction extends BuiltInFunction {
         }
         const a = args[0]
         const b = args[1]
-        if (a.greaterEqual(b)) {
+        if (a.greaterEqual(b).value) {
             return a
         } else {
             return b
@@ -101,10 +101,94 @@ export class MinFunction extends BuiltInFunction {
         }
         const a = args[0]
         const b = args[1]
-        if (a.less(b)) {
+        if (a.less(b).value) {
             return a
         } else {
             return b
         }
+    }
+}
+
+export class SinFunction extends BuiltInFunction {
+    constructor() {
+        super(1, 'sin')
+    }
+
+    eval(args: Value[]): Value {
+        if (args[0]?.type != Type.Integer && args[0]?.type != Type.Float) {
+            throw new BuiltInTypeError([Type.Integer, Type.Float], args[0]!.type)
+        }
+        const value = Math.sin(Number(args[0].value));
+        return new PseudoFloat(value);
+    }
+}
+
+export class CosFunction extends BuiltInFunction {
+    constructor() {
+        super(1, 'cos')
+    }
+
+    eval(args: Value[]): Value {
+        if (args[0]?.type != Type.Integer && args[0]?.type != Type.Float) {
+            throw new BuiltInTypeError([Type.Integer, Type.Float], args[0]!.type)
+        }
+        const value = Math.cos(Number(args[0].value));
+        return new PseudoFloat(value);
+    }
+}
+
+export class TanFunction extends BuiltInFunction {
+    constructor() {
+        super(1, 'tan')
+    }
+
+    eval(args: Value[]): Value {
+        if (args[0]?.type != Type.Integer && args[0]?.type != Type.Float) {
+            throw new BuiltInTypeError([Type.Integer, Type.Float], args[0]!.type)
+        }
+        const value = Math.tan(Number(args[0].value));
+        return new PseudoFloat(value);
+    }
+}
+
+export class ArcSinFunction extends BuiltInFunction {
+    constructor() {
+        super(1, 'arcsin')
+    }
+
+    eval(args: Value[]): Value {
+        if (args[0]?.type != Type.Integer && args[0]?.type != Type.Float) {
+            throw new BuiltInTypeError([Type.Integer, Type.Float], args[0]!.type)
+        }
+        const value = Math.asin(Number(args[0].value));
+        return new PseudoFloat(value);
+    }
+}
+
+export class ArcCosFunction extends BuiltInFunction {
+    constructor() {
+        super(1, 'arccos')
+    }
+
+    eval(args: Value[]): Value {
+        if (args[0]?.type != Type.Integer && args[0]?.type != Type.Float) {
+            throw new BuiltInTypeError([Type.Integer, Type.Float], args[0]!.type)
+        }
+        const value = Math.acos(Number(args[0].value));
+        return new PseudoFloat(value);
+    }
+}
+
+export class ArcTanFunction extends BuiltInFunction {
+    constructor() {
+        super(1, 'arctan')
+    }
+
+    eval(args: Value[]): Value {
+        if (args[0]?.type != Type.Integer && args[0]?.type != Type.Float) {
+            throw new BuiltInTypeError([Type.Integer, Type.Float], args[0]!.type)
+        }
+        const value = Math.atan(Number(args[0].value));
+        return new PseudoFloat(value);
     }
 }
