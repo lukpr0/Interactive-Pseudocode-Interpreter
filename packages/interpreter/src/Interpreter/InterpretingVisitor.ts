@@ -529,19 +529,30 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
         yield* expr.stats.accept(this)
     }
 
-    *visitFunctionCall(expr: FunctionCallTree): Generator<void> {
-        const name = expr.name.text;
-        const user = this.symbolTables[this.symbolTables.length-1]?.getVariable(name)?.value;
-
-        if (!user || user.type != Type.Function) {
-            throw new PseudoTypeError(`${name} is not a function`, expr.location);
+    private resolveFunction(name: string, location: NodeLocation): BuiltInFunction | FunctionTree {
+        const fromRootScope = this.symbolTables[0]?.getVariable(name)?.value;
+        if (fromRootScope && fromRootScope.type == Type.Function) {
+            return fromRootScope.value;
         }
 
-        if (user.value instanceof BuiltInFunction) {
-            yield* this.handleBuiltInFunction(user.value, expr.args, expr.location);
+        const fromCurrentScope = this.symbolTables[this.symbolTables.length-1]?.getVariable(name)?.value;
+        if (fromCurrentScope && fromCurrentScope.type == Type.Function) {
+            return fromCurrentScope.value;
+        }
+        
+        throw new PseudoTypeError(`${name} is not a function`, location);
+    }
+
+    *visitFunctionCall(expr: FunctionCallTree): Generator<void> {
+        const name = expr.name.text;
+
+        const func = this.resolveFunction(name, expr.location);
+
+        if (func instanceof BuiltInFunction) {
+            yield* this.handleBuiltInFunction(func, expr.args, expr.location);
             return;
-        } else if (user.value instanceof FunctionTree) {
-            yield* this.handleUserFunction(user.value, expr.args, expr.location);
+        } else if (func instanceof FunctionTree) {
+            yield* this.handleUserFunction(func, expr.args, expr.location);
             if (!this.returnsValue) {
                 this.stack.push(new PseudoNil());
             }
@@ -549,8 +560,6 @@ export default class InterpretingVisitor implements Visitor<Generator<void>> {
             this.returnsValue = false;
             return;
         }
-
-        throw new PseudoTypeError(`${name} is not a function`, expr.location);
     }
 
     *visitArray(expr: ArrayTree): Generator<void> {
