@@ -1,0 +1,126 @@
+@top PseudoCode { program }
+
+expr { orexpr }
+orexpr { orexpr OR andexpr | andexpr }
+andexpr { andexpr AND compexpr | compexpr }
+compexpr { compexpr (LESSEQUAL | LESSTHAN | EQUALS | NOTEQUAL | GREATERTHAN | GREATEREQUAL ) addexpr | addexpr }
+addexpr { addexpr (PLUS | MINUS)  multexpr | multexpr }
+multexpr { multexpr (STAR | SLASH | DIV | MOD ) diffexpr | diffexpr }
+diffexpr { diffexpr BACKSLASH  unionexpr | unionexpr }
+unionexpr { unionexpr UNION intersectexpr | intersectexpr }
+intersectexpr { intersectexpr INTERSECT unaryexpr | unaryexpr }
+unaryexpr { MINUS unaryexpr | NOT unaryexpr | inexpr }
+inexpr { inexpr IN accessorexpr | accessorexpr }
+accessorexpr { accessorexpr LBRACK expr RBRACK | accessorexpr DOT IDENTIFIER | accessorexpr DOT funccall | compositeexpr }
+compositeexpr { arrayexpr | setexpr | objectexpr | dictexpr | tupleexpr | atomicexpr }
+funccall { IDENTIFIER LPAREN list<expr>? RPAREN }
+arrayexpr { LBRACK list<expr>? RBRACK }
+setexpr { LCURLY list<expr>? RCURLY }
+objectexpr { LCURLY list<(IDENTIFIER COLON expr)> RCURLY }
+dictexpr { LBRACK list<(expr COLON expr)> RBRACK }
+tupleexpr { LPAREN expr COMMA list<expr>? RPAREN }
+atomicexpr { LPAREN expr RPAREN | INT | FLOAT | STRING | TRUE | FALSE | NIL | IDENTIFIER | funccall }
+
+
+lexpr { list<lexpr_part> }
+lexpr_part { IDENTIFIER accessor* }
+accessor { LBRACK expr RBRACK | DOT IDENTIFIER }
+
+stat { assignstat | whilestat | repeatstat | ifstat | forstat | expr | breakstat | returnstat | continuestat }
+breakstat { BREAK }
+continuestat { CONTINUE }
+returnstat { RETURN expr? }
+assignstat { expr ASSIGN expr }
+whilestat { WHILE expr DO NEWLINE statlist END }
+repeatstat { REPEAT statlist UNTIL expr NEWLINE }
+
+ifstat { ifhead statlist (ELSE ifhead statlist)* (ELSE NEWLINE statlist)? END }
+ifhead { IF expr THEN NEWLINE }
+
+forstat { FOR iterator DO NEWLINE statlist END }
+iterator { lexpr IN range | lexpr IN expr }
+range { expr DOTDOT EQUALS? expr }
+
+algorithm { FUNCTION IDENTIFIER arglist NEWLINE statlist END }
+arglist {  LPAREN list<IDENTIFIER>? RPAREN }
+statlist { (stat? NEWLINE)* stat? }
+
+programstat { stat | algorithm }
+program { (programstat? NEWLINE)* programstat? }
+
+@tokens {
+    AND  { "and" }
+    OR  { "or" }
+    NOT  { "not" }
+    IF { "if" }
+    FOR { "for" }
+    WHILE { "while" }
+    THEN { "then" }
+    DO { "do" }
+    REPEAT { "repeat" }
+    UNTIL { "until" }
+    END { "end" }
+    IN { "in" }
+    RETURN { "return" }
+    BREAK { "break" }
+    CONTINUE { "continue" }
+    ELSE { "else" }
+    DIV { "div" }
+    MOD { "mod" }
+    FUNCTION { "function" }
+    UNION { "union" }
+    INTERSECT { "intersect" }
+    TRUE { "true" }
+    FALSE { "false" }
+    NIL { "nil" }
+    EQUALS { "=" }
+    ASSIGN { ":=" }
+    COMMA { "," }
+    SEMI { ";" }
+    LPAREN { "(" }
+    RPAREN { ")" }
+    LCURLY { "{" }
+    RCURLY { "}" }
+    LBRACK { "[" }
+    RBRACK { "]" }
+    DOTDOT { ".." }
+    DOT { "." }
+    PLUS { "+" }
+    MINUS { "-" }
+    STAR { "*" }
+    SLASH { "/" }
+    BACKSLASH { "\\" }
+    COLON { ":" }
+    LESSTHAN { "<" }
+    GREATERTHAN { ">" }
+    LESSEQUAL { "<=" }
+    GREATEREQUAL { ">=" }
+    NOTEQUAL { "!=" }
+
+    INT { @digit }
+
+    FLOAT {
+        @digit* "." @digit+ |
+        @digit+ "." @digit* 
+    }
+
+    @precedence { FLOAT, INT, DOT }
+    @precedence { TRUE, FALSE, NIL, NOT, OR, AND, WHILE, CONTINUE, FOR, IN, DO, IF, THEN, ELSE, FUNCTION, REPEAT, UNTIL, END, RETURN, BREAK, IDENTIFIER }
+    STRING { '"' char* '"' }
+    char { $[\u{20}\u{21}\u{23}-\u{5b}\u{5d}-\u{10ffff}] }
+
+    alphanumeric { @asciiLetter | @digit } 
+    IDENTIFIER { @asciiLetter alphanumeric* }
+
+    NEWLINE { "\r"? "\n" }
+
+    WHITESPACE { $[ \t\f] }
+
+}
+
+@skip { WHITESPACE }
+list<item> { item (COMMA item)* COMMA? }
+
+@external propSource jsonHighlighting from "./highlight"
+
+@detectDelim
