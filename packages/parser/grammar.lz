@@ -14,11 +14,11 @@ inexpr { inexpr IN accessorexpr | accessorexpr }
 accessorexpr { accessorexpr LBRACK expr RBRACK | accessorexpr DOT IDENTIFIER | accessorexpr DOT funccall | compositeexpr }
 compositeexpr { arrayexpr | setexpr | objectexpr | dictexpr | tupleexpr | atomicexpr }
 funccall { IDENTIFIER LPAREN list<expr>? RPAREN }
-arrayexpr { LBRACK list<expr>? RBRACK }
-setexpr { LCURLY list<expr>? RCURLY }
-objectexpr { LCURLY list<(IDENTIFIER COLON expr)> RCURLY }
-dictexpr { LBRACK list<(expr COLON expr)> RBRACK }
-tupleexpr { LPAREN expr COMMA list<expr>? RPAREN }
+arrayexpr { LBRACK multilinelist<expr> RBRACK }
+setexpr { LCURLY multilinelist<expr> RCURLY }
+objectexpr { LCURLY multilinelistoneitem<(IDENTIFIER COLON expr)> RCURLY }
+dictexpr { LBRACK multilinelistoneitem<(expr COLON expr)> RBRACK }
+tupleexpr { LPAREN expr COMMA multilinelistonecomma<expr> RPAREN }
 atomicexpr { LPAREN expr RPAREN | INT | FLOAT | STRING | TRUE | FALSE | NIL | IDENTIFIER | funccall }
 
 
@@ -76,7 +76,6 @@ program { (programstat? NEWLINE)* programstat? }
     EQUALS { "=" }
     ASSIGN { ":=" }
     COMMA { "," }
-    SEMI { ";" }
     LPAREN { "(" }
     RPAREN { ")" }
     LCURLY { "{" }
@@ -97,7 +96,7 @@ program { (programstat? NEWLINE)* programstat? }
     GREATEREQUAL { ">=" }
     NOTEQUAL { "!=" }
 
-    INT { @digit }
+    INT { @digit+ }
 
     FLOAT {
         @digit* "." @digit+ |
@@ -115,11 +114,14 @@ program { (programstat? NEWLINE)* programstat? }
     NEWLINE { "\r"? "\n" }
 
     WHITESPACE { $[ \t\f] }
-
+    COMMENT { "/*" char* "*/"}
 }
 
-@skip { WHITESPACE }
+@skip { WHITESPACE | COMMENT }
 list<item> { item (COMMA item)* COMMA? }
+multilinelist<item> { NEWLINE* (item (NEWLINE* COMMA NEWLINE* item)* COMMA? NEWLINE*)?}
+multilinelistoneitem<item> { NEWLINE* item (NEWLINE* COMMA NEWLINE* item)* COMMA? NEWLINE*}
+multilinelistonecomma<item> { (NEWLINE* item NEWLINE* COMMA )* item? NEWLINE*}
 
 @external propSource jsonHighlighting from "./highlight"
 
