@@ -1,10 +1,11 @@
 import { styleTags, tags as t } from "@lezer/highlight";
 
-export const jsonHighlighting = styleTags({
+export const pseudoHighlighting = styleTags({
   STRING: t.string,
   "FLOAT INT": t.number,
   "TRUE FALSE NIL": t.atom,
-  IDENTIFIER: t.propertyName,
+  "funccall/IDENTIFIER": t.function(t.definition(t.name)),
+  "atomicexpr/IDENTIFIER": t.definition(t.variableName),
   Null: t.null,
   "COMMA": t.separator,
   "": t.squareBracket,
@@ -23,7 +24,7 @@ const syntax_colors = syntaxHighlighting(
   HighlightStyle.define(
     [
       { tag: t.name, color: "#43002c" },
-      { tag: t.propertyName, color: "#41e44b", fontWeight: "bold" },
+      { tag: t.propertyName, color: "#41d6e4", fontWeight: "bold" },
       { tag: t.comment, color: "#437e43" },
       { tag: t.atom, color: "#a25496" },
 			{ tag: t.string, color: "#794646" },

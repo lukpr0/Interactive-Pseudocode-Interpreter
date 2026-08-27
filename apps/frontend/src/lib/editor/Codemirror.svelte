@@ -7,11 +7,14 @@
     import { basicSetup, EditorView } from "codemirror";
     import { indentWithTab } from "@codemirror/commands";
     import { vim } from "@replit/codemirror-vim";
-    import { Compartment, EditorState } from "@codemirror/state";
+    import { combineConfig, Compartment, EditorState } from "@codemirror/state";
     import { onMount } from "svelte";
     import { lintGutter, setDiagnostics } from "@codemirror/lint"
     import type ErrorInformation from "../shared/errorLocation";
     import { shared } from "$lib/shared/state.svelte";
+    import { parser } from "./pseudo";
+    import { extensions, pseudoHighlighting } from "./highlight";
+    import { LanguageSupport, LRLanguage } from "@codemirror/language";
 
     let {
         onchange = () => {},
@@ -58,6 +61,23 @@
     
     const lightTheme = EditorView.theme({
     }, {dark: false})
+
+    let parserWithMetadata = parser.configure({
+        props: [
+            pseudoHighlighting,
+        ]
+    });
+
+    const pseudoLanguage = LRLanguage.define({
+        parser: parserWithMetadata,
+        languageData: {
+            commentTokens: {line: ";"}
+        }
+    })
+
+    function pseudo() {
+        return new LanguageSupport(pseudoLanguage, [])
+    }
     
     const themeCompartment = new Compartment()
     const themePlugin = themeCompartment.of([])
@@ -71,6 +91,8 @@
             themePlugin,
             lintGutter(),
             highlightWhitespace(),
+            pseudo(),
+            ...extensions,
             EditorView.updateListener.of(v => {
                 if (v.docChanged) {
                     value = v.state.doc.toString()

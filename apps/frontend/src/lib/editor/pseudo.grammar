@@ -95,6 +95,9 @@ program { (programstat? NEWLINE)* programstat? }
     LESSEQUAL { "<=" }
     GREATEREQUAL { ">=" }
     NOTEQUAL { "!=" }
+    DOUBLESLASH { "//" }
+    SLASHSTAR { "/*" }
+    STARSLASH { "*/" }
 
     INT { @digit+ }
 
@@ -114,7 +117,9 @@ program { (programstat? NEWLINE)* programstat? }
     NEWLINE { "\r"? "\n" }
 
     WHITESPACE { $[ \t\f] }
-    COMMENT { "/*" char* "*/"}
+
+    @precedence { COMMENT, SLASH }
+    COMMENT { SLASHSTAR char* STARSLASH | DOUBLESLASH ![\r\n]*}
 }
 
 @skip { WHITESPACE | COMMENT }
@@ -123,6 +128,6 @@ multilinelist<item> { NEWLINE* (item (NEWLINE* COMMA NEWLINE* item)* COMMA? NEWL
 multilinelistoneitem<item> { NEWLINE* item (NEWLINE* COMMA NEWLINE* item)* COMMA? NEWLINE*}
 multilinelistonecomma<item> { (NEWLINE* item NEWLINE* COMMA )* item? NEWLINE*}
 
-@external propSource jsonHighlighting from "./highlight"
+@external propSource pseudoHighlighting from "./highlight"
 
 @detectDelim

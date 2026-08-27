@@ -1,11 +1,12 @@
 {
 	"name": "@interactive-pseudo/frontend",
 	"private": true,
-	"version": "2.3.1",
+	"version": "2.4.0",
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
-		"build": "vite build",
+		"build": "npm run lezer && vite build",
+		"lezer": "npx lezer-generator src/lib/editor/pseudo.grammar -o src/lib/editor/pseudo.js",
 		"check-types": "tsc --noEmit",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
@@ -19,14 +20,15 @@
 		"@codemirror/search": "^6.5.11",
 		"@codemirror/state": "^6.5.2",
 		"@codemirror/view": "^6.38.6",
+		"@interactive-pseudo/graph": "*",
 		"@interactive-pseudo/interpreter": "*",
 		"@interactive-pseudo/parser": "*",
-		"@interactive-pseudo/graph": "*",
 		"@replit/codemirror-vim": "^6.3.0",
 		"antlr4": "4.13.2",
 		"codemirror": "^6.0.2"
 	},
 	"devDependencies": {
+		"@lezer/generator": "^1.8.0",
 		"@sveltejs/adapter-auto": "^7.0.0",
 		"@sveltejs/adapter-static": "^3.0.10",
 		"@sveltejs/kit": "^2.47.1",
